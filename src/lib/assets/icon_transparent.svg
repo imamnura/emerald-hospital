@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 550" width="100%" height="100%">
+  <defs>
+    <!-- Premium Gradient Palettes -->
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a4dec6" />
+      <stop offset="100%" stop-color="#408c74" />
+    </linearGradient>
+    
+    <linearGradient id="crossGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4ebd9b" />
+      <stop offset="100%" stop-color="#195947" />
+    </linearGradient>
+    
+    <linearGradient id="swooshGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#184e40" />
+      <stop offset="100%" stop-color="#54c1a1" />
+    </linearGradient>
+
+    <linearGradient id="houseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#195544" />
+      <stop offset="100%" stop-color="#0f3329" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background Layer (Transparent/Clean) -->
+  <rect width="100%" height="100%" fill="none" />
+
+  <g transform="translate(0, -10)">
+    <!-- 1. BACK SHIELD PATH (Elegant outer outline with gradient) -->
+    <path d="M 500,75 
+             C 525,68 565,60 595,65 
+             C 605,66 610,72 610,82 
+             C 610,135 600,185 585,220 
+             C 565,260 525,285 500,295 
+             C 475,285 435,260 415,220 
+             C 400,185 390,135 390,82 
+             C 390,72 395,66 405,65 
+             C 435,60 475,68 500,75 Z" 
+          fill="none" 
+          stroke="url(#shieldGrad)" 
+          stroke-width="12" 
+          stroke-linejoin="round" 
+          stroke-linecap="round" />
+
+    <!-- 2. MEDICAL CROSS (Bold, Rounded Teal Cross) -->
+    <path d="M 440,105 
+             C 440,101 444,97 448,97 
+             H 462 
+             C 466,97 470,101 470,105 
+             V 138 
+             H 503 
+             C 507,138 511,142 511,146 
+             V 160 
+             C 511,164 507,168 503,168 
+             H 470 
+             V 201 
+             C 470,205 466,209 462,209 
+             H 448 
+             C 444,209 440,205 440,201 
+             V 168 
+             H 407 
+             C 403,168 399,164 399,160 
+             V 146 
+             C 399,142 403,138 407,138 
+             H 440 
+             Z" 
+          fill="url(#crossGrad)" />
+
+    <!-- 3. CLINIC / HOUSE (Nested beautifully on the lower right) -->
+    <!-- House Body & Roof -->
+    <path d="M 505,188 L 540,163 L 575,188 L 568,188 V 225 H 512 V 188 Z" fill="url(#houseGrad)" />
+    <!-- Mini Cross on the roof -->
+    <path d="M 538,172 H 542 V 182 H 538 Z" fill="#54c1a1" />
+    <path d="M 535,175 H 545 V 179 H 535 Z" fill="#54c1a1" />
+    <!-- Door Cutout -->
+    <path d="M 534,208 H 546 V 225 H 534 Z" fill="#ffffff" />
+
+    <!-- 4. EKG / HEARTBEAT LINE (Dynamic Pulse) -->
+    <path d="M 515,182 
+             L 535,165 
+             L 542,148 
+             L 548,185 
+             L 556,115 
+             L 564,198 
+             L 571,138 
+             L 577,155 
+             L 605,155" 
+          fill="none" 
+          stroke="url(#swooshGrad)" 
+          stroke-width="7" 
+          stroke-linecap="round" 
+          stroke-linejoin="round" />
+
+    <!-- 5. THREE-DIMENSIONAL SWOOSH (Wrapping under the shield & house) -->
+    <path d="M 365,190 
+             C 365,235 415,285 500,305 
+             C 585,285 635,235 635,190 
+             C 635,178 625,175 620,185 
+             C 610,205 570,278 500,288 
+             C 430,278 390,205 380,185 
+             C 375,175 365,178 365,190 Z" 
+          fill="url(#swooshGrad)" />
+
+    <!-- Decorative Leaf / Arch Accent at the bottom point of the shield -->
+    <path d="M 485,290 C 500,285 500,310 515,290 C 505,312 495,312 485,290 Z" fill="url(#swooshGrad)" />
+
+    <!-- 6. TYPOGRAPHY SECTION -->
+    <!-- "PURWAKARTA" - Bold, Modern, Clean Sans-serif -->
+    <text x="500" y="385" 
+          font-family="system-ui, -apple-system, 'Inter', 'Montserrat', 'Segoe UI', sans-serif" 
+          font-weight="800" 
+          font-size="54" 
+          fill="#0c3c47" 
+          text-anchor="middle" 
+          letter-spacing="5">PURWAKARTA</text>
+
+    <!-- "HEALTH" - Wide Tracked, Medium Elegant Sans-serif -->
+    <text x="500" y="440" 
+          font-family="system-ui, -apple-system, 'Inter', 'Segoe UI', sans-serif" 
+          font-weight="500" 
+          font-size="38" 
+          fill="#1c5e6e" 
+          text-anchor="middle" 
+          letter-spacing="22">HEALTH</text>
+  </g>
+</svg>

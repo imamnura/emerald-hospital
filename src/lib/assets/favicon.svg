@@ -1,126 +1,115 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 550" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- 
+    Favicon Purwakarta Health (Versi Ringkas untuk Tab Pelayar & Ikon Aplikasi)
+    Menggunakan warna kecunan (gradient) premium dan bentuk yang dioptimumkan untuk resolusi kecil.
+  -->
   <defs>
-    <!-- Premium Gradient Palettes -->
-    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <!-- Gradien Warna Premium untuk Perisai -->
+    <linearGradient id="favShieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#a4dec6" />
       <stop offset="100%" stop-color="#408c74" />
     </linearGradient>
     
-    <linearGradient id="crossGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+    <!-- Gradien Warna untuk Palang Medis -->
+    <linearGradient id="favCrossGrad" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#4ebd9b" />
       <stop offset="100%" stop-color="#195947" />
     </linearGradient>
     
-    <linearGradient id="swooshGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+    <!-- Gradien Warna untuk Garis Denyutan Jantung & Jalur Melingkar -->
+    <linearGradient id="favSwooshGrad" x1="0%" y1="100%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#184e40" />
       <stop offset="100%" stop-color="#54c1a1" />
     </linearGradient>
 
-    <linearGradient id="houseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <!-- Gradien Warna untuk Klinik/Rumah -->
+    <linearGradient id="favHouseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#195544" />
       <stop offset="100%" stop-color="#0f3329" />
     </linearGradient>
   </defs>
 
-  <!-- Background Layer (Transparent/Clean) -->
+  <!-- Latar Belakang Lut Sinar (Transparent Background) -->
   <rect width="100%" height="100%" fill="none" />
 
-  <g transform="translate(0, -10)">
-    <!-- 1. BACK SHIELD PATH (Elegant outer outline with gradient) -->
-    <path d="M 500,75 
-             C 525,68 565,60 595,65 
-             C 605,66 610,72 610,82 
-             C 610,135 600,185 585,220 
-             C 565,260 525,285 500,295 
-             C 475,285 435,260 415,220 
-             C 400,185 390,135 390,82 
-             C 390,72 395,66 405,65 
-             C 435,60 475,68 500,75 Z" 
+  <!-- Kumpulan Elemen Logo Diperbesar dan Ditengah (Centered and Scaled for 512x512 Viewport) -->
+  <g transform="translate(6, 15) scale(1.95)">
+    <!-- 1. Perisai Pelindung Luar (Outer Shield Boundary) -->
+    <path d="M 125,15 
+             C 150,8 190,0 220,5 
+             C 230,6 235,12 235,22 
+             C 235,75 225,125 210,160 
+             C 190,200 150,225 125,235 
+             C 100,225 60,200 40,160 
+             C 25,125 15,75 15,22 
+             C 15,12 20,6 30,5 
+             C 60,0 100,8 125,15 Z" 
           fill="none" 
-          stroke="url(#shieldGrad)" 
-          stroke-width="12" 
+          stroke="url(#favShieldGrad)" 
+          stroke-width="15" 
           stroke-linejoin="round" 
           stroke-linecap="round" />
 
-    <!-- 2. MEDICAL CROSS (Bold, Rounded Teal Cross) -->
-    <path d="M 440,105 
-             C 440,101 444,97 448,97 
-             H 462 
-             C 466,97 470,101 470,105 
-             V 138 
-             H 503 
-             C 507,138 511,142 511,146 
-             V 160 
-             C 511,164 507,168 503,168 
-             H 470 
-             V 201 
-             C 470,205 466,209 462,209 
-             H 448 
-             C 444,209 440,205 440,201 
-             V 168 
-             H 407 
-             C 403,168 399,164 399,160 
-             V 146 
-             C 399,142 403,138 407,138 
-             H 440 
+    <!-- 2. Palang Medis (Medical Cross) -->
+    <path d="M 65,45 
+             C 65,41 69,37 73,37 
+             H 87 
+             C 91,37 95,41 95,45 
+             V 78 
+             H 128 
+             C 132,78 136,82 136,86 
+             V 100 
+             C 136,104 132,108 128,108 
+             H 95 
+             V 141 
+             C 95,145 91,149 87,149 
+             H 73 
+             C 69,149 65,145 65,141 
+             V 108 
+             H 32 
+             C 28,108 24,104 24,100 
+             V 86 
+             C 24,82 28,78 32,78 
+             H 65 
              Z" 
-          fill="url(#crossGrad)" />
+          fill="url(#favCrossGrad)" />
 
-    <!-- 3. CLINIC / HOUSE (Nested beautifully on the lower right) -->
-    <!-- House Body & Roof -->
-    <path d="M 505,188 L 540,163 L 575,188 L 568,188 V 225 H 512 V 188 Z" fill="url(#houseGrad)" />
-    <!-- Mini Cross on the roof -->
-    <path d="M 538,172 H 542 V 182 H 538 Z" fill="#54c1a1" />
-    <path d="M 535,175 H 545 V 179 H 535 Z" fill="#54c1a1" />
-    <!-- Door Cutout -->
-    <path d="M 534,208 H 546 V 225 H 534 Z" fill="#ffffff" />
+    <!-- 3. Rumah Klinik (Clinic/House Icon) -->
+    <!-- Struktur Rumah -->
+    <path d="M 130,128 L 165,103 L 200,128 L 193,128 V 165 H 137 V 128 Z" fill="url(#favHouseGrad)" />
+    <!-- Palang Kecil di Bumbung -->
+    <path d="M 163,112 H 167 V 122 H 163 Z" fill="#54c1a1" />
+    <path d="M 160,115 H 170 V 119 H 160 Z" fill="#54c1a1" />
+    <!-- Pintu Rumah -->
+    <path d="M 159,148 H 171 V 165 H 159 Z" fill="#ffffff" />
 
-    <!-- 4. EKG / HEARTBEAT LINE (Dynamic Pulse) -->
-    <path d="M 515,182 
-             L 535,165 
-             L 542,148 
-             L 548,185 
-             L 556,115 
-             L 564,198 
-             L 571,138 
-             L 577,155 
-             L 605,155" 
+    <!-- 4. Garis Denyutan Jantung (EKG / Pulse Line) -->
+    <path d="M 140,122 
+             L 160,105 
+             L 167,88 
+             L 173,125 
+             L 181,55 
+             L 189,138 
+             L 196,78 
+             L 202,95 
+             L 230,95" 
           fill="none" 
-          stroke="url(#swooshGrad)" 
-          stroke-width="7" 
+          stroke="url(#favSwooshGrad)" 
+          stroke-width="8" 
           stroke-linecap="round" 
           stroke-linejoin="round" />
 
-    <!-- 5. THREE-DIMENSIONAL SWOOSH (Wrapping under the shield & house) -->
-    <path d="M 365,190 
-             C 365,235 415,285 500,305 
-             C 585,285 635,235 635,190 
-             C 635,178 625,175 620,185 
-             C 610,205 570,278 500,288 
-             C 430,278 390,205 380,185 
-             C 375,175 365,178 365,190 Z" 
-          fill="url(#swooshGrad)" />
+    <!-- 5. Jalur Melingkar Dinamik (Swoosh wrapping the shield) -->
+    <path d="M -10,130 
+             C -10,175 40,225 125,245 
+             C 210,225 260,175 260,130 
+             C 260,118 250,115 245,125 
+             C 235,145 195,218 125,228 
+             C 55,218 15,145 5,125 
+             C 0,115 -10,118 -10,130 Z" 
+          fill="url(#favSwooshGrad)" />
 
-    <!-- Decorative Leaf / Arch Accent at the bottom point of the shield -->
-    <path d="M 485,290 C 500,285 500,310 515,290 C 505,312 495,312 485,290 Z" fill="url(#swooshGrad)" />
-
-    <!-- 6. TYPOGRAPHY SECTION -->
-    <!-- "PURWAKARTA" - Bold, Modern, Clean Sans-serif -->
-    <text x="500" y="385" 
-          font-family="system-ui, -apple-system, 'Inter', 'Montserrat', 'Segoe UI', sans-serif" 
-          font-weight="800" 
-          font-size="54" 
-          fill="#0c3c47" 
-          text-anchor="middle" 
-          letter-spacing="5">PURWAKARTA</text>
-
-    <!-- "HEALTH" - Wide Tracked, Medium Elegant Sans-serif -->
-    <text x="500" y="440" 
-          font-family="system-ui, -apple-system, 'Inter', 'Segoe UI', sans-serif" 
-          font-weight="500" 
-          font-size="38" 
-          fill="#1c5e6e" 
-          text-anchor="middle" 
-          letter-spacing="22">HEALTH</text>
+    <!-- Hiasan Daun / Titik Bawah Perisai (Bottom Shield Accent) -->
+    <path d="M 110,230 C 125,225 125,250 140,230 C 130,252 120,252 110,230 Z" fill="url(#favSwooshGrad)" />
   </g>
 </svg>
