@@ -1,6 +1,6 @@
 # Purwakarta Health — Development Status
 
-> **Last updated:** 2026-05-18
+> **Last updated:** 2026-07-11
 > **Branch:** `master`
 > **Repo name:** `emerald-hospital` (historical; the product is branded **Purwakarta Health**)
 > **Status:** Active development. Core patient and manager flows are functional with PostgreSQL persistence. Suitable for demo and internal review; **not production-ready** yet (see [Known limitations](#9-known-limitations--tech-debt)).
@@ -31,6 +31,7 @@ Authentication is custom: opaque session cookies + Argon2 password hashing, with
 | ORM / migrations | Drizzle ORM 0.45 + drizzle-kit 0.31                                    |
 | Auth             | Custom `sessions` table, Argon2 (`@node-rs/argon2`), nanoid session IDs |
 | Google OAuth     | OAuth 2.0 auth-code flow with PKCE (no external library)              |
+| Email            | `nodemailer` over SMTP (optional; used for password-reset links)      |
 | Client state     | Zustand 5 (`useSearchStore` for search/filter/bookmark state)         |
 | Tooling          | pnpm 11, Vite 8, TypeScript 6, svelte-check                            |
 
@@ -69,7 +70,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started · ❌ blocked
 | Email + password registration       | ✅     | `/register` — Argon2 hash, auto-creates session |
 | Email + password login              | ✅     | `/login` — supports `?redirect=` query, returns the user to the original page after sign-in |
 | Google sign-in                      | ✅     | `/login/google` — OAuth 2.0 + PKCE, auto-links if email is Google-verified |
-| Forgot password                     | 🟡     | Page exists at `/login/forgot`; no email backend wired |
+| Forgot password                     | ✅     | `/login/forgot` issues a hashed, single-use, 1-hour token and emails a reset link via SMTP (`nodemailer`); falls back to logging the link when `SMTP_*` isn't configured. `/login/reset/[token]` sets the new password, invalidates the token, and signs the user out of all sessions. |
 | Home / specialty discovery          | ✅     | `(patient)/home/+page.svelte` |
 | Specialist list + detail            | ✅     | `(patient)/specialists/[slug]` |
 | Search + filters                    | ✅     | Zustand-backed filters (rating, price, availability, specialty) |
@@ -167,9 +168,11 @@ emerald-hospital/                  # Repo folder (product is "Purwakarta Health"
 │  │  │  ├─ catalog.ts             # Hospitals/specialists/schedules read queries
 │  │  │  ├─ doctors.ts             # Doctor list/detail/search-filter queries
 │  │  │  ├─ insurance.ts           # Insurance profile read/upsert
+│  │  │  ├─ mailer.ts              # SMTP sending via nodemailer; logs instead when unconfigured
 │  │  │  ├─ medical-records.ts     # Patient medical records list
 │  │  │  ├─ oauth-google.ts        # PKCE + token exchange + find-or-create user
 │  │  │  ├─ pagination.ts          # Parse page/pageSize query params
+│  │  │  ├─ password-reset.ts      # Reset token create/validate/consume + reset email
 │  │  │  ├─ payments.ts            # Cards + transactions CRUD
 │  │  │  ├─ preferences.ts         # Cookie-based notification + language prefs
 │  │  │  ├─ users.ts               # Profile update
@@ -202,7 +205,8 @@ emerald-hospital/                  # Repo folder (product is "Purwakarta Health"
 │     │  └─ +page.{server,svelte}  # Public doctor finder
 │     ├─ login/
 │     │  ├─ +page.{server,svelte}
-│     │  ├─ forgot/+page.{server,svelte}
+│     │  ├─ forgot/+page.{server,svelte}   # Request a reset link by email
+│     │  ├─ reset/[token]/+page.{server,svelte}  # Consume the link, set a new password
 │     │  └─ google/                # OAuth flow
 │     │     ├─ +server.ts          # Start: generate state+PKCE, redirect to Google
 │     │     └─ callback/+server.ts # Complete: exchange code, find/link/create user
@@ -272,6 +276,7 @@ PostgreSQL 16. Schema lives in `src/lib/server/db/schema.ts`; migrations are in 
 | --------------------- | -------------------------------------------------------- | ----------------------------------------- |
 | `users`               | Patient + manager accounts                               | `password_hash` (nullable for Google-only), `google_id` (unique), `email_verified`, `role` (enum), `blood_type`, `date_of_birth`, `gender` (enum), `address` |
 | `sessions`            | Session cookies (one row per logged-in browser)          | `id` (nanoid), `expires_at`               |
+| `password_reset_tokens` | Forgot-password links                                  | `token_hash` (sha-256, unique), `expires_at` (1h TTL), `used_at` (single-use) |
 | `hospitals`           | Partner facilities                                       | `image_url`, `contact`                    |
 | `specialists`         | Medical specialty categories                             | `slug` unique, `icon` key                 |
 | `doctors`             | Doctor profiles                                          | `consultation_fee` (numeric), `review_count`, `bio`, `is_active`, `is_online`, `rating` |
@@ -284,11 +289,12 @@ PostgreSQL 16. Schema lives in `src/lib/server/db/schema.ts`; migrations are in 
 
 ### Migrations
 
-Three migrations are checked in:
+Four migrations are checked in:
 
 1. `0000_spicy_silver_surfer.sql` — Initial baseline (users, sessions, hospitals, specialists, doctors, schedules, bookings).
 2. `0001_gorgeous_mongu.sql` — Adds payment/insurance/medical tables, extends user/doctor columns, adds booking indexes.
 3. `0002_glorious_havok.sql` — Makes `users.password_hash` nullable, adds `google_id`, `email_verified` for OAuth.
+4. `0003_old_quasimodo.sql` — Adds `password_reset_tokens` for the forgot-password flow.
 
 Apply with `pnpm db:migrate`. For greenfield local: `pnpm db:push` syncs schema directly (no migration history) — prototyping only. **Always prefer `db:generate` + `db:migrate`** so a migration file is committed.
 
@@ -316,6 +322,12 @@ The seed also fills 3 hospitals, 12 specialties, 12 doctors, 66 schedule blocks,
 | `SESSION_SECRET`        | ✅ (production) | **Currently advisory.** Sessions use opaque nanoid tokens; reserved for future cookie signing. No code reads this yet — track in roadmap before you treat it as critical. |
 | `GOOGLE_CLIENT_ID`      | optional        | Enables the "Continue with Google" button; UI degrades gracefully when missing |
 | `GOOGLE_CLIENT_SECRET`  | optional        | Paired with `GOOGLE_CLIENT_ID` |
+| `SMTP_HOST`             | optional        | Enables sending password-reset emails; without it, reset links are logged to the console instead |
+| `SMTP_PORT`             | optional        | Defaults to `587` |
+| `SMTP_SECURE`           | optional        | `true`/`false`; defaults to `false` (STARTTLS on 587) |
+| `SMTP_USER`             | optional        | SMTP auth user |
+| `SMTP_PASS`             | optional        | SMTP auth password |
+| `SMTP_FROM`             | optional        | `From:` address; falls back to `SMTP_USER` |
 | `NODE_ENV`              | implicit        | Drives cookie `secure` flag; set to `production` when deployed |
 
 ### Things to upload to your hosting provider
@@ -383,6 +395,14 @@ pnpm dev                        # http://localhost:5173
 - Google sign-in uses PKCE (RFC 7636) and a CSRF `state` cookie; both are HttpOnly, `SameSite=Lax`, scoped to `/login/google`, with a 10-minute TTL.
 - Auto-linking: if a Google user signs in with an email that already exists locally **and** Google reports `email_verified: true`, the rows are linked. If `email_verified` is false, we refuse and tell the user to link from their profile after a password login. This prevents account takeover via attacker-controlled Google accounts.
 
+### Password reset
+
+- `src/lib/server/password-reset.ts` issues a random 32-byte token, stores only its SHA-256 hash in `password_reset_tokens`, and returns the raw token to embed in the emailed link — the DB never holds a usable token, mirroring how `passwordHash` never holds a plaintext password.
+- Tokens are single-use (`used_at`) and expire after 1 hour. Requesting a new link deletes any prior outstanding token for that user first, so only the most recent link ever works.
+- `/login/forgot` always returns `{ success: true }` regardless of whether the email matched an account, to avoid leaking which emails are registered.
+- On successful reset, `deleteSessionsByUserId` (in `auth.ts`) signs the user out everywhere, the same way you'd want a compromised-password recovery to behave.
+- `src/lib/server/mailer.ts` sends via SMTP when `SMTP_HOST`/`SMTP_USER`/`SMTP_PASS` are set; otherwise it logs the email to the console so the flow stays testable without real credentials.
+
 ### Analytics & charts
 
 - All aggregation queries live in `src/lib/server/analytics.ts` and accept the same `AnalyticsFilters` (date range, hospital, specialty). The CSV export route reuses these so what you see on the dashboard is exactly what gets exported.
@@ -406,9 +426,9 @@ The patient app uses Zustand (via `useZustand.svelte.ts`) for **search filters a
 - **Static `adapter-auto`.** Pick a real adapter before deploying (`adapter-node`, `adapter-vercel`, `adapter-cloudflare`, etc.).
 - **`SESSION_SECRET` is unused.** Reserved for future cookie signing; currently a placeholder.
 - **No real i18n.** Mixed English / Indonesian strings; the language picker only flips a cookie value.
-- **Notification preferences don't drive anything.** The toggle saves a cookie but no transactional email or push system is wired.
+- **Notification preferences don't drive anything.** The toggle saves a cookie but no transactional email or push system is wired. (Password-reset is the one exception — it sends real SMTP email when `SMTP_*` is configured.)
 - **Help FAQs are placeholders.** Accordion expands into a "we're preparing this" message; populate `src/lib/data/help-support.ts` with real Q&A, or move them into a CMS / DB table.
-- **Forgot-password is a UI stub.** No email backend.
+- **Password-reset email requires SMTP credentials.** Without `SMTP_HOST`/`SMTP_USER`/`SMTP_PASS` set, `/login/forgot` still works end-to-end but the reset link is only written to the server console, not actually emailed.
 - **Adapter-auto warns on every build** ("Could not detect a supported production environment"). Harmless locally; resolves once a specific adapter is chosen.
 - **Repo folder name is `emerald-hospital`** but the product brand is now **Purwakarta Health**. Renaming the package name would touch many places (lockfile, deployment configs, CI). Defer until a real deploy is set up.
 - **Seed emails use `@emerald.com`.** Update `scripts/seed.ts` if you want the demo accounts to match the brand.
@@ -423,7 +443,7 @@ The patient app uses Zustand (via `useZustand.svelte.ts`) for **search filters a
 3. **Write a Vitest unit-test pass** for `src/lib/server/booking.ts` (race scenarios), `src/lib/server/oauth-google.ts` (URL building, state validation), and the price-range filter logic.
 4. **Add a Playwright smoke suite** that walks the demo accounts: register → book → manager-confirm → patient-cancel.
 5. **Implement real i18n** with a library (`@inlang/paraglide-sveltekit`, `svelte-i18n`, or your pick) and extract strings.
-6. **Wire notifications** — email via Resend/Postmark; push via web push or FCM.
+6. **Wire remaining notifications** — password-reset email is done (SMTP via `nodemailer`); still needed: transactional email for other events (booking confirmations, etc.) and push via web push or FCM.
 7. **Audit accessibility** (focus traps in modals, label / contrast / keyboard tab order).
 8. **Account linking UI** — let users with email/password add a Google identity from `/profile/settings`, and vice-versa.
 9. **Manager: real edit + role assignment + soft delete.**

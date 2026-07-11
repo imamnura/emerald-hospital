@@ -33,6 +33,10 @@
 			<p class="rounded-xl bg-error-container px-4 py-3 text-sm text-error">{form.error}</p>
 		{:else if data.errorMsg}
 			<p class="rounded-xl bg-error-container px-4 py-3 text-sm text-error">{data.errorMsg}</p>
+		{:else if data.resetSuccess}
+			<p class="rounded-xl bg-primary/10 px-4 py-3 text-sm font-medium text-primary">
+				Your password has been reset. Please sign in with your new password.
+			</p>
 		{/if}
 
 		<div>

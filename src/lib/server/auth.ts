@@ -31,6 +31,10 @@ export async function deleteSession(sessionId: string): Promise<void> {
 	await db.delete(sessions).where(eq(sessions.id, sessionId));
 }
 
+export async function deleteSessionsByUserId(userId: string): Promise<void> {
+	await db.delete(sessions).where(eq(sessions.userId, userId));
+}
+
 export async function validateSession(sessionId: string): Promise<User | null> {
 	const [row] = await db
 		.select({ user: users })

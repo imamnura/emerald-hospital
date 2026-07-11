@@ -51,6 +51,21 @@ export const sessions = pgTable('sessions', {
 	expiresAt: timestamp('expires_at', { withTimezone: true }).notNull()
 });
 
+export const passwordResetTokens = pgTable(
+	'password_reset_tokens',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		userId: uuid('user_id')
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		tokenHash: varchar('token_hash', { length: 64 }).notNull().unique(),
+		expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+		usedAt: timestamp('used_at', { withTimezone: true }),
+		createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
+	},
+	(t) => [index('password_reset_tokens_user_idx').on(t.userId)]
+);
+
 export const hospitals = pgTable('hospitals', {
 	id: uuid('id').primaryKey().defaultRandom(),
 	name: varchar('name', { length: 255 }).notNull(),
@@ -197,10 +212,15 @@ export const medicalRecords = pgTable(
 export const usersRelations = relations(users, ({ many, one }) => ({
 	bookings: many(bookings),
 	sessions: many(sessions),
+	passwordResetTokens: many(passwordResetTokens),
 	paymentCards: many(paymentCards),
 	paymentTransactions: many(paymentTransactions),
 	insurance: one(insuranceProfiles),
 	medicalRecords: many(medicalRecords)
+}));
+
+export const passwordResetTokensRelations = relations(passwordResetTokens, ({ one }) => ({
+	user: one(users, { fields: [passwordResetTokens.userId], references: [users.id] })
 }));
 
 export const hospitalsRelations = relations(hospitals, ({ many }) => ({
@@ -267,3 +287,4 @@ export type PaymentCard = typeof paymentCards.$inferSelect;
 export type PaymentTransaction = typeof paymentTransactions.$inferSelect;
 export type InsuranceProfile = typeof insuranceProfiles.$inferSelect;
 export type MedicalRecord = typeof medicalRecords.$inferSelect;
+export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;

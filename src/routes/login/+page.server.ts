@@ -20,6 +20,7 @@ function safeRedirect(path: string | null | undefined, role: 'manager' | 'patien
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const redirectTo = url.searchParams.get('redirect');
 	const errorMsg = url.searchParams.get('error');
+	const resetSuccess = url.searchParams.get('reset') === 'success';
 
 	if (locals.user) {
 		throw redirect(303, safeRedirect(redirectTo, locals.user.role));
@@ -28,6 +29,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	return {
 		redirectTo,
 		errorMsg,
+		resetSuccess,
 		googleEnabled: isGoogleConfigured()
 	};
 };
