@@ -1,5 +1,5 @@
 import type { PageServerLoad } from './$types';
-import { listSpecialists } from '$lib/server/catalog';
+import { listSpecialists } from '#lib/server/catalog.ts';
 
 const DISPLAY_ORDER = [
 	'cardiology',

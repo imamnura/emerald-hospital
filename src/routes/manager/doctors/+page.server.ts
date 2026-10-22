@@ -1,9 +1,13 @@
 import { fail } from '@sveltejs/kit';
 import { and, asc, count, eq, ilike, or, type SQL } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import { db } from '$lib/server/db';
-import { doctors, hospitals, specialists } from '$lib/server/db/schema';
-import { parsePagination } from '$lib/server/pagination';
+import { db } from '#lib/server/db/index.ts';
+import { doctors, hospitals, specialists } from '#lib/server/db/schema.ts';
+import { parsePagination } from '#lib/server/pagination.ts';
+import { denyUnlessManager } from '#lib/server/guards.ts';
+import { isForeignKeyViolation, isUuid } from '#lib/server/db-errors.ts';
+
+const REF_ERROR = 'Selected hospital or specialty no longer exists.' as const;
 
 function parseDoctorForm(fd: FormData) {
 	const name = String(fd.get('name') ?? '').trim();
@@ -14,6 +18,9 @@ function parseDoctorForm(fd: FormData) {
 	const ratingNum = Number(ratingRaw);
 	if (!name || !hospitalId || !specialistId) {
 		return { error: 'Name, hospital, and specialty are required.' as const };
+	}
+	if (!isUuid(hospitalId) || !isUuid(specialistId)) {
+		return { error: REF_ERROR };
 	}
 	if (!Number.isFinite(ratingNum) || ratingNum < 0 || ratingNum > 5) {
 		return { error: 'Rating must be between 0 and 5.' as const };
@@ -103,29 +110,54 @@ export const load: PageServerLoad = async ({ url }) => {
 };
 
 export const actions: Actions = {
-	create: async ({ request }) => {
+	create: async ({ request, locals }) => {
+		const denied = denyUnlessManager(locals);
+		if (denied) return denied;
 		const fd = await request.formData();
 		const parsed = parseDoctorForm(fd);
 		if ('error' in parsed) return fail(400, { error: parsed.error });
-		await db.insert(doctors).values(parsed);
+		try {
+			await db.insert(doctors).values(parsed);
+		} catch (e) {
+			if (isForeignKeyViolation(e)) return fail(400, { error: REF_ERROR });
+			throw e;
+		}
 		return { success: true, message: 'Doctor created.' };
 	},
 
-	update: async ({ request }) => {
+	update: async ({ request, locals }) => {
+		const denied = denyUnlessManager(locals);
+		if (denied) return denied;
 		const fd = await request.formData();
 		const id = String(fd.get('id') ?? '');
 		if (!id) return fail(400, { error: 'Missing doctor ID.' });
+		if (!isUuid(id)) return fail(404, { error: 'Doctor not found.' });
 		const parsed = parseDoctorForm(fd);
 		if ('error' in parsed) return fail(400, { error: parsed.error });
-		const result = await db.update(doctors).set(parsed).where(eq(doctors.id, id)).returning();
+		let result;
+		try {
+			result = await db.update(doctors).set(parsed).where(eq(doctors.id, id)).returning();
+		} catch (e) {
+			if (isForeignKeyViolation(e)) return fail(400, { error: REF_ERROR });
+			throw e;
+		}
 		if (result.length === 0) return fail(404, { error: 'Doctor not found.' });
 		return { success: true, message: 'Doctor updated.' };
 	},
 
-	delete: async ({ request }) => {
+	delete: async ({ request, locals }) => {
+		const denied = denyUnlessManager(locals);
+		if (denied) return denied;
 		const id = String((await request.formData()).get('id') ?? '');
 		if (!id) return fail(400, { error: 'Missing doctor ID.' });
-		const result = await db.delete(doctors).where(eq(doctors.id, id)).returning();
+		if (!isUuid(id)) return fail(404, { error: 'Doctor not found.' });
+		let result;
+		try {
+			result = await db.delete(doctors).where(eq(doctors.id, id)).returning();
+		} catch (e) {
+			if (isForeignKeyViolation(e)) return fail(409, { error: 'Doctor has bookings and cannot be deleted. Mark them inactive instead.' });
+			throw e;
+		}
 		if (result.length === 0) return fail(404, { error: 'Doctor not found.' });
 		return { success: true, message: 'Doctor deleted.' };
 	}

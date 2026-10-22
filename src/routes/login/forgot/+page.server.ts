@@ -1,9 +1,9 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import { db } from '$lib/server/db';
-import { users } from '$lib/server/db/schema';
-import { createPasswordResetToken, sendPasswordResetEmail } from '$lib/server/password-reset';
+import { db } from '#lib/server/db/index.ts';
+import { users } from '#lib/server/db/schema.ts';
+import { createPasswordResetToken, sendPasswordResetEmail } from '#lib/server/password-reset.ts';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (locals.user) throw redirect(303, '/home');

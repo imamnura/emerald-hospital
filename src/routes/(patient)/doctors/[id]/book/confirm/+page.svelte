@@ -8,8 +8,8 @@
 		MapPin,
 		Stethoscope
 	} from '@lucide/svelte';
-	import { formatAppointmentDateLong } from '$lib/utils/booking-ui';
-	import MotionReveal from '$lib/components/motion/MotionReveal.svelte';
+	import { formatAppointmentDateLong } from '#lib/utils/booking-ui.ts';
+	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 
 	let { data, form } = $props();
 

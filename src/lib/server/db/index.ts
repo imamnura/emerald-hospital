@@ -1,9 +1,9 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { env } from '$env/dynamic/private';
+import * as env from '$app/env/private';
 import * as schema from './schema';
 
-const connectionString = env.DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/emerald_hospital';
+const connectionString = env.DATABASE_URL;
 
 const client = postgres(connectionString, { prepare: false });
 

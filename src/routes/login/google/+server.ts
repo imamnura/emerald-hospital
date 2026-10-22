@@ -7,7 +7,7 @@ import {
 	generateState,
 	getConfig,
 	oauthCookieOptions
-} from '$lib/server/oauth-google';
+} from '#lib/server/oauth-google.ts';
 
 function safeRedirectTarget(value: string | null | undefined): string | null {
 	if (!value) return null;
@@ -41,5 +41,5 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 		codeChallenge: challenge
 	});
 
-	throw redirect(303, authUrl);
+	throw redirect(303, authUrl, { external: true });
 };

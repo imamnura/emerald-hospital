@@ -1,10 +1,10 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import { createSession, hashPassword, sessionCookieOptions } from '$lib/server/auth';
-import { db } from '$lib/server/db';
-import { users } from '$lib/server/db/schema';
-import { isConfigured as isGoogleConfigured } from '$lib/server/oauth-google';
+import { createSession, hashPassword, sessionCookieOptions } from '#lib/server/auth.ts';
+import { db } from '#lib/server/db/index.ts';
+import { users } from '#lib/server/db/schema.ts';
+import { isConfigured as isGoogleConfigured } from '#lib/server/oauth-google.ts';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (locals.user) throw redirect(303, '/home');

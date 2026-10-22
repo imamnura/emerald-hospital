@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { fade, scale } from 'svelte/transition';
 	import { AlertTriangle } from '@lucide/svelte';
-	import { formatCancelModalDate } from '$lib/utils/appointments';
+	import { formatCancelModalDate } from '#lib/utils/appointments.ts';
 
 	interface Props {
 		open: boolean;

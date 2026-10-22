@@ -1,5 +1,6 @@
 import { and, eq } from 'drizzle-orm';
 import { db } from './db';
+import { isUuid } from './db-errors';
 import { doctors, hospitals, specialists } from './db/schema';
 
 export type DoctorListItem = {
@@ -58,6 +59,7 @@ export async function listActiveDoctorsBySpecialistId(specialistId: string): Pro
 }
 
 export async function getDoctorDetail(id: string) {
+	if (!isUuid(id)) return null;
 	const [row] = await db
 		.select({
 			id: doctors.id,

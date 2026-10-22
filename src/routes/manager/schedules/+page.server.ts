@@ -1,18 +1,25 @@
 import { fail } from '@sveltejs/kit';
 import { and, asc, count, eq, ilike, type SQL } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import { db } from '$lib/server/db';
-import { doctorSchedules, doctors } from '$lib/server/db/schema';
-import { parsePagination } from '$lib/server/pagination';
+import { db } from '#lib/server/db/index.ts';
+import { doctorSchedules, doctors } from '#lib/server/db/schema.ts';
+import { parsePagination } from '#lib/server/pagination.ts';
+import { denyUnlessManager } from '#lib/server/guards.ts';
+import { isForeignKeyViolation, isUuid } from '#lib/server/db-errors.ts';
+
+const REF_ERROR = 'Selected doctor no longer exists.' as const;
 
 function parseScheduleForm(fd: FormData) {
 	const doctorId = String(fd.get('doctorId') ?? '');
-	const dayOfWeek = Number(fd.get('dayOfWeek'));
+	const dayRaw = String(fd.get('dayOfWeek') ?? '').trim();
+	// Number('') is 0 (Sunday), so an empty value must be rejected explicitly.
+	const dayOfWeek = dayRaw === '' ? NaN : Number(dayRaw);
 	const startTime = String(fd.get('startTime') ?? '').slice(0, 5);
 	const endTime = String(fd.get('endTime') ?? '').slice(0, 5);
 	const maxQuota = Number(fd.get('maxQuota') ?? 5);
 
 	if (!doctorId) return { error: 'Doctor is required.' as const };
+	if (!isUuid(doctorId)) return { error: REF_ERROR };
 	if (!Number.isInteger(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) {
 		return { error: 'Day of week must be 0–6.' as const };
 	}
@@ -80,36 +87,60 @@ export const load: PageServerLoad = async ({ url }) => {
 };
 
 export const actions: Actions = {
-	create: async ({ request }) => {
+	create: async ({ request, locals }) => {
+		const denied = denyUnlessManager(locals);
+		if (denied) return denied;
 		const fd = await request.formData();
 		const parsed = parseScheduleForm(fd);
 		if ('error' in parsed) return fail(400, { error: parsed.error });
-		await db.insert(doctorSchedules).values(parsed);
+		try {
+			await db.insert(doctorSchedules).values(parsed);
+		} catch (e) {
+			if (isForeignKeyViolation(e)) return fail(400, { error: REF_ERROR });
+			throw e;
+		}
 		return { success: true, message: 'Schedule created.' };
 	},
 
-	update: async ({ request }) => {
+	update: async ({ request, locals }) => {
+		const denied = denyUnlessManager(locals);
+		if (denied) return denied;
 		const fd = await request.formData();
 		const id = String(fd.get('id') ?? '');
 		if (!id) return fail(400, { error: 'Missing schedule ID.' });
+		if (!isUuid(id)) return fail(404, { error: 'Schedule not found.' });
 		const parsed = parseScheduleForm(fd);
 		if ('error' in parsed) return fail(400, { error: parsed.error });
-		const result = await db
-			.update(doctorSchedules)
-			.set(parsed)
-			.where(eq(doctorSchedules.id, id))
-			.returning();
+		let result;
+		try {
+			result = await db
+				.update(doctorSchedules)
+				.set(parsed)
+				.where(eq(doctorSchedules.id, id))
+				.returning();
+		} catch (e) {
+			if (isForeignKeyViolation(e)) return fail(400, { error: REF_ERROR });
+			throw e;
+		}
 		if (result.length === 0) return fail(404, { error: 'Schedule not found.' });
 		return { success: true, message: 'Schedule updated.' };
 	},
 
-	delete: async ({ request }) => {
+	delete: async ({ request, locals }) => {
+		const denied = denyUnlessManager(locals);
+		if (denied) return denied;
 		const id = String((await request.formData()).get('id') ?? '');
 		if (!id) return fail(400, { error: 'Missing schedule ID.' });
-		const result = await db
-			.delete(doctorSchedules)
-			.where(eq(doctorSchedules.id, id))
-			.returning();
+		if (!isUuid(id)) return fail(404, { error: 'Schedule not found.' });
+		let result;
+		try {
+			result = await db.delete(doctorSchedules).where(eq(doctorSchedules.id, id)).returning();
+		} catch (e) {
+			if (isForeignKeyViolation(e)) {
+				return fail(409, { error: 'Schedule has bookings and cannot be deleted.' });
+			}
+			throw e;
+		}
 		if (result.length === 0) return fail(404, { error: 'Schedule not found.' });
 		return { success: true, message: 'Schedule deleted.' };
 	}

@@ -9,10 +9,10 @@
 		Search,
 		Star
 	} from '@lucide/svelte';
-	import { LANDING_BRAND, LANDING_HERO, LANDING_HOSPITALS } from '$lib/data/landing';
-	import { doctorRoleLabel } from '$lib/utils/specialist';
-	import MotionReveal from '$lib/components/motion/MotionReveal.svelte';
-	import SpecialtyAutocomplete from '$lib/components/SpecialtyAutocomplete.svelte';
+	import { LANDING_BRAND, LANDING_HERO, LANDING_HOSPITALS } from '#lib/data/landing.ts';
+	import { doctorRoleLabel } from '#lib/utils/specialist.ts';
+	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
+	import SpecialtyAutocomplete from '#lib/components/SpecialtyAutocomplete.svelte';
 
 	let { data } = $props();
 
@@ -37,7 +37,7 @@
 		if (specialty.trim()) params.set('q', specialty.trim());
 		if (hospital && hospital !== 'all') params.set('hospital', hospital);
 		const qs = params.toString();
-		goto(qs ? `/find-doctor?${qs}` : '/find-doctor', { keepFocus: true });
+		goto(qs ? `/find-doctor?${qs}` : '/find-doctor', { reset: false });
 	}
 </script>
 

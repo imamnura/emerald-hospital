@@ -1,12 +1,12 @@
 <script lang="ts">
-	import SearchPageHeader from '$lib/components/SearchPageHeader.svelte';
-	import SpecialistDoctorCard from '$lib/components/SpecialistDoctorCard.svelte';
+	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
+	import SpecialistDoctorCard from '#lib/components/SpecialistDoctorCard.svelte';
 	import {
 		doctorRoleLabel,
 		specialistAvailabilityLabel,
 		specialistPluralTitle
-	} from '$lib/utils/specialist';
-	import MotionReveal from '$lib/components/motion/MotionReveal.svelte';
+	} from '#lib/utils/specialist.ts';
+	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 
 	let { data } = $props();
 

@@ -5,6 +5,7 @@
  */
 import { asc, eq } from 'drizzle-orm';
 import { db } from './db';
+import { isUuid } from './db-errors';
 import { doctorSchedules, hospitals, specialists } from './db/schema';
 
 export async function listHospitals() {
@@ -25,6 +26,7 @@ export async function getSpecialistBySlug(slug: string) {
 }
 
 export async function listSchedulesForDoctor(doctorId: string) {
+	if (!isUuid(doctorId)) return [];
 	return db
 		.select()
 		.from(doctorSchedules)

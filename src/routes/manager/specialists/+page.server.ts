@@ -1,9 +1,11 @@
 import { fail } from '@sveltejs/kit';
 import { and, asc, count, eq, ilike, ne, or, type SQL } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import { db } from '$lib/server/db';
-import { specialists } from '$lib/server/db/schema';
-import { parsePagination } from '$lib/server/pagination';
+import { db } from '#lib/server/db/index.ts';
+import { specialists } from '#lib/server/db/schema.ts';
+import { parsePagination } from '#lib/server/pagination.ts';
+import { denyUnlessManager } from '#lib/server/guards.ts';
+import { isForeignKeyViolation, isUuid } from '#lib/server/db-errors.ts';
 
 function slugify(value: string): string {
 	return value
@@ -72,7 +74,9 @@ async function slugTaken(slug: string, excludeId?: string): Promise<boolean> {
 }
 
 export const actions: Actions = {
-	create: async ({ request }) => {
+	create: async ({ request, locals }) => {
+		const denied = denyUnlessManager(locals);
+		if (denied) return denied;
 		const fd = await request.formData();
 		const parsed = parseSpecialistForm(fd);
 		if ('error' in parsed) return fail(400, { error: parsed.error });
@@ -81,10 +85,13 @@ export const actions: Actions = {
 		return { success: true, message: 'Specialty created.' };
 	},
 
-	update: async ({ request }) => {
+	update: async ({ request, locals }) => {
+		const denied = denyUnlessManager(locals);
+		if (denied) return denied;
 		const fd = await request.formData();
 		const id = String(fd.get('id') ?? '');
 		if (!id) return fail(400, { error: 'Missing specialty ID.' });
+		if (!isUuid(id)) return fail(404, { error: 'Specialty not found.' });
 		const parsed = parseSpecialistForm(fd);
 		if ('error' in parsed) return fail(400, { error: parsed.error });
 		if (await slugTaken(parsed.slug, id))
@@ -98,10 +105,19 @@ export const actions: Actions = {
 		return { success: true, message: 'Specialty updated.' };
 	},
 
-	delete: async ({ request }) => {
+	delete: async ({ request, locals }) => {
+		const denied = denyUnlessManager(locals);
+		if (denied) return denied;
 		const id = String((await request.formData()).get('id') ?? '');
 		if (!id) return fail(400, { error: 'Missing specialty ID.' });
-		const result = await db.delete(specialists).where(eq(specialists.id, id)).returning();
+		if (!isUuid(id)) return fail(404, { error: 'Specialty not found.' });
+		let result;
+		try {
+			result = await db.delete(specialists).where(eq(specialists.id, id)).returning();
+		} catch (e) {
+			if (isForeignKeyViolation(e)) return fail(409, { error: 'Specialty still has doctors. Remove or reassign them first.' });
+			throw e;
+		}
 		if (result.length === 0) return fail(404, { error: 'Specialty not found.' });
 		return { success: true, message: 'Specialty deleted.' };
 	}

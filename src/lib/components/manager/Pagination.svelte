@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { ChevronLeft, ChevronRight } from '@lucide/svelte';
-	import { cn } from '$lib/utils';
+	import { cn } from '#lib/utils.ts';
 
 	interface Props {
 		page: number;
@@ -17,7 +17,7 @@
 	const endIdx = $derived(Math.min(total, current * pageSize));
 
 	function hrefForPage(n: number): string {
-		const params = new URLSearchParams(page.url.searchParams);
+		const params = new URLSearchParams(page.url.searchParams.toString());
 		if (n <= 1) params.delete('page');
 		else params.set('page', String(n));
 		const qs = params.toString();

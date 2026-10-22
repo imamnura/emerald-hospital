@@ -8,7 +8,7 @@ Two surfaces share a single Postgres database:
 - **Patient app** (`/home`, `/appointments`, `/profile`, …) — browse → search → book → manage appointments.
 - **Manager console** (`/manager`) — catalog CRUD + analytics dashboard with charts, filters, and CSV export.
 
-Built with **SvelteKit 2**, **Svelte 5 (runes)**, **Tailwind CSS 4**, **PostgreSQL + Drizzle ORM**, and **Argon2 + Google OAuth** for authentication.
+Built with **SvelteKit 3**, **Svelte 5 (runes)**, **Tailwind CSS 4**, **PostgreSQL + Drizzle ORM**, and **Argon2 + Google OAuth** for authentication.
 
 > Looking for full status, architecture, or onboarding info? See [`docs/DEVELOPMENT_STATUS.md`](docs/DEVELOPMENT_STATUS.md).
 
@@ -47,13 +47,13 @@ Built with **SvelteKit 2**, **Svelte 5 (runes)**, **Tailwind CSS 4**, **PostgreS
 
 | Layer    | Choice                                                          |
 | -------- | --------------------------------------------------------------- |
-| Framework | SvelteKit 2 + Svelte 5 (runes mode)                            |
+| Framework | SvelteKit 3 + Svelte 5 (runes mode)                            |
 | Styling  | Tailwind CSS 4 with `@theme` design tokens                      |
 | Icons    | `@lucide/svelte`                                                |
 | Database | PostgreSQL 16 + Drizzle ORM 0.45                                |
 | Auth     | Sessions + Argon2 (`@node-rs/argon2`) + Google OAuth (custom PKCE flow) |
 | State    | Zustand 5 (client-only, scoped to search filters and bookmarks) |
-| Runtime  | Node 20+, pnpm 11                                               |
+| Runtime  | Node 22.17+, pnpm 11                                            |
 
 Security note: transitive vulnerabilities in `esbuild` (via drizzle-kit) and `cookie` (via @sveltejs/kit) are patched through `pnpm-workspace.yaml` `overrides:`. `pnpm audit` reports **no known vulnerabilities**.
 
@@ -63,7 +63,7 @@ Security note: transitive vulnerabilities in `esbuild` (via drizzle-kit) and `co
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 22.17+ (required by SvelteKit 3)
 - pnpm 11
 - Docker (for the local PostgreSQL container)
 
@@ -176,7 +176,7 @@ Brand: **Purwakarta Health**. Logo at `src/lib/assets/icon_purwakarta_health.png
 
 ## Deployment
 
-The repo ships with `@sveltejs/adapter-auto`, which works on Vercel, Netlify, and Cloudflare Pages without changes. For Node / self-hosted, swap to `@sveltejs/adapter-node` in `svelte.config.js`. Then set the production env vars (`DATABASE_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`) and add the OAuth redirect URI for the production domain in Google Cloud Console.
+The repo ships with `@sveltejs/adapter-auto`, which works on Vercel, Netlify, and Cloudflare Pages without changes. For Node / self-hosted, swap to `@sveltejs/adapter-node` in `vite.config.ts` (the `adapter` option of the `sveltekit()` plugin). Then set the production env vars (`DATABASE_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`) and add the OAuth redirect URI for the production domain in Google Cloud Console.
 
 Before the first deploy:
 
@@ -192,6 +192,8 @@ Before the first deploy:
 - Always run `pnpm build` before pushing.
 - Run `pnpm audit` periodically — should be **0 vulnerabilities**. Transitive CVEs are patched in `pnpm-workspace.yaml`.
 - Server-only code goes under `src/lib/server/*`; SvelteKit enforces that this code can't be bundled into client output.
+- Import from `src/lib` with `#lib/...` (subpath imports, see `imports` in `package.json`) and always include the file extension, e.g. `#lib/server/db/index.ts`, `#lib/components/Header.svelte`.
+- New environment variables must be declared in `src/env.ts` and read from `$app/env/private` (or `$app/env/public`).
 - Route loaders own data fetching; components consume props.
 - Form mutations use SvelteKit form actions, not fetch + JSON, unless we genuinely need a JSON endpoint (e.g., CSV export at `/manager/export.csv`, autocomplete at `/api/specialists`).
 

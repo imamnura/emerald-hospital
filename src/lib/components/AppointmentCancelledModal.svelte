@@ -1,7 +1,7 @@
 ﻿<script lang="ts">
 	import { fade, scale } from 'svelte/transition';
 	import { Check, X } from '@lucide/svelte';
-	import { formatCancelModalDate } from '$lib/utils/appointments';
+	import { formatCancelModalDate } from '#lib/utils/appointments.ts';
 
 	interface Props {
 		open: boolean;

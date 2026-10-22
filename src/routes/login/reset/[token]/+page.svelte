@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { fly } from 'svelte/transition';
 	import { ArrowLeft, Lock } from '@lucide/svelte';
-	import AuthForgotIcon from '$lib/components/auth/AuthForgotIcon.svelte';
+	import AuthForgotIcon from '#lib/components/auth/AuthForgotIcon.svelte';
 
 	let { data, form } = $props();
 

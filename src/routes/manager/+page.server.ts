@@ -9,8 +9,8 @@ import {
 	statusBreakdown,
 	topDoctors,
 	totals
-} from '$lib/server/analytics';
-import { listHospitals, listSpecialists } from '$lib/server/catalog';
+} from '#lib/server/analytics.ts';
+import { listHospitals, listSpecialists } from '#lib/server/catalog.ts';
 
 export const load: PageServerLoad = async ({ url }) => {
 	const filters = parseFilters(url.searchParams);

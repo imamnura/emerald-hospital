@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import { eq } from 'drizzle-orm';
-import { env } from '$env/dynamic/private';
+import * as env from '$app/env/private';
 import { db } from './db';
 import { users, type User } from './db/schema';
 

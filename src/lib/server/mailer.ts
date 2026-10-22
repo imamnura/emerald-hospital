@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { env } from '$env/dynamic/private';
+import * as env from '$app/env/private';
 
 export type MailConfig = {
 	host: string;
@@ -18,8 +18,8 @@ export function getConfig(): MailConfig | null {
 
 	return {
 		host,
-		port: Number(env.SMTP_PORT ?? 587),
-		secure: env.SMTP_SECURE === 'true',
+		port: env.SMTP_PORT,
+		secure: env.SMTP_SECURE,
 		user,
 		pass,
 		from: env.SMTP_FROM || user

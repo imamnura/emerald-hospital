@@ -9,11 +9,11 @@
 		SquarePlus,
 		Sparkles
 	} from '@lucide/svelte';
-	import CoveragePeriodCard from '$lib/components/insurance/CoveragePeriodCard.svelte';
-	import CostDetailCard from '$lib/components/insurance/CostDetailCard.svelte';
-	import InsuranceCoverageCard from '$lib/components/insurance/InsuranceCoverageCard.svelte';
-	import MotionReveal from '$lib/components/motion/MotionReveal.svelte';
-	import SearchPageHeader from '$lib/components/SearchPageHeader.svelte';
+	import CoveragePeriodCard from '#lib/components/insurance/CoveragePeriodCard.svelte';
+	import CostDetailCard from '#lib/components/insurance/CostDetailCard.svelte';
+	import InsuranceCoverageCard from '#lib/components/insurance/InsuranceCoverageCard.svelte';
+	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
+	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
 
 	let { data, form } = $props();
 

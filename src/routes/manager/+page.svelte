@@ -12,10 +12,10 @@
 		TrendingDown,
 		TrendingUp
 	} from '@lucide/svelte';
-	import AreaChart from '$lib/components/charts/AreaChart.svelte';
-	import BarChart from '$lib/components/charts/BarChart.svelte';
-	import DonutChart from '$lib/components/charts/DonutChart.svelte';
-	import { cn } from '$lib/utils';
+	import AreaChart from '#lib/components/charts/AreaChart.svelte';
+	import BarChart from '#lib/components/charts/BarChart.svelte';
+	import DonutChart from '#lib/components/charts/DonutChart.svelte';
+	import { cn } from '#lib/utils.ts';
 
 	let { data } = $props();
 
@@ -76,7 +76,7 @@
 	}
 
 	const exportHref = $derived.by(() => {
-		const params = new URLSearchParams(page.url.searchParams);
+		const params = new URLSearchParams(page.url.searchParams.toString());
 		return `/manager/export.csv?${params.toString()}`;
 	});
 

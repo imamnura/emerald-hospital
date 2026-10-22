@@ -1,13 +1,13 @@
 ﻿<script lang="ts">
 	import { goto } from '$app/navigation';
-	import FilterOptionsModal from '$lib/components/FilterOptionsModal.svelte';
-	import SearchBar from '$lib/components/SearchBar.svelte';
-	import SearchPageHeader from '$lib/components/SearchPageHeader.svelte';
-	import SearchResultCard from '$lib/components/SearchResultCard.svelte';
-	import { filterAndSortDoctors, useSearchStore } from '$lib/stores/search';
-	import { useZustand } from '$lib/stores/useZustand.svelte';
+	import FilterOptionsModal from '#lib/components/FilterOptionsModal.svelte';
+	import SearchBar from '#lib/components/SearchBar.svelte';
+	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
+	import SearchResultCard from '#lib/components/SearchResultCard.svelte';
+	import { filterAndSortDoctors, useSearchStore } from '#lib/stores/search.ts';
+	import { useZustand } from '#lib/stores/useZustand.svelte.ts';
 	import { SlidersHorizontal } from '@lucide/svelte';
-	import MotionReveal from '$lib/components/motion/MotionReveal.svelte';
+	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 
 	let { data } = $props();
 
@@ -38,7 +38,7 @@
 		if (localQuery.trim()) params.set('q', localQuery.trim());
 		if (!stripFilter && data.openFilter) params.set('filter', 'open');
 		const qs = params.toString();
-		goto(qs ? `/search?${qs}` : '/search', { replaceState: true, keepFocus: true });
+		goto(qs ? `/search?${qs}` : '/search', { replace: true, reset: false });
 	}
 
 	function onQueryInput() {

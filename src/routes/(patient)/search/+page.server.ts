@@ -1,6 +1,6 @@
 import type { PageServerLoad } from './$types';
-import { listSpecialists } from '$lib/server/catalog';
-import { filterDoctorsByQuery, listActiveDoctors } from '$lib/server/doctors';
+import { listSpecialists } from '#lib/server/catalog.ts';
+import { filterDoctorsByQuery, listActiveDoctors } from '#lib/server/doctors.ts';
 
 export const load: PageServerLoad = async ({ url }) => {
 	const q = url.searchParams.get('q')?.trim() ?? '';

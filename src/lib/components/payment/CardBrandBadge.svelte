@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { CardBrand } from '$lib/utils/payments';
+	import type { CardBrand } from '#lib/utils/payments.ts';
 
 	interface Props {
 		brand: CardBrand;

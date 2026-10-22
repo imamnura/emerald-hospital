@@ -1,6 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { getInsuranceForUser, upsertInsurance } from '$lib/server/insurance';
+import { getInsuranceForUser, upsertInsurance } from '#lib/server/insurance.ts';
 
 function isoDate(value: FormDataEntryValue | null): string | null {
 	const s = String(value ?? '').trim();

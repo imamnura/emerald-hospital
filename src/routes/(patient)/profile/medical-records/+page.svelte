@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
-	import Header from '$lib/components/Header.svelte';
-	import MedicalRecordCard from '$lib/components/medical-records/MedicalRecordCard.svelte';
-	import MotionReveal from '$lib/components/motion/MotionReveal.svelte';
-	import SearchBar from '$lib/components/SearchBar.svelte';
+	import Header from '#lib/components/Header.svelte';
+	import MedicalRecordCard from '#lib/components/medical-records/MedicalRecordCard.svelte';
+	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
+	import SearchBar from '#lib/components/SearchBar.svelte';
 	import {
 		filterMedicalRecords,
 		groupRecordsByMonth
-	} from '$lib/utils/medical-records';
+	} from '#lib/utils/medical-records.ts';
 
 	let { data } = $props();
 

@@ -13,7 +13,7 @@
 		ClipboardList,
 		X
 	} from '@lucide/svelte';
-	import { cn } from '$lib/utils';
+	import { cn } from '#lib/utils.ts';
 
 	let { children, data } = $props();
 

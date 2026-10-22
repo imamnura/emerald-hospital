@@ -1,7 +1,7 @@
 <script lang="ts">
-	import SearchPageHeader from '$lib/components/SearchPageHeader.svelte';
-	import SpecialistGridCard from '$lib/components/SpecialistGridCard.svelte';
-	import MotionReveal from '$lib/components/motion/MotionReveal.svelte';
+	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
+	import SpecialistGridCard from '#lib/components/SpecialistGridCard.svelte';
+	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 
 	let { data } = $props();
 </script>

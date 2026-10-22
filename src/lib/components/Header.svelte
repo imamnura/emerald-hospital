@@ -1,6 +1,6 @@
 ﻿<script lang="ts">
 	import { Bell, Search, User } from '@lucide/svelte';
-	import brandIcon from '$lib/assets/icon_purwakarta_health.png';
+	import brandIcon from '#lib/assets/icon_purwakarta_health.png';
 
 	interface Props {
 		userName?: string;

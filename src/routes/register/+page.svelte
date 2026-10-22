@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { fly } from 'svelte/transition';
 	import { Eye, EyeOff, Lock, Mail, User } from '@lucide/svelte';
-	import AuthRegisterLogo from '$lib/components/auth/AuthRegisterLogo.svelte';
+	import AuthRegisterLogo from '#lib/components/auth/AuthRegisterLogo.svelte';
 
 	let { data, form } = $props();
 

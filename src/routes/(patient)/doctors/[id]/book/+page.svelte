@@ -8,9 +8,9 @@
 		MoreVertical,
 		Star
 	} from '@lucide/svelte';
-	import { groupSlotsByPeriod } from '$lib/utils/booking-ui';
-	import { cn } from '$lib/utils';
-	import MotionReveal from '$lib/components/motion/MotionReveal.svelte';
+	import { groupSlotsByPeriod } from '#lib/utils/booking-ui.ts';
+	import { cn } from '#lib/utils.ts';
+	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 
 	let { data } = $props();
 
@@ -31,7 +31,7 @@
 		selectedDate = date;
 		selectedTime = '';
 		selectedScheduleId = '';
-		goto(`/doctors/${data.doctor.id}/book?date=${date}`, { replaceState: true, noScroll: true });
+		goto(`/doctors/${data.doctor.id}/book?date=${date}`, { replace: true, reset: false });
 	}
 
 	function selectSlot(slot: (typeof data.slots)[0]) {

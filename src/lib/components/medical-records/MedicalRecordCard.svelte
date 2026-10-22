@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Bone, Download, FileText, FlaskConical } from '@lucide/svelte';
-	import type { MedicalRecordView } from '$lib/utils/medical-records';
+	import type { MedicalRecordView } from '#lib/utils/medical-records.ts';
 
 	interface Props {
 		record: MedicalRecordView;

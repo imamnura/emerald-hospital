@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { fly } from 'svelte/transition';
-	import AuthLogo from '$lib/components/auth/AuthLogo.svelte';
+	import AuthLogo from '#lib/components/auth/AuthLogo.svelte';
 
 	let { data, form } = $props();
 

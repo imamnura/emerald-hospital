@@ -12,9 +12,9 @@
 		Save,
 		User
 	} from '@lucide/svelte';
-	import FormIconField from '$lib/components/forms/FormIconField.svelte';
-	import MotionReveal from '$lib/components/motion/MotionReveal.svelte';
-	import SearchPageHeader from '$lib/components/SearchPageHeader.svelte';
+	import FormIconField from '#lib/components/forms/FormIconField.svelte';
+	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
+	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
 
 	let { data, form } = $props();
 

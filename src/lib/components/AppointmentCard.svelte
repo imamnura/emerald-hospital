@@ -4,9 +4,9 @@
 		appointmentStatusLabel,
 		appointmentStatusStyles,
 		formatAppointmentListDate
-	} from '$lib/utils/appointments';
-	import { doctorRoleLabel } from '$lib/utils/specialist';
-	import { cn } from '$lib/utils';
+	} from '#lib/utils/appointments.ts';
+	import { doctorRoleLabel } from '#lib/utils/specialist.ts';
+	import { cn } from '#lib/utils.ts';
 
 	interface Props {
 		onCancel?: () => void;

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { resolveSpecialistIcon } from '$lib/specialist-icons';
+	import { resolveSpecialistIcon } from '#lib/specialist-icons.ts';
 
 	interface Props {
 		name: string;

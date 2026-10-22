@@ -5,7 +5,7 @@
 		formatTxDate,
 		txPaymentLabel,
 		type TransactionView
-	} from '$lib/utils/payments';
+	} from '#lib/utils/payments.ts';
 
 	interface Props {
 		transaction: TransactionView;

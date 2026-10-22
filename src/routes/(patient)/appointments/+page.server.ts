@@ -4,7 +4,7 @@ import {
 	cancelBookingForUser,
 	getAppointmentForUser,
 	listAppointmentsForUser
-} from '$lib/server/booking';
+} from '#lib/server/booking.ts';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	if (!locals.user) throw redirect(303, '/login?redirect=/appointments');

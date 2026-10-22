@@ -1,8 +1,8 @@
 import { json } from '@sveltejs/kit';
 import { asc, ilike } from 'drizzle-orm';
 import type { RequestHandler } from './$types';
-import { db } from '$lib/server/db';
-import { specialists } from '$lib/server/db/schema';
+import { db } from '#lib/server/db/index.ts';
+import { specialists } from '#lib/server/db/schema.ts';
 
 export const GET: RequestHandler = async ({ url }) => {
 	const q = url.searchParams.get('q')?.trim() ?? '';

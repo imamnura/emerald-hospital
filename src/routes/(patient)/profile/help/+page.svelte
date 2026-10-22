@@ -9,17 +9,17 @@
 		MessageCircleQuestion,
 		Phone
 	} from '@lucide/svelte';
-	import HelpContactCard from '$lib/components/HelpContactCard.svelte';
-	import MotionReveal from '$lib/components/motion/MotionReveal.svelte';
-	import SearchBar from '$lib/components/SearchBar.svelte';
-	import SearchPageHeader from '$lib/components/SearchPageHeader.svelte';
+	import HelpContactCard from '#lib/components/HelpContactCard.svelte';
+	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
+	import SearchBar from '#lib/components/SearchBar.svelte';
+	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
 	import {
 		APP_VERSION,
 		contactOptions,
 		popularFaqs,
 		SUPPORT_EMAIL,
 		SUPPORT_PHONE
-	} from '$lib/data/help-support';
+	} from '#lib/data/help-support.ts';
 
 	let searchQuery = $state('');
 	let notice = $state<string | null>(null);

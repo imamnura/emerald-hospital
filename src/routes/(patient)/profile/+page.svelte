@@ -10,9 +10,9 @@
 		Shield,
 		User
 	} from '@lucide/svelte';
-	import Header from '$lib/components/Header.svelte';
-	import ProfileMenuItem from '$lib/components/ProfileMenuItem.svelte';
-	import MotionReveal from '$lib/components/motion/MotionReveal.svelte';
+	import Header from '#lib/components/Header.svelte';
+	import ProfileMenuItem from '#lib/components/ProfileMenuItem.svelte';
+	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 
 	let { data } = $props();
 

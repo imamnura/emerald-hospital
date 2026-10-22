@@ -1,6 +1,6 @@
 import type { PageServerLoad } from './$types';
-import { filterDoctorsByQuery, listActiveDoctors } from '$lib/server/doctors';
-import { listHospitals } from '$lib/server/catalog';
+import { filterDoctorsByQuery, listActiveDoctors } from '#lib/server/doctors.ts';
+import { listHospitals } from '#lib/server/catalog.ts';
 
 export const load: PageServerLoad = async ({ url, parent }) => {
 	const { user } = await parent();

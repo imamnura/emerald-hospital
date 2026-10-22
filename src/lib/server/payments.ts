@@ -1,5 +1,6 @@
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { db } from './db';
+import { isUuid } from './db-errors';
 import { paymentCards, paymentTransactions } from './db/schema';
 
 export type CardBrand = 'visa' | 'mastercard';
@@ -78,19 +79,26 @@ export async function addCardForUser(
 }
 
 export async function setDefaultCard(userId: string, cardId: string): Promise<void> {
+	if (!isUuid(cardId)) return;
 	await db.transaction(async (tx) => {
+		// Check ownership first so an unknown or foreign card id can't clear the current default.
+		const [card] = await tx
+			.select({ id: paymentCards.id })
+			.from(paymentCards)
+			.where(and(eq(paymentCards.id, cardId), eq(paymentCards.userId, userId)))
+			.limit(1);
+		if (!card) return;
+
 		await tx
 			.update(paymentCards)
 			.set({ isDefault: false })
 			.where(eq(paymentCards.userId, userId));
-		await tx
-			.update(paymentCards)
-			.set({ isDefault: true })
-			.where(and(eq(paymentCards.id, cardId), eq(paymentCards.userId, userId)));
+		await tx.update(paymentCards).set({ isDefault: true }).where(eq(paymentCards.id, card.id));
 	});
 }
 
 export async function deleteCard(userId: string, cardId: string): Promise<void> {
+	if (!isUuid(cardId)) return;
 	await db.transaction(async (tx) => {
 		const [card] = await tx
 			.select({ id: paymentCards.id, isDefault: paymentCards.isDefault })

@@ -1,12 +1,13 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import { and, eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import { db } from '$lib/server/db';
-import { doctorSchedules } from '$lib/server/db/schema';
-import { createBookingAtomic, getDayOfWeek, getSlotAvailability } from '$lib/server/booking';
-import { getDoctorDetail } from '$lib/server/doctors';
-import { formatTime12h } from '$lib/utils/booking-ui';
-import { doctorRoleLabel } from '$lib/utils/specialist';
+import { db } from '#lib/server/db/index.ts';
+import { doctorSchedules } from '#lib/server/db/schema.ts';
+import { createBookingAtomic, getDayOfWeek, getSlotAvailability } from '#lib/server/booking.ts';
+import { isUuid } from '#lib/server/db-errors.ts';
+import { getDoctorDetail } from '#lib/server/doctors.ts';
+import { formatTime12h } from '#lib/utils/booking-ui.ts';
+import { doctorRoleLabel } from '#lib/utils/specialist.ts';
 
 export const load: PageServerLoad = async ({ params, url, parent }) => {
 	const { user } = await parent();
@@ -15,7 +16,7 @@ export const load: PageServerLoad = async ({ params, url, parent }) => {
 	const appointmentTime = url.searchParams.get('time') ?? '';
 	const scheduleId = url.searchParams.get('scheduleId') ?? '';
 
-	if (!appointmentDate || !appointmentTime || !scheduleId) {
+	if (!appointmentDate || !appointmentTime || !isUuid(scheduleId)) {
 		throw redirect(303, `/doctors/${params.id}/book?date=${appointmentDate}`);
 	}
 

@@ -1,6 +1,6 @@
 ﻿<script lang="ts">
 	import { Shield } from '@lucide/svelte';
-	import type { InsuranceProfileView } from '$lib/utils/insurance';
+	import type { InsuranceProfileView } from '#lib/utils/insurance.ts';
 
 	interface Props {
 		insurance: InsuranceProfileView;

@@ -5,7 +5,7 @@ import {
 	readPreferences,
 	writePreference,
 	type AppLanguage
-} from '$lib/server/preferences';
+} from '#lib/server/preferences.ts';
 
 const LANGUAGES: AppLanguage[] = ['en', 'id'];
 

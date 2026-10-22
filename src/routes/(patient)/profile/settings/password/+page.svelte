@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import MotionReveal from '$lib/components/motion/MotionReveal.svelte';
-	import SearchPageHeader from '$lib/components/SearchPageHeader.svelte';
+	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
+	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
 
-	let { form } = $props();
+	let { data, form } = $props();
 </script>
 
-<SearchPageHeader title="Change Password" backHref="/profile/settings" showProfile={false} />
+<SearchPageHeader title={data.hasPassword ? 'Change Password' : 'Set Password'} backHref="/profile/settings" showProfile={false} />
 
 <div class="-mt-1 mb-4 border-b border-outline-variant/30" aria-hidden="true"></div>
 
@@ -21,6 +21,11 @@
 			</p>
 		{/if}
 
+		{#if !data.hasPassword}
+			<p class="rounded-xl bg-surface-container px-4 py-3 text-sm text-on-surface-variant">
+				You signed up with Google. Set a password to also sign in with your email.
+			</p>
+		{:else}
 		<div>
 			<label for="current" class="mb-1.5 block text-sm font-semibold">Current Password</label>
 			<input
@@ -32,6 +37,7 @@
 				class="w-full rounded-xl border border-outline-variant/60 bg-surface-container-lowest px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
 			/>
 		</div>
+		{/if}
 
 		<div>
 			<label for="new" class="mb-1.5 block text-sm font-semibold">New Password</label>
@@ -63,7 +69,7 @@
 			type="submit"
 			class="w-full rounded-xl bg-primary py-3.5 text-sm font-semibold text-on-primary active:scale-[0.98]"
 		>
-			Update Password
+			{data.hasPassword ? 'Update Password' : 'Set Password'}
 		</button>
 	</form>
 </MotionReveal>

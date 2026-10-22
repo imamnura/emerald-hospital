@@ -1,15 +1,15 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { listSchedulesForDoctor } from '$lib/server/catalog';
-import { getDoctorDetail } from '$lib/server/doctors';
-import { getAllSlotsForDoctorDate } from '$lib/server/booking';
+import { listSchedulesForDoctor } from '#lib/server/catalog.ts';
+import { getDoctorDetail } from '#lib/server/doctors.ts';
+import { getAllSlotsForDoctorDate } from '#lib/server/booking.ts';
 import {
 	formatTime12h,
 	generateCalendarDays,
 	pickDefaultDate,
 	type TimeSlotUi
-} from '$lib/utils/booking-ui';
-import { doctorRoleLabel } from '$lib/utils/specialist';
+} from '#lib/utils/booking-ui.ts';
+import { doctorRoleLabel } from '#lib/utils/specialist.ts';
 
 export const load: PageServerLoad = async ({ params, url, parent }) => {
 	const { user } = await parent();

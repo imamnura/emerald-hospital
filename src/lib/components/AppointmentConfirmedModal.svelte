@@ -1,7 +1,7 @@
 ﻿<script lang="ts">
 	import { fade, fly } from 'svelte/transition';
 	import { Calendar, Check, Clock } from '@lucide/svelte';
-	import { formatAppointmentDateShort, formatTime12h } from '$lib/utils/booking-ui';
+	import { formatAppointmentDateShort, formatTime12h } from '#lib/utils/booking-ui.ts';
 
 	interface Props {
 		open: boolean;

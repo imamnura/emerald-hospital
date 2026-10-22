@@ -6,9 +6,9 @@
 		useSearchStore,
 		type Availability,
 		type SortBy
-	} from '$lib/stores/search';
-	import { useZustand } from '$lib/stores/useZustand.svelte';
-	import { cn } from '$lib/utils';
+	} from '#lib/stores/search.ts';
+	import { useZustand } from '#lib/stores/useZustand.svelte.ts';
+	import { cn } from '#lib/utils.ts';
 
 	interface Specialist {
 		name: string;

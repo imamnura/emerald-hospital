@@ -1,5 +1,6 @@
 import { and, count, desc, eq, ne, sql } from 'drizzle-orm';
 import { db } from './db';
+import { isUuid } from './db-errors';
 import { bookings, doctorSchedules, doctors, hospitals, specialists } from './db/schema';
 
 export function parseTime(time: string): number {
@@ -72,6 +73,7 @@ export async function getSlotAvailability(
 	scheduleId: string,
 	appointmentDate: string
 ): Promise<Map<string, number>> {
+	if (!isUuid(scheduleId)) return new Map();
 	const [schedule] = await db
 		.select()
 		.from(doctorSchedules)
@@ -129,6 +131,9 @@ export async function createBookingAtomic(input: {
 	appointmentDate: string;
 	appointmentTime: string;
 }): Promise<CreateBookingResult> {
+	if (!isUuid(input.scheduleId) || !isUuid(input.doctorId)) {
+		return { ok: false, error: 'invalid_schedule' };
+	}
 	return db.transaction(async (tx) => {
 		const lockedSchedule = await tx.execute(sql`
 			select id, doctor_id, day_of_week, max_quota
@@ -219,6 +224,7 @@ export async function getAppointmentForUser(
 	userId: string,
 	bookingId: string
 ): Promise<AppointmentRow | null> {
+	if (!isUuid(bookingId)) return null;
 	const [row] = await db
 		.select(appointmentSelect)
 		.from(bookings)
@@ -238,6 +244,7 @@ export async function cancelBookingForUser(
 	userId: string,
 	bookingId: string
 ): Promise<CancelResult> {
+	if (!isUuid(bookingId)) return { ok: false, error: 'not_found' };
 	const [row] = await db
 		.select({ id: bookings.id, status: bookings.status })
 		.from(bookings)

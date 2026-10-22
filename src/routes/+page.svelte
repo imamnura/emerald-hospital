@@ -8,7 +8,7 @@
 		LANDING_POPULAR_DOCTORS,
 		LANDING_TESTIMONIALS,
 		LANDING_TRUST_BADGES
-	} from '$lib/data/landing';
+	} from '#lib/data/landing.ts';
 	import {
 		ArrowRight,
 		Building2,
@@ -24,7 +24,7 @@
 		ShieldCheck,
 		Star
 	} from '@lucide/svelte';
-	import SpecialtyAutocomplete from '$lib/components/SpecialtyAutocomplete.svelte';
+	import SpecialtyAutocomplete from '#lib/components/SpecialtyAutocomplete.svelte';
 
 	let specialty = $state('');
 	let hospital = $state(LANDING_HOSPITALS[0].value);

@@ -1,7 +1,7 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { getSpecialistBySlug } from '$lib/server/catalog';
-import { listActiveDoctorsBySpecialistId } from '$lib/server/doctors';
+import { getSpecialistBySlug } from '#lib/server/catalog.ts';
+import { listActiveDoctorsBySpecialistId } from '#lib/server/doctors.ts';
 
 export const load: PageServerLoad = async ({ params, parent }) => {
 	const { user } = await parent();

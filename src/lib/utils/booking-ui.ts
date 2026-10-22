@@ -44,6 +44,14 @@ export function formatAppointmentDateLong(dateStr: string): string {
 	});
 }
 
+/** YYYY-MM-DD in the local timezone. `toISOString()` is UTC and shifts the day east of UTC (e.g. WIB). */
+export function toLocalDateString(d: Date): string {
+	const y = d.getFullYear();
+	const m = String(d.getMonth() + 1).padStart(2, '0');
+	const day = String(d.getDate()).padStart(2, '0');
+	return `${y}-${m}-${day}`;
+}
+
 export function generateCalendarDays(availableDayNumbers: number[], count = 14): CalendarDay[] {
 	const days: CalendarDay[] = [];
 	const today = new Date();
@@ -52,7 +60,7 @@ export function generateCalendarDays(availableDayNumbers: number[], count = 14):
 	for (let i = 0; i < count; i++) {
 		const d = new Date(today);
 		d.setDate(today.getDate() + i);
-		const dateStr = d.toISOString().slice(0, 10);
+		const dateStr = toLocalDateString(d);
 		const dayOfWeek = d.getDay();
 
 		days.push({

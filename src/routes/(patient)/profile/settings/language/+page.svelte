@@ -1,10 +1,10 @@
 ﻿<script lang="ts">
 	import { enhance } from '$app/forms';
 	import { Check } from '@lucide/svelte';
-	import MotionReveal from '$lib/components/motion/MotionReveal.svelte';
-	import SearchPageHeader from '$lib/components/SearchPageHeader.svelte';
-	import SettingsCard from '$lib/components/settings/SettingsCard.svelte';
-	import { cn } from '$lib/utils';
+	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
+	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
+	import SettingsCard from '#lib/components/settings/SettingsCard.svelte';
+	import { cn } from '#lib/utils.ts';
 
 	let { data } = $props();
 </script>

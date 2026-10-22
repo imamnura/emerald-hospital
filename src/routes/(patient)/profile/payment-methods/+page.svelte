@@ -1,12 +1,13 @@
 ﻿<script lang="ts">
 	import { enhance } from '$app/forms';
+	import { tick } from 'svelte';
 	import { fly } from 'svelte/transition';
 	import { Plus } from '@lucide/svelte';
-	import MotionReveal from '$lib/components/motion/MotionReveal.svelte';
-	import SavedPaymentCard from '$lib/components/payment/SavedPaymentCard.svelte';
-	import PaymentTransactionRow from '$lib/components/payment/PaymentTransactionRow.svelte';
-	import SearchPageHeader from '$lib/components/SearchPageHeader.svelte';
-	import SettingsSection from '$lib/components/settings/SettingsSection.svelte';
+	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
+	import SavedPaymentCard from '#lib/components/payment/SavedPaymentCard.svelte';
+	import PaymentTransactionRow from '#lib/components/payment/PaymentTransactionRow.svelte';
+	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
+	import SettingsSection from '#lib/components/settings/SettingsSection.svelte';
 
 	let { data, form } = $props();
 
@@ -15,13 +16,16 @@
 	let deleteFormEl: HTMLFormElement;
 	let pendingCardId = $state('');
 
-	function submitSetDefault(cardId: string) {
+	async function submitSetDefault(cardId: string) {
 		pendingCardId = cardId;
+		// Let bind:value write the id into the hidden input before submitting.
+		await tick();
 		setDefaultFormEl.requestSubmit();
 	}
 
-	function submitDelete(cardId: string) {
+	async function submitDelete(cardId: string) {
 		pendingCardId = cardId;
+		await tick();
 		deleteFormEl.requestSubmit();
 	}
 </script>

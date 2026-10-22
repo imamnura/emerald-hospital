@@ -1,9 +1,11 @@
 import { fail } from '@sveltejs/kit';
 import { and, count, desc, eq, ilike, or, type SQL } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import { db } from '$lib/server/db';
-import { bookings, doctors, hospitals, specialists, users } from '$lib/server/db/schema';
-import { parsePagination } from '$lib/server/pagination';
+import { db } from '#lib/server/db/index.ts';
+import { bookings, doctors, hospitals, specialists, users } from '#lib/server/db/schema.ts';
+import { parsePagination } from '#lib/server/pagination.ts';
+import { denyUnlessManager } from '#lib/server/guards.ts';
+import { isUuid } from '#lib/server/db-errors.ts';
 
 const VALID_STATUSES = ['pending', 'confirmed', 'cancelled', 'completed'] as const;
 type BookingStatus = (typeof VALID_STATUSES)[number];
@@ -116,11 +118,14 @@ export const load: PageServerLoad = async ({ url }) => {
 };
 
 export const actions: Actions = {
-	updateStatus: async ({ request }) => {
+	updateStatus: async ({ request, locals }) => {
+		const denied = denyUnlessManager(locals);
+		if (denied) return denied;
 		const fd = await request.formData();
 		const id = String(fd.get('id') ?? '');
 		const status = String(fd.get('status') ?? '');
 		if (!id) return fail(400, { error: 'Missing booking ID.' });
+		if (!isUuid(id)) return fail(404, { error: 'Booking not found.' });
 		if (!isStatus(status)) return fail(400, { error: 'Invalid status.' });
 		const result = await db
 			.update(bookings)

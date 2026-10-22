@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { listMedicalRecordsForUser } from '$lib/server/medical-records';
+import { listMedicalRecordsForUser } from '#lib/server/medical-records.ts';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) throw redirect(303, '/login?redirect=/profile/medical-records');

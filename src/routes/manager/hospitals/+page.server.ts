@@ -1,9 +1,11 @@
 import { fail } from '@sveltejs/kit';
 import { and, asc, count, eq, ilike, or, type SQL } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import { db } from '$lib/server/db';
-import { hospitals } from '$lib/server/db/schema';
-import { parsePagination } from '$lib/server/pagination';
+import { db } from '#lib/server/db/index.ts';
+import { hospitals } from '#lib/server/db/schema.ts';
+import { parsePagination } from '#lib/server/pagination.ts';
+import { denyUnlessManager } from '#lib/server/guards.ts';
+import { isForeignKeyViolation, isUuid } from '#lib/server/db-errors.ts';
 
 function parseHospitalForm(fd: FormData) {
 	const name = String(fd.get('name') ?? '').trim();
@@ -51,7 +53,9 @@ export const load: PageServerLoad = async ({ url }) => {
 };
 
 export const actions: Actions = {
-	create: async ({ request }) => {
+	create: async ({ request, locals }) => {
+		const denied = denyUnlessManager(locals);
+		if (denied) return denied;
 		const fd = await request.formData();
 		const parsed = parseHospitalForm(fd);
 		if ('error' in parsed) return fail(400, { error: parsed.error });
@@ -60,10 +64,13 @@ export const actions: Actions = {
 		return { success: true, message: 'Hospital created.' };
 	},
 
-	update: async ({ request }) => {
+	update: async ({ request, locals }) => {
+		const denied = denyUnlessManager(locals);
+		if (denied) return denied;
 		const fd = await request.formData();
 		const id = String(fd.get('id') ?? '');
 		if (!id) return fail(400, { error: 'Missing hospital ID.' });
+		if (!isUuid(id)) return fail(404, { error: 'Hospital not found.' });
 
 		const parsed = parseHospitalForm(fd);
 		if ('error' in parsed) return fail(400, { error: parsed.error });
@@ -73,10 +80,19 @@ export const actions: Actions = {
 		return { success: true, message: 'Hospital updated.' };
 	},
 
-	delete: async ({ request }) => {
+	delete: async ({ request, locals }) => {
+		const denied = denyUnlessManager(locals);
+		if (denied) return denied;
 		const id = String((await request.formData()).get('id') ?? '');
 		if (!id) return fail(400, { error: 'Missing hospital ID.' });
-		const result = await db.delete(hospitals).where(eq(hospitals.id, id)).returning();
+		if (!isUuid(id)) return fail(404, { error: 'Hospital not found.' });
+		let result;
+		try {
+			result = await db.delete(hospitals).where(eq(hospitals.id, id)).returning();
+		} catch (e) {
+			if (isForeignKeyViolation(e)) return fail(409, { error: 'Hospital still has doctors. Remove or reassign them first.' });
+			throw e;
+		}
 		if (result.length === 0) return fail(404, { error: 'Hospital not found.' });
 		return { success: true, message: 'Hospital deleted.' };
 	}

@@ -1,4 +1,4 @@
-import { formatTime12h } from './booking-ui';
+import { formatTime12h, toLocalDateString } from './booking-ui';
 
 export type AppointmentTab = 'upcoming' | 'past';
 
@@ -25,7 +25,7 @@ export function isUpcomingAppointment(
 	status: string,
 	today = new Date()
 ): boolean {
-	const todayStr = today.toISOString().slice(0, 10);
+	const todayStr = toLocalDateString(today);
 	if (status === 'cancelled' || status === 'completed') return false;
 	return appointmentDate >= todayStr;
 }

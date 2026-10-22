@@ -1,15 +1,16 @@
 import { redirect } from '@sveltejs/kit';
 import { and, asc, count, eq, gte, inArray } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import { clearSessionCookie, deleteSession, SESSION_COOKIE_NAME } from '$lib/server/auth';
-import { db } from '$lib/server/db';
-import { bookings } from '$lib/server/db/schema';
-import { formatMemberSince, formatNextVisitShort } from '$lib/utils/profile';
+import { clearSessionCookie, deleteSession, SESSION_COOKIE_NAME } from '#lib/server/auth.ts';
+import { db } from '#lib/server/db/index.ts';
+import { bookings } from '#lib/server/db/schema.ts';
+import { toLocalDateString } from '#lib/utils/booking-ui.ts';
+import { formatMemberSince, formatNextVisitShort } from '#lib/utils/profile.ts';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) throw redirect(303, '/login?redirect=/profile');
 
-	const today = new Date().toISOString().slice(0, 10);
+	const today = toLocalDateString(new Date());
 	const userId = locals.user.id;
 
 	const [nextRows, reportsRows] = await Promise.all([

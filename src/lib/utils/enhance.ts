@@ -1,5 +1,5 @@
-import type { SubmitFunction } from '@sveltejs/kit';
-import { toast } from '$lib/stores/toast.svelte';
+import type { SubmitFunction } from '$app/forms';
+import { toast } from '#lib/stores/toast.svelte.ts';
 
 type Options = {
 	successMessage?: string | ((data: Record<string, unknown>) => string);
@@ -7,7 +7,7 @@ type Options = {
 	onSuccess?: (data: Record<string, unknown>) => void;
 	onError?: (data: Record<string, unknown>) => void;
 	reset?: boolean;
-	invalidateAll?: boolean;
+	refreshAll?: boolean;
 };
 
 /**
@@ -19,7 +19,7 @@ type Options = {
  */
 export function toastForm(options: Options = {}): SubmitFunction {
 	return () => async ({ result, update }) => {
-		await update({ reset: options.reset ?? true, invalidateAll: options.invalidateAll ?? true });
+		await update({ reset: options.reset ?? true, refreshAll: options.refreshAll ?? true });
 
 		if (result.type === 'success') {
 			const data = (result.data ?? {}) as Record<string, unknown>;

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { ArrowLeft, MapPin, Star } from '@lucide/svelte';
-	import { DAY_NAMES } from '$lib/utils';
-	import MotionReveal from '$lib/components/motion/MotionReveal.svelte';
+	import { DAY_NAMES } from '#lib/utils.ts';
+	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 
 	let { data } = $props();
 	const doctor = $derived(data.doctor);

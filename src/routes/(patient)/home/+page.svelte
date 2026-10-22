@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import DoctorCard from '$lib/components/DoctorCard.svelte';
-	import Header from '$lib/components/Header.svelte';
-	import SearchBar from '$lib/components/SearchBar.svelte';
-	import SpecialistChip from '$lib/components/SpecialistChip.svelte';
-	import { useSearchStore } from '$lib/stores/search';
+	import DoctorCard from '#lib/components/DoctorCard.svelte';
+	import Header from '#lib/components/Header.svelte';
+	import SearchBar from '#lib/components/SearchBar.svelte';
+	import SpecialistChip from '#lib/components/SpecialistChip.svelte';
+	import { useSearchStore } from '#lib/stores/search.ts';
 	import { SlidersHorizontal } from '@lucide/svelte';
-	import MotionReveal from '$lib/components/motion/MotionReveal.svelte';
+	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 
 	let { data } = $props();
 

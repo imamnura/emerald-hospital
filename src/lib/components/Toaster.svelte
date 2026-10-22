@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
 	import { CircleAlert, CircleCheck, Info, TriangleAlert, X } from '@lucide/svelte';
-	import { toast, type ToastKind } from '$lib/stores/toast.svelte';
-	import { cn } from '$lib/utils';
+	import { toast, type ToastKind } from '#lib/stores/toast.svelte.ts';
+	import { cn } from '#lib/utils.ts';
 
 	const KIND_STYLES: Record<ToastKind, { wrap: string; icon: string; bar: string }> = {
 		success: {

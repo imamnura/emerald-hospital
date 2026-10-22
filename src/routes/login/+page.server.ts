@@ -5,10 +5,10 @@ import {
 	createSession,
 	sessionCookieOptions,
 	verifyPassword
-} from '$lib/server/auth';
-import { db } from '$lib/server/db';
-import { users } from '$lib/server/db/schema';
-import { isConfigured as isGoogleConfigured } from '$lib/server/oauth-google';
+} from '#lib/server/auth.ts';
+import { db } from '#lib/server/db/index.ts';
+import { users } from '#lib/server/db/schema.ts';
+import { isConfigured as isGoogleConfigured } from '#lib/server/oauth-google.ts';
 
 function safeRedirect(path: string | null | undefined, role: 'manager' | 'patient'): string {
 	if (path && path.startsWith('/') && !path.startsWith('//') && !path.startsWith('/login')) {

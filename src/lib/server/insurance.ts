@@ -1,9 +1,9 @@
 import { eq } from 'drizzle-orm';
 import { db } from './db';
 import { insuranceProfiles, type InsuranceProfile } from './db/schema';
-import type { InsuranceProfileView } from '$lib/utils/insurance';
+import type { InsuranceProfileView } from '#lib/utils/insurance.ts';
 
-export type { InsuranceCostItem, InsuranceProfileView } from '$lib/utils/insurance';
+export type { InsuranceCostItem, InsuranceProfileView } from '#lib/utils/insurance.ts';
 
 const DEFAULT_PHONE = '+18005551234';
 

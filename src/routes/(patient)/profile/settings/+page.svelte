@@ -1,12 +1,12 @@
 ﻿<script lang="ts">
 	import { enhance } from '$app/forms';
 	import { Bell, Globe, Lock, LogOut, Mail } from '@lucide/svelte';
-	import MotionReveal from '$lib/components/motion/MotionReveal.svelte';
-	import SearchPageHeader from '$lib/components/SearchPageHeader.svelte';
-	import SettingsCard from '$lib/components/settings/SettingsCard.svelte';
-	import SettingsLinkRow from '$lib/components/settings/SettingsLinkRow.svelte';
-	import SettingsSection from '$lib/components/settings/SettingsSection.svelte';
-	import SettingsToggleRow from '$lib/components/settings/SettingsToggleRow.svelte';
+	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
+	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
+	import SettingsCard from '#lib/components/settings/SettingsCard.svelte';
+	import SettingsLinkRow from '#lib/components/settings/SettingsLinkRow.svelte';
+	import SettingsSection from '#lib/components/settings/SettingsSection.svelte';
+	import SettingsToggleRow from '#lib/components/settings/SettingsToggleRow.svelte';
 
 	let { data } = $props();
 </script>

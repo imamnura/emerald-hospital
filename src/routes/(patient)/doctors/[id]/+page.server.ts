@@ -1,8 +1,8 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { listSchedulesForDoctor } from '$lib/server/catalog';
-import { getDoctorDetail } from '$lib/server/doctors';
-import { DAY_NAMES } from '$lib/utils';
+import { listSchedulesForDoctor } from '#lib/server/catalog.ts';
+import { getDoctorDetail } from '#lib/server/doctors.ts';
+import { DAY_NAMES } from '#lib/utils.ts';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const doctor = await getDoctorDetail(params.id);

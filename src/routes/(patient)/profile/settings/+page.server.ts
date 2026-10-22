@@ -1,7 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { clearSessionCookie, deleteSession, SESSION_COOKIE_NAME } from '$lib/server/auth';
-import { languageLabel, readPreferences, writePreference } from '$lib/server/preferences';
+import { clearSessionCookie, deleteSession, SESSION_COOKIE_NAME } from '#lib/server/auth.ts';
+import { languageLabel, readPreferences, writePreference } from '#lib/server/preferences.ts';
 
 export const load: PageServerLoad = async ({ locals, cookies }) => {
 	if (!locals.user) throw redirect(303, '/login?redirect=/profile/settings');

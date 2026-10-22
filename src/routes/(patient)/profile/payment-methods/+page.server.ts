@@ -6,7 +6,7 @@ import {
 	listCardsForUser,
 	listTransactionsForUser,
 	setDefaultCard
-} from '$lib/server/payments';
+} from '#lib/server/payments.ts';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) throw redirect(303, '/login?redirect=/profile/payment-methods');

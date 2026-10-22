@@ -1,15 +1,16 @@
 <script lang="ts">
+	import { tick } from 'svelte';
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { Pencil, Plus, Search, Star, Stethoscope, Trash2 } from '@lucide/svelte';
-	import ConfirmDialog from '$lib/components/manager/ConfirmDialog.svelte';
-	import EmptyState from '$lib/components/manager/EmptyState.svelte';
-	import Modal from '$lib/components/manager/Modal.svelte';
-	import PageHeader from '$lib/components/manager/PageHeader.svelte';
-	import Pagination from '$lib/components/manager/Pagination.svelte';
-	import { toast } from '$lib/stores/toast.svelte';
-	import { toastForm } from '$lib/utils/enhance';
+	import ConfirmDialog from '#lib/components/manager/ConfirmDialog.svelte';
+	import EmptyState from '#lib/components/manager/EmptyState.svelte';
+	import Modal from '#lib/components/manager/Modal.svelte';
+	import PageHeader from '#lib/components/manager/PageHeader.svelte';
+	import Pagination from '#lib/components/manager/Pagination.svelte';
+	import { toast } from '#lib/stores/toast.svelte.ts';
+	import { toastForm } from '#lib/utils/enhance.ts';
 
 	let { data } = $props();
 	type Doctor = (typeof data.doctors)[number];
@@ -47,15 +48,17 @@
 		confirmOpen = true;
 	}
 
-	function confirmDelete() {
+	async function confirmDelete() {
 		if (!confirmTarget) return;
 		deletingId = confirmTarget.id;
 		deleting = true;
+		// Let bind:value write the id into the hidden input before submitting.
+		await tick();
 		deleteFormEl.requestSubmit();
 	}
 
 	function applyFilters() {
-		const params = new URLSearchParams(page.url.searchParams);
+		const params = new URLSearchParams(page.url.searchParams.toString());
 		const q = searchInput.trim();
 		if (q) params.set('q', q);
 		else params.delete('q');
@@ -65,7 +68,7 @@
 		else params.delete('specialistId');
 		params.delete('page');
 		const qs = params.toString();
-		goto(qs ? `?${qs}` : page.url.pathname, { keepFocus: true });
+		goto(qs ? `?${qs}` : page.url.pathname, { reset: false });
 	}
 
 	function submitSearch(e: SubmitEvent) {
@@ -80,7 +83,7 @@
 	bind:this={deleteFormEl}
 	class="hidden"
 	use:enhance={() => async ({ result, update }) => {
-		await update({ invalidateAll: true });
+		await update({ refreshAll: true });
 		deleting = false;
 		confirmOpen = false;
 		const target = confirmTarget;

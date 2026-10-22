@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import BottomNav from '$lib/components/BottomNav.svelte';
-	import PageEnter from '$lib/components/motion/PageEnter.svelte';
+	import BottomNav from '#lib/components/BottomNav.svelte';
+	import PageEnter from '#lib/components/motion/PageEnter.svelte';
 
 	let { children } = $props();
 

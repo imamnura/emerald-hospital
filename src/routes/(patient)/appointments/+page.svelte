@@ -2,17 +2,17 @@
 	import { goto } from '$app/navigation';
 	import { fade, fly } from 'svelte/transition';
 	import { Calendar } from '@lucide/svelte';
-	import AppointmentCard from '$lib/components/AppointmentCard.svelte';
-	import AppointmentConfirmedModal from '$lib/components/AppointmentConfirmedModal.svelte';
-	import CancelAppointmentModal from '$lib/components/CancelAppointmentModal.svelte';
-	import AppointmentCancelledModal from '$lib/components/AppointmentCancelledModal.svelte';
-	import Header from '$lib/components/Header.svelte';
-	import MotionReveal from '$lib/components/motion/MotionReveal.svelte';
+	import AppointmentCard from '#lib/components/AppointmentCard.svelte';
+	import AppointmentConfirmedModal from '#lib/components/AppointmentConfirmedModal.svelte';
+	import CancelAppointmentModal from '#lib/components/CancelAppointmentModal.svelte';
+	import AppointmentCancelledModal from '#lib/components/AppointmentCancelledModal.svelte';
+	import Header from '#lib/components/Header.svelte';
+	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 	import {
 		isUpcomingAppointment,
 		type AppointmentTab
-	} from '$lib/utils/appointments';
-	import { cn } from '$lib/utils';
+	} from '#lib/utils/appointments.ts';
+	import { cn } from '#lib/utils.ts';
 
 	let { data } = $props();
 
@@ -36,7 +36,7 @@
 
 	function closeConfirmedModal() {
 		confirmedDismissed = true;
-		goto('/appointments', { replaceState: true, noScroll: true });
+		goto('/appointments', { replace: true, reset: false });
 	}
 
 	function openCancelModal(apt: (typeof data.appointments)[number]) {

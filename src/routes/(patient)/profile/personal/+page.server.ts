@@ -1,6 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { getUserById, updateProfile } from '$lib/server/users';
+import { getUserById, updateProfile } from '#lib/server/users.ts';
 
 const GENDER_FORM_VALUES = ['female', 'male', 'other', 'prefer_not'] as const;
 type GenderFormValue = (typeof GENDER_FORM_VALUES)[number];

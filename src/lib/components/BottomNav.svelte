@@ -1,7 +1,7 @@
 ﻿<script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { Calendar, Home, User } from '@lucide/svelte';
-	import { cn } from '$lib/utils';
+	import { cn } from '#lib/utils.ts';
 
 	const items = [
 		{ href: '/home', label: 'Home', icon: Home },
@@ -15,7 +15,7 @@
 >
 	<div class="flex items-center justify-around">
 		{#each items as item}
-			{@const active = $page.url.pathname === item.href}
+			{@const active = page.url.pathname === item.href}
 			<a href={item.href} class="flex flex-col items-center gap-1 transition-transform active:scale-95">
 				<span
 					class={cn(

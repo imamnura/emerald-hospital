@@ -1,7 +1,7 @@
 import { desc, eq } from 'drizzle-orm';
 import { db } from './db';
 import { medicalRecords, type MedicalRecord } from './db/schema';
-import type { MedicalRecordType, MedicalRecordView } from '$lib/utils/medical-records';
+import type { MedicalRecordType, MedicalRecordView } from '#lib/utils/medical-records.ts';
 
 const CATEGORY_LABEL: Record<MedicalRecordType, string> = {
 	lab: 'Lab Result',

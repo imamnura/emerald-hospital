@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { exportRows, parseFilters, rangeLabel } from '$lib/server/analytics';
+import { exportRows, parseFilters, rangeLabel } from '#lib/server/analytics.ts';
 
 const STATUS_LABEL = {
 	pending: 'Pending',

@@ -219,6 +219,10 @@ export const usersRelations = relations(users, ({ many, one }) => ({
 	medicalRecords: many(medicalRecords)
 }));
 
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+	user: one(users, { fields: [sessions.userId], references: [users.id] })
+}));
+
 export const passwordResetTokensRelations = relations(passwordResetTokens, ({ one }) => ({
 	user: one(users, { fields: [passwordResetTokens.userId], references: [users.id] })
 }));

@@ -3,13 +3,13 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { ClipboardList, FileSpreadsheet, Pencil, Search } from '@lucide/svelte';
-	import EmptyState from '$lib/components/manager/EmptyState.svelte';
-	import Modal from '$lib/components/manager/Modal.svelte';
-	import PageHeader from '$lib/components/manager/PageHeader.svelte';
-	import Pagination from '$lib/components/manager/Pagination.svelte';
-	import StatusBadge from '$lib/components/manager/StatusBadge.svelte';
-	import { toastForm } from '$lib/utils/enhance';
-	import { formatDateId } from '$lib/utils';
+	import EmptyState from '#lib/components/manager/EmptyState.svelte';
+	import Modal from '#lib/components/manager/Modal.svelte';
+	import PageHeader from '#lib/components/manager/PageHeader.svelte';
+	import Pagination from '#lib/components/manager/Pagination.svelte';
+	import StatusBadge from '#lib/components/manager/StatusBadge.svelte';
+	import { toastForm } from '#lib/utils/enhance.ts';
+	import { formatDateId } from '#lib/utils.ts';
 
 	let { data } = $props();
 	type Booking = (typeof data.bookings)[number];
@@ -31,7 +31,7 @@
 	}
 
 	function setStatusTab(status: '' | Status) {
-		const params = new URLSearchParams(page.url.searchParams);
+		const params = new URLSearchParams(page.url.searchParams.toString());
 		if (status) params.set('status', status);
 		else params.delete('status');
 		params.delete('page');
@@ -41,17 +41,17 @@
 
 	function submitSearch(e: SubmitEvent) {
 		e.preventDefault();
-		const params = new URLSearchParams(page.url.searchParams);
+		const params = new URLSearchParams(page.url.searchParams.toString());
 		const q = searchInput.trim();
 		if (q) params.set('q', q);
 		else params.delete('q');
 		params.delete('page');
 		const qs = params.toString();
-		goto(qs ? `?${qs}` : page.url.pathname, { keepFocus: true });
+		goto(qs ? `?${qs}` : page.url.pathname, { reset: false });
 	}
 
 	const exportHref = $derived.by(() => {
-		const params = new URLSearchParams(page.url.searchParams);
+		const params = new URLSearchParams(page.url.searchParams.toString());
 		return `/manager/export.csv${params.toString() ? `?${params.toString()}` : ''}`;
 	});
 
