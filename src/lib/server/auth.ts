@@ -4,6 +4,14 @@ import { nanoid } from 'nanoid';
 import { db } from './db';
 import { sessions, users, type User } from './db/schema';
 
+export type PublicUser = Omit<User, 'passwordHash' | 'googleId'>;
+
+/** Strip credentials so a user row is safe to serialize to the client. */
+export function toPublicUser(user: User): PublicUser {
+	const { passwordHash: _passwordHash, googleId: _googleId, ...rest } = user;
+	return rest;
+}
+
 const SESSION_COOKIE = 'session_id';
 const SESSION_DAYS = 30;
 

@@ -19,7 +19,10 @@ describe('manager layout load', () => {
 	});
 
 	it('returns the manager user', async () => {
-		const user = await makeManager();
-		expect(await load(ev<Event>({ user }))).toEqual({ user });
+		const user = await makeManager({ googleId: 'g-1' });
+		const data = (await load(ev<Event>({ user }))) as { user: unknown };
+		expect(data.user).not.toHaveProperty('passwordHash');
+		expect(data.user).not.toHaveProperty('googleId');
+		expect(data.user).toMatchObject({ id: user.id, role: 'manager' });
 	});
 });

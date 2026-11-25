@@ -19,7 +19,9 @@ describe('profile load', () => {
 	it('shows placeholders when there is no history', async () => {
 		const user = await makeUser();
 		const data = (await load(ev({ user }))) as Data;
-		expect(data.profile).toBe(user);
+		expect(data.profile).not.toHaveProperty('passwordHash');
+		expect(data.profile).not.toHaveProperty('googleId');
+		expect(data.profile).toMatchObject({ id: user.id, email: user.email, name: user.name });
 		expect(data.memberSince).toBeTruthy();
 		expect(data.stats).toEqual({ bloodType: '—', nextVisit: '—', reports: 0 });
 	});

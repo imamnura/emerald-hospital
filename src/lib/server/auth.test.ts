@@ -12,6 +12,7 @@ import {
 	deleteSessionsByUserId,
 	hashPassword,
 	sessionCookieOptions,
+	toPublicUser,
 	validateSession,
 	verifyPassword
 } from './auth.ts';
@@ -19,6 +20,16 @@ import {
 beforeEach(() => resetDb(db as unknown as TestDb));
 
 const sessionRows = (id: string) => db.select().from(sessions).where(eq(sessions.id, id));
+
+describe('toPublicUser', () => {
+	it('strips credentials', async () => {
+		const u = await makeUser({ googleId: 'g-1' });
+		const pub = toPublicUser(u);
+		expect(pub).not.toHaveProperty('passwordHash');
+		expect(pub).not.toHaveProperty('googleId');
+		expect(pub).toMatchObject({ id: u.id, email: u.email, role: u.role });
+	});
+});
 
 describe('password hashing', () => {
 	it('hashes with argon2 and verifies only the right password', async () => {

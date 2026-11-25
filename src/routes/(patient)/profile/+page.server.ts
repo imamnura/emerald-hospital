@@ -1,7 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import { and, asc, count, eq, gte, inArray } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import { clearSessionCookie, deleteSession, SESSION_COOKIE_NAME } from '#lib/server/auth.ts';
+import { clearSessionCookie, deleteSession, SESSION_COOKIE_NAME, toPublicUser } from '#lib/server/auth.ts';
 import { db } from '#lib/server/db/index.ts';
 import { bookings } from '#lib/server/db/schema.ts';
 import { toLocalDateString } from '#lib/utils/booking-ui.ts';
@@ -36,7 +36,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const reportsRow = reportsRows[0];
 
 	return {
-		profile: locals.user,
+		profile: toPublicUser(locals.user),
 		memberSince: formatMemberSince(locals.user.createdAt),
 		stats: {
 			bloodType: locals.user.bloodType ?? '—',
