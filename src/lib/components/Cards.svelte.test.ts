@@ -51,7 +51,11 @@ describe('AppointmentCard', () => {
 		expect(screen.getByRole('img', { name: 'Dr. Jane Foster' })).toHaveAttribute('src', '/img.png');
 		expect(screen.getByText('Cardiologist')).toBeInTheDocument();
 		expect(container.querySelector('.lucide-clock')).toBeInTheDocument();
-		expect(container.querySelector('article')!.getAttribute('style')).toContain('0s');
+		// Default index 0 means no entrance delay. Check the value, not the serialization:
+		// jsdom 31 drops the default `0s` delay from the `animation` shorthand.
+		const style = container.querySelector('article')!.getAttribute('style')!;
+		const delays = (style.match(/\d*\.?\d+s\b/g) ?? []).filter((t) => t !== '0.45s');
+		expect(delays.every((t) => parseFloat(t) === 0)).toBe(true);
 		await fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 	});
 
