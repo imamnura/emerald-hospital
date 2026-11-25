@@ -1,3 +1,4 @@
+import { getStatusClass, getStatusLabel } from '#lib/domain/booking-status.ts';
 import { formatDate, formatTime12h, toLocalDateString } from '#lib/format/date.ts';
 
 export type AppointmentTab = 'upcoming' | 'past';
@@ -18,21 +19,9 @@ export function isUpcomingAppointment(
 }
 
 export function appointmentStatusLabel(status: string): string {
-	const labels: Record<string, string> = {
-		pending: 'Pending',
-		confirmed: 'Confirmed',
-		cancelled: 'Cancelled',
-		completed: 'Completed'
-	};
-	return labels[status] ?? status;
+	return getStatusLabel(status);
 }
 
 export function appointmentStatusStyles(status: string): string {
-	const styles: Record<string, string> = {
-		pending: 'bg-surface-container text-on-surface-variant',
-		confirmed: 'bg-surface-container text-on-surface-variant',
-		cancelled: 'bg-red-50 text-error',
-		completed: 'bg-surface-container text-outline'
-	};
-	return styles[status] ?? 'bg-surface-container text-on-surface-variant';
+	return getStatusClass('appointment', status);
 }

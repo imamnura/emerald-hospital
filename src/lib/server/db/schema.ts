@@ -13,16 +13,16 @@ import {
 	uuid,
 	varchar
 } from 'drizzle-orm/pg-core';
+import { BOOKING_STATUSES } from '#lib/domain/booking-status.ts';
 
 export const userRoleEnum = pgEnum('user_role', ['manager', 'patient']);
-export const bookingStatusEnum = pgEnum('booking_status', [
-	'pending',
-	'confirmed',
-	'cancelled',
-	'completed'
-]);
+export const bookingStatusEnum = pgEnum('booking_status', BOOKING_STATUSES);
 export const genderEnum = pgEnum('gender', ['male', 'female', 'other']);
 export const cardBrandEnum = pgEnum('card_brand', ['visa', 'mastercard']);
+export const CARD_BRANDS = cardBrandEnum.enumValues;
+export const GENDERS = genderEnum.enumValues;
+/** Not a DB enum (column is free text); single list shared by profile forms. */
+export const BLOOD_TYPES = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as const;
 export const insuranceStatusEnum = pgEnum('insurance_status', ['ACTIVE', 'INACTIVE']);
 export const medicalRecordTypeEnum = pgEnum('medical_record_type', ['lab', 'imaging', 'clinical']);
 

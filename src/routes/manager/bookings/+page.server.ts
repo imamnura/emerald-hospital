@@ -5,14 +5,8 @@ import { db } from '#lib/server/db/index.ts';
 import { bookings, doctors, hospitals, specialists, users } from '#lib/server/db/schema.ts';
 import { parsePagination } from '#lib/server/pagination.ts';
 import { denyUnlessManager } from '#lib/server/guards.ts';
+import { isBookingStatus, type BookingStatus } from '#lib/domain/booking-status.ts';
 import { isUuid } from '#lib/server/db-errors.ts';
-
-const VALID_STATUSES = ['pending', 'confirmed', 'cancelled', 'completed'] as const;
-type BookingStatus = (typeof VALID_STATUSES)[number];
-
-function isStatus(value: string): value is BookingStatus {
-	return (VALID_STATUSES as readonly string[]).includes(value);
-}
 
 export const load: PageServerLoad = async ({ url }) => {
 	const { page, pageSize, offset } = parsePagination(url.searchParams);
@@ -31,7 +25,7 @@ export const load: PageServerLoad = async ({ url }) => {
 			)!
 		);
 	}
-	if (statusFilter && isStatus(statusFilter)) {
+	if (statusFilter && isBookingStatus(statusFilter)) {
 		conditions.push(eq(bookings.status, statusFilter));
 	}
 	const where = conditions.length > 0 ? and(...conditions) : undefined;
@@ -126,7 +120,7 @@ export const actions: Actions = {
 		const status = String(fd.get('status') ?? '');
 		if (!id) return fail(400, { error: 'Missing booking ID.' });
 		if (!isUuid(id)) return fail(404, { error: 'Booking not found.' });
-		if (!isStatus(status)) return fail(400, { error: 'Invalid status.' });
+		if (!isBookingStatus(status)) return fail(400, { error: 'Invalid status.' });
 		const result = await db
 			.update(bookings)
 			.set({ status })

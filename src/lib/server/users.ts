@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { db } from './db';
-import { users } from './db/schema';
+import { BLOOD_TYPES, GENDERS, users } from './db/schema';
 
 export type ProfileUpdate = {
 	name?: string;
@@ -12,8 +12,8 @@ export type ProfileUpdate = {
 	address?: string | null;
 };
 
-const ALLOWED_BLOOD = new Set(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']);
-const ALLOWED_GENDER = new Set(['male', 'female', 'other'] as const);
+const ALLOWED_BLOOD: ReadonlySet<string> = new Set(BLOOD_TYPES);
+const ALLOWED_GENDER: ReadonlySet<string> = new Set(GENDERS);
 
 export function parseProfileForm(fd: FormData): ProfileUpdate | { error: string } {
 	const name = String(fd.get('name') ?? '').trim();

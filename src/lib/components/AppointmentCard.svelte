@@ -6,7 +6,7 @@
 		appointmentStatusStyles,
 		formatAppointmentListDate
 	} from '#lib/utils/appointments.ts';
-	import { doctorRoleLabel } from '#lib/utils/specialist.ts';
+	import { doctorRoleLabel } from '#lib/domain/specialist.ts';
 	import { cn } from '#lib/utils.ts';
 
 	interface Props {

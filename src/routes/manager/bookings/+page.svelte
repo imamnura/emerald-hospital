@@ -9,11 +9,12 @@
 	import Pagination from '#lib/components/manager/Pagination.svelte';
 	import StatusBadge from '#lib/components/manager/StatusBadge.svelte';
 	import { toastForm } from '#lib/utils/enhance.ts';
+	import type { BookingStatus } from '#lib/domain/booking-status.ts';
 	import { formatDate } from '#lib/format/date.ts';
 
 	let { data } = $props();
 	type Booking = (typeof data.bookings)[number];
-	type Status = 'pending' | 'confirmed' | 'cancelled' | 'completed';
+	type Status = BookingStatus;
 
 	let modalOpen = $state(false);
 	let editing = $state<Booking | null>(null);

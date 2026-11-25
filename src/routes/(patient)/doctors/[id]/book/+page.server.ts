@@ -9,7 +9,7 @@ import {
 	pickDefaultDate,
 	type TimeSlotUi
 } from '#lib/utils/booking-ui.ts';
-import { doctorRoleLabel } from '#lib/utils/specialist.ts';
+import { doctorRoleLabel } from '#lib/domain/specialist.ts';
 
 export const load: PageServerLoad = async ({ params, url, parent }) => {
 	const { user } = await parent();

@@ -10,7 +10,7 @@
 		Star
 	} from '@lucide/svelte';
 	import { LANDING_BRAND, LANDING_HERO, LANDING_HOSPITALS } from '#lib/data/landing.ts';
-	import { doctorRoleLabel } from '#lib/utils/specialist.ts';
+	import { doctorRoleLabel } from '#lib/domain/specialist.ts';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 	import SpecialtyAutocomplete from '#lib/components/SpecialtyAutocomplete.svelte';
 

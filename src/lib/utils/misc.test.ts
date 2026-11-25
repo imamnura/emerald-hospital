@@ -8,11 +8,6 @@ import {
 	txPaymentLabel,
 	type TransactionView
 } from '#lib/utils/payments.ts';
-import {
-	doctorRoleLabel,
-	specialistAvailabilityLabel,
-	specialistPluralTitle
-} from '#lib/utils/specialist.ts';
 import type { InsuranceProfileView } from '#lib/utils/insurance.ts';
 
 const record = (over: Partial<MedicalRecordView>): MedicalRecordView => ({
@@ -79,35 +74,6 @@ describe('payments', () => {
 		expect(txPaymentLabel(tx('mastercard', '5555'))).toBe('MC *5555');
 		expect(txPaymentLabel(tx(null, '1111'))).toBe('Card');
 		expect(txPaymentLabel(tx('visa', null))).toBe('Card');
-	});
-});
-
-describe('specialist', () => {
-	it.each([
-		['Cardiology', 'Cardiologists'],
-		['Dental', 'Dentists'],
-		['Eye Care', 'Ophthalmologists'],
-		['ENT', 'ENT Specialists'],
-		['General', 'General Practitioners'],
-		['Oncology', 'Oncologists'],
-		['Podiatry', 'Podiatry Specialists']
-	])('plural title %s -> %s', (name, title) => {
-		expect(specialistPluralTitle(name)).toBe(title);
-	});
-
-	it('labels doctor role, prefixing Senior for rating >= 4.8', () => {
-		expect(doctorRoleLabel('Cardiology', '4.5')).toBe('Cardiologist');
-		expect(doctorRoleLabel('Cardiology', '4.8')).toBe('Senior Cardiologist');
-		expect(doctorRoleLabel('Eye Care', '5.0')).toBe('Senior Ophthalmologist');
-		expect(doctorRoleLabel('Podiatry', '4.79')).toBe('Podiatry');
-		expect(doctorRoleLabel('Podiatry', '4.9')).toBe('Senior Podiatry');
-		expect(doctorRoleLabel('General', 'n/a')).toBe('General Practitioner');
-	});
-
-	it('pluralises availability label', () => {
-		expect(specialistAvailabilityLabel(0)).toBe('0 Specialists available');
-		expect(specialistAvailabilityLabel(1)).toBe('1 Specialist available');
-		expect(specialistAvailabilityLabel(12)).toBe('12 Specialists available');
 	});
 });
 

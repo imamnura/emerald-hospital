@@ -5,7 +5,7 @@
 		doctorRoleLabel,
 		specialistAvailabilityLabel,
 		specialistPluralTitle
-	} from '#lib/utils/specialist.ts';
+	} from '#lib/domain/specialist.ts';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 
 	let { data } = $props();

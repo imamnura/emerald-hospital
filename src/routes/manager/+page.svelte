@@ -1,5 +1,11 @@
 ﻿<script lang="ts">
 	import { formatDate } from '#lib/format/date.ts';
+	import {
+		STATUS_HEX,
+		getStatusClass,
+		getStatusLabel,
+		type BookingStatus
+	} from '#lib/domain/booking-status.ts';
 	import { page } from '$app/state';
 	import {
 		Activity,
@@ -28,26 +34,12 @@
 		{ value: 'all', label: 'All time' }
 	] as const;
 
-	const STATUS_COLORS: Record<string, string> = {
-		pending: '#f59e0b',
-		confirmed: '#005d42',
-		completed: '#6e7a73',
-		cancelled: '#ba1a1a'
-	};
-
-	const STATUS_LABELS: Record<string, string> = {
-		pending: 'Pending',
-		confirmed: 'Confirmed',
-		completed: 'Completed',
-		cancelled: 'Cancelled'
-	};
-
 	const donutData = $derived(
 		data.status.map((s) => ({
 			key: s.status,
-			label: STATUS_LABELS[s.status],
+			label: getStatusLabel(s.status),
 			value: s.count,
-			color: STATUS_COLORS[s.status]
+			color: STATUS_HEX[s.status as BookingStatus]
 		}))
 	);
 
@@ -92,13 +84,6 @@
 			exportingMsg = false;
 		}, 8000);
 	}
-
-	const STATUS_BADGE: Record<string, string> = {
-		pending: 'bg-amber-100 text-amber-800',
-		confirmed: 'bg-primary/15 text-primary',
-		completed: 'bg-surface-container text-on-surface-variant',
-		cancelled: 'bg-red-100 text-red-800'
-	};
 </script>
 
 <!-- Header -->
@@ -385,10 +370,10 @@
 								<span
 									class={cn(
 										'inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold',
-										STATUS_BADGE[b.status]
+										getStatusClass('badge', b.status)
 									)}
 								>
-									{STATUS_LABELS[b.status]}
+									{getStatusLabel(b.status)}
 								</span>
 							</td>
 						</tr>
@@ -411,10 +396,10 @@
 						<span
 							class={cn(
 								'shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold',
-								STATUS_BADGE[b.status]
+								getStatusClass('badge', b.status)
 							)}
 						>
-							{STATUS_LABELS[b.status]}
+							{getStatusLabel(b.status)}
 						</span>
 					</div>
 				</li>

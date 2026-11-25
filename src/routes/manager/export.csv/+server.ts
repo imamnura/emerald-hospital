@@ -1,13 +1,7 @@
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { STATUS_LABEL } from '#lib/domain/booking-status.ts';
 import { exportRows, parseFilters, rangeLabel } from '#lib/server/analytics.ts';
-
-const STATUS_LABEL = {
-	pending: 'Pending',
-	confirmed: 'Confirmed',
-	cancelled: 'Cancelled',
-	completed: 'Completed'
-} as const;
 
 function escapeCell(value: string | number): string {
 	const s = String(value ?? '');

@@ -7,7 +7,7 @@ import { createBookingAtomic, getDayOfWeek, getSlotAvailability } from '#lib/ser
 import { isUuid } from '#lib/server/db-errors.ts';
 import { getDoctorDetail } from '#lib/server/doctors.ts';
 import { formatTime12h } from '#lib/format/date.ts';
-import { doctorRoleLabel } from '#lib/utils/specialist.ts';
+import { doctorRoleLabel } from '#lib/domain/specialist.ts';
 
 export const load: PageServerLoad = async ({ params, url, parent }) => {
 	const { user } = await parent();

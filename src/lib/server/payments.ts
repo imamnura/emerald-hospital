@@ -1,14 +1,12 @@
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { db } from './db';
 import { isUuid } from './db-errors';
-import { paymentCards, paymentTransactions } from './db/schema';
+import { CARD_BRANDS, paymentCards, paymentTransactions } from './db/schema';
 
-export type CardBrand = 'visa' | 'mastercard';
-
-const BRANDS: ReadonlySet<CardBrand> = new Set(['visa', 'mastercard']);
+export type CardBrand = (typeof CARD_BRANDS)[number];
 
 function isBrand(value: string): value is CardBrand {
-	return BRANDS.has(value as CardBrand);
+	return (CARD_BRANDS as readonly string[]).includes(value);
 }
 
 export async function listCardsForUser(userId: string) {

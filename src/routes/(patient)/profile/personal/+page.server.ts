@@ -1,12 +1,13 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { parseIsoDate } from '#lib/format/date.ts';
+import { BLOOD_TYPES } from '#lib/server/db/schema.ts';
 import { getUserById, updateProfile } from '#lib/server/users.ts';
 
 const GENDER_FORM_VALUES = ['female', 'male', 'other', 'prefer_not'] as const;
 type GenderFormValue = (typeof GENDER_FORM_VALUES)[number];
 
-const ALLOWED_BLOOD = new Set(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']);
+const ALLOWED_BLOOD: ReadonlySet<string> = new Set(BLOOD_TYPES);
 
 /** MM/DD/YYYY for display in the form */
 function formatDobDisplay(iso: string | null): string {
