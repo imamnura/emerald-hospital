@@ -84,13 +84,8 @@ export type UpsertInsuranceInput = {
 	providerPhone?: string | null;
 };
 
+/** One row per user (`insurance_user_unique`): insert, or update that row in place keeping its id. */
 export async function upsertInsurance(userId: string, input: UpsertInsuranceInput) {
-	const [existing] = await db
-		.select({ id: insuranceProfiles.id })
-		.from(insuranceProfiles)
-		.where(eq(insuranceProfiles.userId, userId))
-		.limit(1);
-
 	const values = {
 		userId,
 		providerName: input.providerName,
@@ -109,11 +104,10 @@ export async function upsertInsurance(userId: string, input: UpsertInsuranceInpu
 		updatedAt: new Date()
 	};
 
-	if (existing) {
-		await db.update(insuranceProfiles).set(values).where(eq(insuranceProfiles.id, existing.id));
-		return existing.id;
-	}
-
-	const [row] = await db.insert(insuranceProfiles).values(values).returning({ id: insuranceProfiles.id });
+	const [row] = await db
+		.insert(insuranceProfiles)
+		.values(values)
+		.onConflictDoUpdate({ target: insuranceProfiles.userId, set: values })
+		.returning({ id: insuranceProfiles.id });
 	return row.id;
 }

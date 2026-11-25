@@ -1,4 +1,5 @@
 import type { PageServerLoad } from './$types';
+import { publicUserOrNull } from '#lib/server/auth.ts';
 import { listSpecialists } from '#lib/server/catalog.ts';
 
 const DISPLAY_ORDER = [
@@ -16,8 +17,8 @@ const DISPLAY_ORDER = [
 	'oncology'
 ];
 
-export const load: PageServerLoad = async ({ parent }) => {
-	const { user } = await parent();
+export const load: PageServerLoad = async ({ locals }) => {
+	const user = publicUserOrNull(locals.user);
 	const rows = await listSpecialists();
 
 	const sorted = [...rows].sort((a, b) => {

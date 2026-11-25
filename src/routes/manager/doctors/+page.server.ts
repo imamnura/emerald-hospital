@@ -61,38 +61,40 @@ export const load: PageServerLoad = async ({ url }) => {
 		[hospitalId ? eq(doctors.hospitalId, hospitalId) : undefined, specialistId ? eq(doctors.specialistId, specialistId) : undefined]
 	);
 
-	const { rows, total } = await paginate(
-		db
-			.select({
-				id: doctors.id,
-				name: doctors.name,
-				rating: doctors.rating,
-				isActive: doctors.isActive,
-				isOnline: doctors.isOnline,
-				imageUrl: doctors.imageUrl,
-				consultationFee: doctors.consultationFee,
-				bio: doctors.bio,
-				hospital: hospitals.name,
-				hospitalId: hospitals.id,
-				specialty: specialists.name,
-				specialistId: specialists.id
-			})
-			.from(doctors)
-			.innerJoin(hospitals, eq(doctors.hospitalId, hospitals.id))
-			.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
-			.where(where)
-			.orderBy(asc(doctors.name))
-			.limit(pageSize)
-			.offset(offset),
-		db
-			.select({ value: count() })
-			.from(doctors)
-			.innerJoin(hospitals, eq(doctors.hospitalId, hospitals.id))
-			.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
-			.where(where)
-	);
-
-	const [allHospitals, allSpecialists] = await Promise.all([listHospitals(), listSpecialists()]);
+	const [{ rows, total }, allHospitals, allSpecialists] = await Promise.all([
+		paginate(
+			db
+				.select({
+					id: doctors.id,
+					name: doctors.name,
+					rating: doctors.rating,
+					isActive: doctors.isActive,
+					isOnline: doctors.isOnline,
+					imageUrl: doctors.imageUrl,
+					consultationFee: doctors.consultationFee,
+					bio: doctors.bio,
+					hospital: hospitals.name,
+					hospitalId: hospitals.id,
+					specialty: specialists.name,
+					specialistId: specialists.id
+				})
+				.from(doctors)
+				.innerJoin(hospitals, eq(doctors.hospitalId, hospitals.id))
+				.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
+				.where(where)
+				.orderBy(asc(doctors.name))
+				.limit(pageSize)
+				.offset(offset),
+			db
+				.select({ value: count() })
+				.from(doctors)
+				.innerJoin(hospitals, eq(doctors.hospitalId, hospitals.id))
+				.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
+				.where(where)
+		),
+		listHospitals(),
+		listSpecialists()
+	]);
 
 	return {
 		doctors: rows,

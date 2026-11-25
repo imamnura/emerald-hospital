@@ -2,7 +2,7 @@ import { hash, verify } from '@node-rs/argon2';
 import type { Cookies } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
-import { db } from './db';
+import { db, type DbExecutor } from './db';
 import { sessions, users, type User } from './db/schema';
 
 export type PublicUser = Omit<User, 'passwordHash' | 'googleId'>;
@@ -11,6 +11,11 @@ export type PublicUser = Omit<User, 'passwordHash' | 'googleId'>;
 export function toPublicUser(user: User): PublicUser {
 	const { passwordHash: _passwordHash, googleId: _googleId, ...rest } = user;
 	return rest;
+}
+
+/** The client-safe `user` the root layout exposes (`null` when signed out). */
+export function publicUserOrNull(user: User | null): PublicUser | null {
+	return user ? toPublicUser(user) : null;
 }
 
 const SESSION_COOKIE = 'session_id';
@@ -40,13 +45,13 @@ export async function deleteSession(sessionId: string): Promise<void> {
 	await db.delete(sessions).where(eq(sessions.id, sessionId));
 }
 
-export async function deleteSessionsByUserId(userId: string): Promise<void> {
-	await db.delete(sessions).where(eq(sessions.userId, userId));
+export async function deleteSessionsByUserId(userId: string, executor: DbExecutor = db): Promise<void> {
+	await executor.delete(sessions).where(eq(sessions.userId, userId));
 }
 
 export async function validateSession(sessionId: string): Promise<User | null> {
 	const [row] = await db
-		.select({ user: users })
+		.select({ user: users, expiresAt: sessions.expiresAt })
 		.from(sessions)
 		.innerJoin(users, eq(sessions.userId, users.id))
 		.where(eq(sessions.id, sessionId))
@@ -54,8 +59,7 @@ export async function validateSession(sessionId: string): Promise<User | null> {
 
 	if (!row) return null;
 
-	const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId)).limit(1);
-	if (!session || session.expiresAt < new Date()) {
+	if (row.expiresAt < new Date()) {
 		await deleteSession(sessionId);
 		return null;
 	}

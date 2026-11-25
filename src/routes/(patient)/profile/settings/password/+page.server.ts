@@ -1,27 +1,19 @@
 import { fail } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { verifyPassword } from '#lib/server/auth.ts';
-import { db } from '#lib/server/db/index.ts';
-import { users } from '#lib/server/db/schema.ts';
 import { requireUser } from '#lib/server/guards.ts';
 import { setPassword } from '#lib/server/users.ts';
 
+// locals.user is the full server-side row (hash included), loaded by hooks for this request.
+
 export const load: PageServerLoad = async ({ locals }) => {
-	const current = requireUser(locals, '/profile/settings/password');
-
-	const [user] = await db
-		.select({ passwordHash: users.passwordHash })
-		.from(users)
-		.where(eq(users.id, current.id))
-		.limit(1);
-
-	return { hasPassword: Boolean(user?.passwordHash) };
+	const user = requireUser(locals, '/profile/settings/password');
+	return { hasPassword: Boolean(user.passwordHash) };
 };
 
 export const actions: Actions = {
 	change: async ({ request, locals }) => {
-		const current = requireUser(locals);
+		const user = requireUser(locals);
 
 		const formData = await request.formData();
 		const currentPassword = String(formData.get('currentPassword') ?? '');
@@ -38,14 +30,6 @@ export const actions: Actions = {
 			return fail(400, { error: 'New passwords do not match.' });
 		}
 
-		const [user] = await db
-			.select({ passwordHash: users.passwordHash })
-			.from(users)
-			.where(eq(users.id, current.id))
-			.limit(1);
-
-		if (!user) return fail(404, { error: 'User not found.' });
-
 		if (user.passwordHash) {
 			if (!currentPassword) {
 				return fail(400, { error: 'Current password is required.' });
@@ -54,7 +38,7 @@ export const actions: Actions = {
 			if (!valid) return fail(400, { error: 'Current password is incorrect.' });
 		}
 
-		await setPassword(current.id, newPassword);
+		await setPassword(user.id, newPassword);
 
 		return { success: true };
 	}

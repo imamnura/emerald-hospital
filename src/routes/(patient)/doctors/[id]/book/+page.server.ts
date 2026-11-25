@@ -1,5 +1,6 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import { publicUserOrNull } from '#lib/server/auth.ts';
 import { listSchedulesForDoctor } from '#lib/server/catalog.ts';
 import { getDoctorDetail } from '#lib/server/doctors.ts';
 import { getAllSlotsForDoctorDate } from '#lib/server/booking.ts';
@@ -11,13 +12,12 @@ import {
 } from '#lib/utils/booking-ui.ts';
 import { doctorRoleLabel } from '#lib/domain/specialist.ts';
 
-export const load: PageServerLoad = async ({ params, url, parent }) => {
-	const { user } = await parent();
-
-	const doctor = await getDoctorDetail(params.id);
+export const load: PageServerLoad = async ({ params, url, locals }) => {
+	const [doctor, schedules] = await Promise.all([
+		getDoctorDetail(params.id),
+		listSchedulesForDoctor(params.id)
+	]);
 	if (!doctor) error(404, 'Doctor not found');
-
-	const schedules = await listSchedulesForDoctor(params.id);
 
 	const availableDays = [...new Set(schedules.map((s) => s.dayOfWeek))];
 	const calendarDays = generateCalendarDays(availableDays);
@@ -41,7 +41,7 @@ export const load: PageServerLoad = async ({ params, url, parent }) => {
 	}
 
 	return {
-		user,
+		user: publicUserOrNull(locals.user),
 		doctor: {
 			...doctor,
 			role: doctorRoleLabel(doctor.specialty, doctor.rating)

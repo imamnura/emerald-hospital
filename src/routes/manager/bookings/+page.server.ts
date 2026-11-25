@@ -21,46 +21,47 @@ export const load: PageServerLoad = async ({ url }) => {
 		statusFilter && isBookingStatus(statusFilter) ? eq(bookings.status, statusFilter) : undefined
 	]);
 
-	const { rows, total } = await paginate(
+	const [{ rows, total }, statusRows] = await Promise.all([
+		paginate(
+			db
+				.select({
+					id: bookings.id,
+					appointmentDate: bookings.appointmentDate,
+					appointmentTime: bookings.appointmentTime,
+					status: bookings.status,
+					patientName: users.name,
+					doctorName: doctors.name,
+					specialty: specialists.name,
+					hospital: hospitals.name
+				})
+				.from(bookings)
+				.innerJoin(users, eq(bookings.userId, users.id))
+				.innerJoin(doctors, eq(bookings.doctorId, doctors.id))
+				.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
+				.innerJoin(hospitals, eq(doctors.hospitalId, hospitals.id))
+				.where(where)
+				.orderBy(desc(bookings.appointmentDate), desc(bookings.appointmentTime))
+				.limit(pageSize)
+				.offset(offset),
+			db
+				.select({ value: count() })
+				.from(bookings)
+				.innerJoin(users, eq(bookings.userId, users.id))
+				.innerJoin(doctors, eq(bookings.doctorId, doctors.id))
+				.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
+				.innerJoin(hospitals, eq(doctors.hospitalId, hospitals.id))
+				.where(where)
+		),
 		db
-			.select({
-				id: bookings.id,
-				appointmentDate: bookings.appointmentDate,
-				appointmentTime: bookings.appointmentTime,
-				status: bookings.status,
-				patientName: users.name,
-				doctorName: doctors.name,
-				specialty: specialists.name,
-				hospital: hospitals.name
-			})
+			.select({ status: bookings.status, value: count() })
 			.from(bookings)
 			.innerJoin(users, eq(bookings.userId, users.id))
 			.innerJoin(doctors, eq(bookings.doctorId, doctors.id))
 			.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
 			.innerJoin(hospitals, eq(doctors.hospitalId, hospitals.id))
-			.where(where)
-			.orderBy(desc(bookings.appointmentDate), desc(bookings.appointmentTime))
-			.limit(pageSize)
-			.offset(offset),
-		db
-			.select({ value: count() })
-			.from(bookings)
-			.innerJoin(users, eq(bookings.userId, users.id))
-			.innerJoin(doctors, eq(bookings.doctorId, doctors.id))
-			.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
-			.innerJoin(hospitals, eq(doctors.hospitalId, hospitals.id))
-			.where(where)
-	);
-
-	const statusRows = await db
-		.select({ status: bookings.status, value: count() })
-		.from(bookings)
-		.innerJoin(users, eq(bookings.userId, users.id))
-		.innerJoin(doctors, eq(bookings.doctorId, doctors.id))
-		.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
-		.innerJoin(hospitals, eq(doctors.hospitalId, hospitals.id))
-		.where(searchOnly)
-		.groupBy(bookings.status);
+			.where(searchOnly)
+			.groupBy(bookings.status)
+	]);
 	const statusCounts: Record<BookingStatus | 'all', number> = {
 		all: 0,
 		pending: 0,

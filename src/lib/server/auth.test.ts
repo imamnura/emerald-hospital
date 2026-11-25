@@ -79,27 +79,16 @@ describe('sessions', () => {
 		expect(await sessionRows(id)).toHaveLength(0);
 	});
 
-	it('validateSession handles the session vanishing between queries', async () => {
+	it('validateSession reads the user and the expiry in a single query', async () => {
 		const user = await makeUser();
 		const id = await makeSession(user.id);
-		const realSelect = db.select.bind(db);
-		let calls = 0;
-		const spy = vi.spyOn(db, 'select').mockImplementation(((...args: unknown[]) => {
-			calls++;
-			if (calls === 2) {
-				// Second lookup (the session itself) finds nothing.
-				return {
-					from: () => ({ where: () => ({ limit: async () => [] }) })
-				};
-			}
-			return (realSelect as (...a: unknown[]) => unknown)(...args);
-		}) as never);
+		const spy = vi.spyOn(db, 'select');
 		try {
-			expect(await validateSession(id)).toBeNull();
+			expect((await validateSession(id))?.id).toBe(user.id);
+			expect(spy).toHaveBeenCalledTimes(1);
 		} finally {
 			spy.mockRestore();
 		}
-		expect(await sessionRows(id)).toHaveLength(0);
 	});
 
 	it('deleteSession removes only that session', async () => {

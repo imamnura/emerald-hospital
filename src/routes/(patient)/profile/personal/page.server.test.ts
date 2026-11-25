@@ -12,13 +12,20 @@ beforeEach(() => resetDb(db as unknown as TestDb));
 const fresh = async (id: string) => (await db.select().from(users).where(eq(users.id, id)))[0];
 
 describe('profile/personal load', () => {
-	it('redirects anonymous users and users that no longer exist', async () => {
+	it('redirects anonymous users', async () => {
 		expect(await thrown(() => load(ev()))).toMatchObject({
 			status: 303,
 			location: '/login?redirect=/profile/personal'
 		});
-		expect(await thrown(() => load(ev({ user: { id: randomId() } as never })))).toMatchObject({
-			location: '/login'
+	});
+
+	it('builds the profile from locals.user without re-querying the database', async () => {
+		const id = randomId();
+		const user = { id, email: 'a@b.c', name: 'Ana', phone: null, imageUrl: null, bloodType: 'B+', address: null, dateOfBirth: '1990-03-05', gender: null };
+		expect(await load(ev({ user: user as never }))).toEqual({
+			profile: { id, email: 'a@b.c', name: 'Ana', phone: null, imageUrl: null, bloodType: 'B+', address: null },
+			dateOfBirth: '03/05/1990',
+			gender: 'prefer_not'
 		});
 	});
 

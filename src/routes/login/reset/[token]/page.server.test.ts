@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { verifyPassword } from '#lib/server/auth.ts';
 import { db } from '#lib/server/db/index.ts';
@@ -74,5 +74,45 @@ describe('reset password action', () => {
 		const [tok] = await db.select().from(passwordResetTokens);
 		expect(tok.usedAt).not.toBeNull();
 		expect(await load(ev({ params: { token } }))).toEqual({ valid: false });
+	});
+
+	it('a reset token cannot be reused after success', async () => {
+		const user = await makeUser();
+		const token = await createPasswordResetToken(user.id);
+		const form = { password: 'brand-new-pw', confirmPassword: 'brand-new-pw' };
+
+		expect(await thrown(() => submit(token, form))).toMatchObject({ status: 303, location: '/login?reset=success' });
+		expect(await submit(token, { password: 'another-pw-1', confirmPassword: 'another-pw-1' })).toMatchObject({
+			status: 400,
+			data: { error: 'This reset link is invalid or has expired.', expired: true }
+		});
+		const [row] = await db.select().from(users).where(eq(users.id, user.id));
+		expect(await verifyPassword(row.passwordHash!, 'brand-new-pw')).toBe(true);
+	});
+
+	it('rolls everything back when a step fails: token stays valid, password and sessions untouched', async () => {
+		const user = await makeUser({ passwordHash: 'old-hash' });
+		await makeSession(user.id);
+		const token = await createPasswordResetToken(user.id);
+		// Make the last step (signing out every session) fail inside the database.
+		await db.execute(sql`
+			create or replace function fail_session_delete() returns trigger language plpgsql as
+			$$ begin raise exception 'session delete blocked'; end $$
+		`);
+		await db.execute(sql`
+			create trigger block_session_delete before delete on sessions
+			for each row execute function fail_session_delete()
+		`);
+		try {
+			await expect(submit(token, { password: 'brand-new-pw', confirmPassword: 'brand-new-pw' })).rejects.toThrow();
+		} finally {
+			await db.execute(sql`drop trigger block_session_delete on sessions`);
+			await db.execute(sql`drop function fail_session_delete()`);
+		}
+
+		const [row] = await db.select().from(users).where(eq(users.id, user.id));
+		expect(row.passwordHash).toBe('old-hash');
+		expect(await db.select().from(sessions).where(eq(sessions.userId, user.id))).toHaveLength(1);
+		expect(await load(ev({ params: { token } }))).toEqual({ valid: true });
 	});
 });

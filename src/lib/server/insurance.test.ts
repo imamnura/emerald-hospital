@@ -114,6 +114,16 @@ describe('upsertInsurance', () => {
 		});
 	});
 
+	it('upsertInsurance updates the existing row instead of inserting a second', async () => {
+		const user = await makeUser();
+		const first = await upsertInsurance(user.id, base);
+		const second = await upsertInsurance(user.id, { ...base, providerName: 'AXA' });
+		expect(second).toBe(first);
+		const rows = await db.select().from(insuranceProfiles).where(eq(insuranceProfiles.userId, user.id));
+		expect(rows).toHaveLength(1);
+		expect(rows[0]).toMatchObject({ id: first, providerName: 'AXA' });
+	});
+
 	it('updates the existing profile in place, keeping the same id', async () => {
 		const user = await makeUser();
 		const id = await upsertInsurance(user.id, {

@@ -27,7 +27,7 @@ describe('specialist detail load', () => {
 			doctors: Record<string, unknown>[];
 			user: unknown;
 		};
-		expect(data.user).toBe(user);
+		expect(data.user).toEqual(user);
 		expect(data.specialist.id).toBe(spec.id);
 		expect(data.doctors.map((d) => d.name)).toEqual(['High', 'Mid', 'Low']);
 		expect(Object.keys(data.doctors[0]).sort()).toEqual(

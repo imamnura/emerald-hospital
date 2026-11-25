@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { toPublicUser } from '#lib/server/auth.ts';
 import { db } from '#lib/server/db/index.ts';
 import { bookings } from '#lib/server/db/schema.ts';
 import { resetDb, type TestDb } from '../../../../../../test/db.ts';
@@ -71,7 +72,7 @@ describe('booking confirm load', () => {
 		const data = (await load(
 			ev({ user, params: { id: doctor.id }, url: qs({ date: MONDAY, time: '10:30', scheduleId: schedule.id }) })
 		)) as Record<string, Record<string, unknown>>;
-		expect(data.user).toBe(user);
+		expect(data.user).toEqual(toPublicUser(user));
 		expect(data.appointment).toEqual({
 			date: MONDAY,
 			time: '10:30',

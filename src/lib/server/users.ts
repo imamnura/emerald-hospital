@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { hashPassword } from './auth';
-import { db } from './db';
+import { db, type DbExecutor } from './db';
 import { formOpt, formStr, ISO_DATE_RE } from './http/forms.ts';
 import { BLOOD_TYPES, GENDERS, users, type User } from './db/schema';
 
@@ -76,9 +76,9 @@ export async function getUserByEmail(email: string): Promise<User | undefined> {
 	return row;
 }
 
-export async function setPassword(userId: string, plain: string): Promise<void> {
+export async function setPassword(userId: string, plain: string, executor: DbExecutor = db): Promise<void> {
 	const passwordHash = await hashPassword(plain);
-	await db.update(users).set({ passwordHash }).where(eq(users.id, userId));
+	await executor.update(users).set({ passwordHash }).where(eq(users.id, userId));
 }
 
 export async function getUserById(userId: string) {

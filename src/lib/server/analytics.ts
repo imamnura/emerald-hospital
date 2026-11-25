@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gte, lte, type SQL } from 'drizzle-orm';
+import { and, count, desc, eq, gte, lte, sql, type SQL } from 'drizzle-orm';
 import type { SelectedFields } from 'drizzle-orm/pg-core';
 import { db } from './db';
 import { bookings, doctors, hospitals, specialists, users } from './db/schema';
@@ -66,21 +66,26 @@ export type Totals = {
 	pending: number;
 };
 
-export async function totals(filters: AnalyticsFilters): Promise<Totals> {
-	const [hospitalsRow] = await db.select({ value: count() }).from(hospitals);
-	const [doctorsRow] = await db.select({ value: count() }).from(doctors);
+/** All bookings and the pending ones matching `where`, counted in one query. */
+async function bookingAndPendingCounts(where: SQL | undefined): Promise<{ bookings: number; pending: number }> {
+	const [row] = await bookingsWithDoctors({
+		bookings: count(),
+		pending: sql<number>`count(*) filter (where ${eq(bookings.status, 'pending')})`.mapWith(Number)
+	}).where(where);
+	return { bookings: Number(row?.bookings ?? 0), pending: Number(row?.pending ?? 0) };
+}
 
-	const where = whereForFilters(filters);
-	const [bookingsRow] = await bookingsWithDoctors({ value: count() }).where(where);
-	const [pendingRow] = await bookingsWithDoctors({ value: count() }).where(
-		and(where, eq(bookings.status, 'pending'))
-	);
+export async function totals(filters: AnalyticsFilters): Promise<Totals> {
+	const [[hospitalsRow], [doctorsRow], counts] = await Promise.all([
+		db.select({ value: count() }).from(hospitals),
+		db.select({ value: count() }).from(doctors),
+		bookingAndPendingCounts(whereForFilters(filters))
+	]);
 
 	return {
 		hospitals: Number(hospitalsRow?.value ?? 0),
 		doctors: Number(doctorsRow?.value ?? 0),
-		bookings: Number(bookingsRow?.value ?? 0),
-		pending: Number(pendingRow?.value ?? 0)
+		...counts
 	};
 }
 
@@ -100,14 +105,7 @@ export async function previousTotals(filters: AnalyticsFilters): Promise<{ booki
 	];
 	if (filters.hospitalId) conditions.push(eq(doctors.hospitalId, filters.hospitalId));
 	if (filters.specialistId) conditions.push(eq(doctors.specialistId, filters.specialistId));
-	const where = and(...conditions);
-
-	const [b] = await bookingsWithDoctors({ value: count() }).where(where);
-	const [p] = await bookingsWithDoctors({ value: count() }).where(
-		and(where, eq(bookings.status, 'pending'))
-	);
-
-	return { bookings: Number(b?.value ?? 0), pending: Number(p?.value ?? 0) };
+	return bookingAndPendingCounts(and(...conditions));
 }
 
 export type TimeSeriesPoint = { date: string; total: number };

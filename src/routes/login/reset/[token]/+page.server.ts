@@ -1,6 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { deleteSessionsByUserId } from '#lib/server/auth.ts';
+import { db } from '#lib/server/db/index.ts';
 import { consumePasswordResetToken, findValidPasswordResetToken } from '#lib/server/password-reset.ts';
 import { setPassword } from '#lib/server/users.ts';
 
@@ -29,10 +30,12 @@ export const actions: Actions = {
 			return fail(400, { error: 'Passwords do not match.', expired: false });
 		}
 
-		await setPassword(tokenRow.userId, password);
-
-		await consumePasswordResetToken(tokenRow.id);
-		await deleteSessionsByUserId(tokenRow.userId);
+		// All-or-nothing: a failure leaves the token usable and the old password + sessions intact.
+		await db.transaction(async (tx) => {
+			await consumePasswordResetToken(tokenRow.id, tx);
+			await setPassword(tokenRow.userId, password, tx);
+			await deleteSessionsByUserId(tokenRow.userId, tx);
+		});
 
 		throw redirect(303, '/login?reset=success');
 	}

@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import { and, eq, isNull } from 'drizzle-orm';
-import { db } from './db';
+import { db, type DbExecutor } from './db';
 import { passwordResetTokens, type User } from './db/schema';
 import { sendMail } from './mailer';
 
@@ -42,8 +42,8 @@ export async function findValidPasswordResetToken(token: string) {
 	return row;
 }
 
-export async function consumePasswordResetToken(id: string): Promise<void> {
-	await db.update(passwordResetTokens).set({ usedAt: new Date() }).where(eq(passwordResetTokens.id, id));
+export async function consumePasswordResetToken(id: string, executor: DbExecutor = db): Promise<void> {
+	await executor.update(passwordResetTokens).set({ usedAt: new Date() }).where(eq(passwordResetTokens.id, id));
 }
 
 export async function sendPasswordResetEmail(user: User, resetUrl: string): Promise<void> {

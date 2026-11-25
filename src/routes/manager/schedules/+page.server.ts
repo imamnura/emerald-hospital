@@ -46,29 +46,32 @@ export const load: PageServerLoad = async ({ url }) => {
 
 	const where = searchWhere(q, [doctors.name], [doctorId ? eq(doctorSchedules.doctorId, doctorId) : undefined]);
 
-	const { rows, total } = await paginate(
-		db
-			.select({
-				id: doctorSchedules.id,
-				doctorId: doctorSchedules.doctorId,
-				dayOfWeek: doctorSchedules.dayOfWeek,
-				startTime: doctorSchedules.startTime,
-				endTime: doctorSchedules.endTime,
-				maxQuota: doctorSchedules.maxQuota,
-				doctorName: doctors.name
-			})
-			.from(doctorSchedules)
-			.innerJoin(doctors, eq(doctorSchedules.doctorId, doctors.id))
-			.where(where)
-			.orderBy(asc(doctors.name), asc(doctorSchedules.dayOfWeek), asc(doctorSchedules.startTime))
-			.limit(pageSize)
-			.offset(offset),
-		db
-			.select({ value: count() })
-			.from(doctorSchedules)
-			.innerJoin(doctors, eq(doctorSchedules.doctorId, doctors.id))
-			.where(where)
-	);
+	const [{ rows, total }, doctorOptions] = await Promise.all([
+		paginate(
+			db
+				.select({
+					id: doctorSchedules.id,
+					doctorId: doctorSchedules.doctorId,
+					dayOfWeek: doctorSchedules.dayOfWeek,
+					startTime: doctorSchedules.startTime,
+					endTime: doctorSchedules.endTime,
+					maxQuota: doctorSchedules.maxQuota,
+					doctorName: doctors.name
+				})
+				.from(doctorSchedules)
+				.innerJoin(doctors, eq(doctorSchedules.doctorId, doctors.id))
+				.where(where)
+				.orderBy(asc(doctors.name), asc(doctorSchedules.dayOfWeek), asc(doctorSchedules.startTime))
+				.limit(pageSize)
+				.offset(offset),
+			db
+				.select({ value: count() })
+				.from(doctorSchedules)
+				.innerJoin(doctors, eq(doctorSchedules.doctorId, doctors.id))
+				.where(where)
+		),
+		listDoctorOptions()
+	]);
 
 	return {
 		schedules: rows,
@@ -77,7 +80,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		pageSize,
 		query: q,
 		doctorFilter,
-		doctors: await listDoctorOptions()
+		doctors: doctorOptions
 	};
 };
 

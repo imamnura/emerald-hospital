@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { toPublicUser } from '#lib/server/auth.ts';
 import { db } from '#lib/server/db/index.ts';
 import { resetDb, type TestDb } from '../../../../../test/db.ts';
 import { makeBooking, makeDoctor, makeSchedule, makeUser } from '../../../../../test/factories.ts';
@@ -41,7 +42,7 @@ describe('book page load', () => {
 		}
 
 		const first = (await load(ev({ params: { id: doctor.id }, user }))) as Data;
-		expect(first.user).toBe(user);
+		expect(first.user).toEqual(toPublicUser(user));
 		expect(first.selectedDate).toBe(first.calendarDays[0].date);
 		expect(first.monthLabel).toMatch(/\d{4}$/);
 		expect(first.availableDays).toHaveLength(7);

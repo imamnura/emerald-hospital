@@ -136,6 +136,48 @@ describe('getAllSlotsForDoctorDate', () => {
 		]);
 	});
 
+	it('counts bookings per schedule and time across several schedules', async () => {
+		const { user, doctor, schedule: a } = await setup({
+			dayOfWeek: 1,
+			startTime: '09:00',
+			endTime: '10:00',
+			maxQuota: 2
+		});
+		const b = await makeSchedule(doctor.id, {
+			dayOfWeek: 1,
+			startTime: '09:30',
+			endTime: '10:30',
+			maxQuota: 3
+		});
+		const book = (scheduleId: string, appointmentTime: string, status?: 'cancelled' | 'confirmed') =>
+			makeBooking({ userId: user.id, doctorId: doctor.id, scheduleId, appointmentDate: MONDAY, appointmentTime, status });
+		await book(a.id, '09:00');
+		await book(a.id, '09:30', 'confirmed');
+		await book(a.id, '09:30');
+		await book(b.id, '09:30');
+		await book(b.id, '10:00', 'cancelled'); // ignored
+		await book(b.id, '10:00');
+		// Another date on the same schedule must not count.
+		await makeBooking({ userId: user.id, doctorId: doctor.id, scheduleId: b.id, appointmentDate: '2030-01-14', appointmentTime: '10:00' });
+
+		expect(await getAllSlotsForDoctorDate([a, b], MONDAY)).toEqual([
+			{ time: '09:00', quota: 1, scheduleId: a.id },
+			// a: 2-2=0, b: 3-1=2 -> b
+			{ time: '09:30', quota: 2, scheduleId: b.id },
+			{ time: '10:00', quota: 2, scheduleId: b.id }
+		]);
+	});
+
+	it('skips schedules that are not in the database (unknown or malformed id)', async () => {
+		const { schedule } = await setup({ dayOfWeek: 1, startTime: '09:00', endTime: '09:30', maxQuota: 2 });
+		const ghost = { ...schedule, id: '00000000-0000-0000-0000-000000000000', startTime: '07:00' };
+		const malformed = { ...schedule, id: 'not-a-uuid', startTime: '08:00' };
+		expect(await getAllSlotsForDoctorDate([ghost, malformed, schedule], MONDAY)).toEqual([
+			{ time: '09:00', quota: 2, scheduleId: schedule.id }
+		]);
+		expect(await getAllSlotsForDoctorDate([ghost, malformed], MONDAY)).toEqual([]);
+	});
+
 	it('prefers a later schedule when it has strictly more quota', async () => {
 		const { doctor, schedule: a } = await setup({ dayOfWeek: 1, startTime: '09:00', endTime: '09:30', maxQuota: 1 });
 		const b = await makeSchedule(doctor.id, { dayOfWeek: 1, startTime: '09:00', endTime: '09:30', maxQuota: 4 });
@@ -291,7 +333,8 @@ describe('createBookingAtomic', () => {
 				let n = 0;
 				wrapped.select = ((...args: Parameters<typeof tx.select>) => {
 					n++;
-					if (n === 1) {
+					// 1st select = the FOR UPDATE schedule lock, 2nd = the used-quota count.
+					if (n === 2) {
 						// count query yields no row at all
 						return { from: () => ({ where: async () => [] }) };
 					}
