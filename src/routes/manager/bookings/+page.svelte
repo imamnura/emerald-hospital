@@ -2,13 +2,17 @@
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { ClipboardList, FileSpreadsheet, Pencil, Search } from '@lucide/svelte';
+	import { ClipboardList, FileSpreadsheet, Pencil } from '@lucide/svelte';
 	import EmptyState from '#lib/components/manager/EmptyState.svelte';
 	import Modal from '#lib/components/manager/Modal.svelte';
+	import ManagerSearchForm from '#lib/components/manager/ManagerSearchForm.svelte';
 	import PageHeader from '#lib/components/manager/PageHeader.svelte';
 	import Pagination from '#lib/components/manager/Pagination.svelte';
+	import { MANAGER_INPUT_CLASS } from '#lib/components/manager/styles.ts';
 	import StatusBadge from '#lib/components/manager/StatusBadge.svelte';
+	import { createCrudState } from '#lib/utils/crud.svelte.ts';
 	import { toastForm } from '#lib/utils/enhance.ts';
+	import { withParams } from '#lib/utils/url.ts';
 	import type { BookingStatus } from '#lib/domain/booking-status.ts';
 	import { formatDate } from '#lib/format/date.ts';
 
@@ -16,8 +20,7 @@
 	type Booking = (typeof data.bookings)[number];
 	type Status = BookingStatus;
 
-	let modalOpen = $state(false);
-	let editing = $state<Booking | null>(null);
+	const crud = createCrudState<Booking>();
 	let pendingStatus = $state<Status>('pending');
 
 	let searchInput = $state('');
@@ -26,29 +29,16 @@
 	});
 
 	function openEdit(b: Booking) {
-		editing = b;
 		pendingStatus = b.status as Status;
-		modalOpen = true;
+		crud.openEdit(b);
 	}
 
 	function setStatusTab(status: '' | Status) {
-		const params = new URLSearchParams(page.url.searchParams.toString());
-		if (status) params.set('status', status);
-		else params.delete('status');
-		params.delete('page');
-		const qs = params.toString();
-		goto(qs ? `?${qs}` : page.url.pathname);
+		goto(withParams(page.url, { status }, { relative: true }));
 	}
 
-	function submitSearch(e: SubmitEvent) {
-		e.preventDefault();
-		const params = new URLSearchParams(page.url.searchParams.toString());
-		const q = searchInput.trim();
-		if (q) params.set('q', q);
-		else params.delete('q');
-		params.delete('page');
-		const qs = params.toString();
-		goto(qs ? `?${qs}` : page.url.pathname, { reset: false });
+	function submitSearch(q: string) {
+		goto(withParams(page.url, { q }, { relative: true }), { reset: false });
 	}
 
 	const exportHref = $derived.by(() => {
@@ -83,19 +73,11 @@
 </PageHeader>
 
 <div class="mt-6 flex flex-col gap-4">
-	<form onsubmit={submitSearch} class="relative">
-		<Search
-			size={16}
-			class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-outline"
-		/>
-		<input
-			type="search"
-			name="q"
-			bind:value={searchInput}
-			placeholder="Search patient, doctor, specialty, or hospital (press Enter)"
-			class="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest py-2.5 pl-10 pr-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
-		/>
-	</form>
+	<ManagerSearchForm
+		bind:value={searchInput}
+		placeholder="Search patient, doctor, specialty, or hospital (press Enter)"
+		onsubmit={submitSearch}
+	/>
 
 	<div class="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
 		{#each tabs as t}
@@ -227,11 +209,13 @@
 </div>
 
 <Modal
-	bind:open={modalOpen}
+	bind:open={crud.modalOpen}
+	formId="booking-form"
+	submitLabel="Save"
 	title="Update booking status"
-	description={editing ? `${editing.patientName} · ${editing.doctorName}` : ''}
+	description={crud.editing ? `${crud.editing.patientName} · ${crud.editing.doctorName}` : ''}
 >
-	{#if editing}
+	{#if crud.editing}
 		<form
 			id="booking-form"
 			method="POST"
@@ -239,31 +223,31 @@
 			use:enhance={toastForm({
 				successMessage: 'Booking status updated.',
 				onSuccess: () => {
-					modalOpen = false;
-					editing = null;
+					crud.modalOpen = false;
+					crud.editing = null;
 				}
 			})}
 			class="space-y-4"
 		>
-			<input type="hidden" name="id" value={editing.id} />
+			<input type="hidden" name="id" value={crud.editing.id} />
 			<dl class="grid grid-cols-2 gap-3 rounded-xl bg-surface-container-low px-4 py-3 text-xs">
 				<div>
 					<dt class="font-semibold text-outline">Date</dt>
 					<dd class="mt-0.5 font-medium text-on-surface">
-						{formatDate(String(editing.appointmentDate), 'longId')}
+						{formatDate(String(crud.editing.appointmentDate), 'longId')}
 					</dd>
 				</div>
 				<div>
 					<dt class="font-semibold text-outline">Time</dt>
-					<dd class="mt-0.5 font-medium text-on-surface">{editing.appointmentTime}</dd>
+					<dd class="mt-0.5 font-medium text-on-surface">{crud.editing.appointmentTime}</dd>
 				</div>
 				<div>
 					<dt class="font-semibold text-outline">Specialty</dt>
-					<dd class="mt-0.5 font-medium text-on-surface">{editing.specialty}</dd>
+					<dd class="mt-0.5 font-medium text-on-surface">{crud.editing.specialty}</dd>
 				</div>
 				<div>
 					<dt class="font-semibold text-outline">Hospital</dt>
-					<dd class="mt-0.5 font-medium text-on-surface">{editing.hospital}</dd>
+					<dd class="mt-0.5 font-medium text-on-surface">{crud.editing.hospital}</dd>
 				</div>
 			</dl>
 			<label class="block text-xs font-semibold text-on-surface-variant">
@@ -271,7 +255,7 @@
 				<select
 					name="status"
 					bind:value={pendingStatus}
-					class="mt-1 w-full rounded-xl border border-outline-variant/50 bg-surface-container-lowest px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+					class={MANAGER_INPUT_CLASS}
 				>
 					<option value="pending">Pending</option>
 					<option value="confirmed">Confirmed</option>
@@ -281,21 +265,4 @@
 			</label>
 		</form>
 	{/if}
-
-	{#snippet footer()}
-		<button
-			type="button"
-			class="rounded-xl border border-outline-variant px-4 py-2 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container"
-			onclick={() => (modalOpen = false)}
-		>
-			Cancel
-		</button>
-		<button
-			type="submit"
-			form="booking-form"
-			class="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-on-primary shadow-primary transition-transform active:scale-[0.98]"
-		>
-			Save
-		</button>
-	{/snippet}
 </Modal>

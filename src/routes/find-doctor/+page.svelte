@@ -1,6 +1,7 @@
 <script lang="ts">
 	import BrandMark from '#lib/components/ui/BrandMark.svelte';
 	import { goto } from '$app/navigation';
+	import { withParams } from '#lib/utils/url.ts';
 	import {
 		ArrowLeft,
 		Building2,
@@ -31,13 +32,14 @@
 		return isLoggedIn ? target : `/login?redirect=${encodeURIComponent(target)}`;
 	}
 
+	const FIND_DOCTOR_URL = new URL('/find-doctor', 'http://localhost');
+
 	function submitSearch(e: SubmitEvent) {
 		e.preventDefault();
-		const params = new URLSearchParams();
-		if (specialty.trim()) params.set('q', specialty.trim());
-		if (hospital && hospital !== 'all') params.set('hospital', hospital);
-		const qs = params.toString();
-		goto(qs ? `/find-doctor?${qs}` : '/find-doctor', { reset: false });
+		const q = specialty.trim();
+		goto(withParams(FIND_DOCTOR_URL, { q, hospital: hospital === 'all' ? null : hospital }), {
+			reset: false
+		});
 	}
 </script>
 

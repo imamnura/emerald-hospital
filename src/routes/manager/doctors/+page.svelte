@@ -1,24 +1,26 @@
 <script lang="ts">
 	import Avatar from '#lib/components/ui/Avatar.svelte';
 	import { getInitials } from '#lib/format/text.ts';
-	import { tick } from 'svelte';
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { Pencil, Plus, Search, Star, Stethoscope, Trash2 } from '@lucide/svelte';
-	import ConfirmDialog from '#lib/components/manager/ConfirmDialog.svelte';
+	import { Star, Stethoscope } from '@lucide/svelte';
+	import DeleteConfirm from '#lib/components/manager/DeleteConfirm.svelte';
 	import EmptyState from '#lib/components/manager/EmptyState.svelte';
 	import Modal from '#lib/components/manager/Modal.svelte';
+	import ManagerSearchForm from '#lib/components/manager/ManagerSearchForm.svelte';
 	import PageHeader from '#lib/components/manager/PageHeader.svelte';
 	import Pagination from '#lib/components/manager/Pagination.svelte';
-	import { toast } from '#lib/stores/toast.svelte.ts';
+	import RowActions from '#lib/components/manager/RowActions.svelte';
+	import { MANAGER_INPUT_CLASS } from '#lib/components/manager/styles.ts';
+	import { createCrudState } from '#lib/utils/crud.svelte.ts';
 	import { toastForm } from '#lib/utils/enhance.ts';
+	import { withParams } from '#lib/utils/url.ts';
 
 	let { data } = $props();
 	type Doctor = (typeof data.doctors)[number];
 
-	let modalOpen = $state(false);
-	let editing = $state<Doctor | null>(null);
+	const crud = createCrudState<Doctor>();
 
 	let searchInput = $state('');
 	let hospitalFilter = $state('');
@@ -29,137 +31,59 @@
 		specialistFilter = data.specialistFilter;
 	});
 
-	let confirmOpen = $state(false);
-	let confirmTarget = $state<Doctor | null>(null);
-	let deleteFormEl: HTMLFormElement;
-	let deletingId = $state('');
-	let deleting = $state(false);
-
-	function openAdd() {
-		editing = null;
-		modalOpen = true;
-	}
-
-	function openEdit(d: Doctor) {
-		editing = d;
-		modalOpen = true;
-	}
-
-	function askDelete(d: Doctor) {
-		confirmTarget = d;
-		confirmOpen = true;
-	}
-
-	async function confirmDelete() {
-		if (!confirmTarget) return;
-		deletingId = confirmTarget.id;
-		deleting = true;
-		// Let bind:value write the id into the hidden input before submitting.
-		await tick();
-		deleteFormEl.requestSubmit();
-	}
-
 	function applyFilters() {
-		const params = new URLSearchParams(page.url.searchParams.toString());
-		const q = searchInput.trim();
-		if (q) params.set('q', q);
-		else params.delete('q');
-		if (hospitalFilter) params.set('hospitalId', hospitalFilter);
-		else params.delete('hospitalId');
-		if (specialistFilter) params.set('specialistId', specialistFilter);
-		else params.delete('specialistId');
-		params.delete('page');
-		const qs = params.toString();
-		goto(qs ? `?${qs}` : page.url.pathname, { reset: false });
-	}
-
-	function submitSearch(e: SubmitEvent) {
-		e.preventDefault();
-		applyFilters();
+		const updates = { q: searchInput.trim(), hospitalId: hospitalFilter, specialistId: specialistFilter };
+		goto(withParams(page.url, updates, { relative: true }), { reset: false });
 	}
 </script>
-
-<form
-	method="POST"
-	action="?/delete"
-	bind:this={deleteFormEl}
-	class="hidden"
-	use:enhance={() => async ({ result, update }) => {
-		await update({ refreshAll: true });
-		deleting = false;
-		confirmOpen = false;
-		const target = confirmTarget;
-		confirmTarget = null;
-		if (result.type === 'success') toast.success(`Doctor "${target?.name ?? ''}" deleted.`);
-		else if (result.type === 'failure')
-			toast.error((result.data?.error as string) ?? 'Failed to delete doctor.');
-	}}
->
-	<input type="hidden" name="id" bind:value={deletingId} />
-</form>
 
 <PageHeader
 	title="Doctors"
 	subtitle="Manage doctor profiles and assignments."
 	count={data.total}
 	countLabel="total"
->
-	{#snippet actions()}
-		<button
-			type="button"
-			onclick={openAdd}
-			class="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-on-primary shadow-primary transition-transform active:scale-[0.98]"
-		>
-			<Plus size={16} strokeWidth={2.25} />
-			Add Doctor
-		</button>
-	{/snippet}
-</PageHeader>
+	addLabel="Add Doctor"
+	onadd={() => crud.openAdd()}
+/>
 
 <div class="mt-6 flex flex-col gap-4">
-	<form onsubmit={submitSearch} class="grid gap-2 sm:grid-cols-[1fr,auto,auto,auto]">
-		<div class="relative">
-			<Search
-				size={16}
-				class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-outline"
-			/>
-			<input
-				type="search"
-				name="q"
-				bind:value={searchInput}
-				placeholder="Search by name, specialty, or hospital"
-				class="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest py-2.5 pl-10 pr-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
-			/>
-		</div>
-		<select
-			bind:value={hospitalFilter}
-			onchange={applyFilters}
-			class="rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
-			aria-label="Filter by hospital"
-		>
-			<option value="">All hospitals</option>
-			{#each data.hospitals as h}
-				<option value={h.id}>{h.name}</option>
-			{/each}
-		</select>
-		<select
-			bind:value={specialistFilter}
-			onchange={applyFilters}
-			class="rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
-			aria-label="Filter by specialty"
-		>
-			<option value="">All specialties</option>
-			{#each data.specialists as s}
-				<option value={s.id}>{s.name}</option>
-			{/each}
-		</select>
-		<button
-			type="submit"
-			class="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-on-primary shadow-primary"
-		>
-			Apply
-		</button>
-	</form>
+	<ManagerSearchForm
+		bind:value={searchInput}
+		placeholder="Search by name, specialty, or hospital"
+		class="sm:grid-cols-[1fr,auto,auto,auto]"
+		onsubmit={() => applyFilters()}
+	>
+		{#snippet filters()}
+			<select
+				bind:value={hospitalFilter}
+				onchange={applyFilters}
+				class="rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
+				aria-label="Filter by hospital"
+			>
+				<option value="">All hospitals</option>
+				{#each data.hospitals as h}
+					<option value={h.id}>{h.name}</option>
+				{/each}
+			</select>
+			<select
+				bind:value={specialistFilter}
+				onchange={applyFilters}
+				class="rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
+				aria-label="Filter by specialty"
+			>
+				<option value="">All specialties</option>
+				{#each data.specialists as s}
+					<option value={s.id}>{s.name}</option>
+				{/each}
+			</select>
+			<button
+				type="submit"
+				class="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-on-primary shadow-primary"
+			>
+				Apply
+			</button>
+		{/snippet}
+	</ManagerSearchForm>
 
 	{#if data.doctors.length === 0}
 		<EmptyState
@@ -235,24 +159,7 @@
 									{/if}
 								</td>
 								<td class="px-4 py-3 align-middle">
-									<div class="flex justify-end gap-1">
-										<button
-											type="button"
-											class="flex h-8 w-8 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container hover:text-primary"
-											aria-label="Edit {d.name}"
-											onclick={() => openEdit(d)}
-										>
-											<Pencil size={14} />
-										</button>
-										<button
-											type="button"
-											class="flex h-8 w-8 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-error-container hover:text-error"
-											aria-label="Delete {d.name}"
-											onclick={() => askDelete(d)}
-										>
-											<Trash2 size={14} />
-										</button>
-									</div>
+									<RowActions name={d.name} onedit={() => crud.openEdit(d)} ondelete={() => crud.askDelete(d)} />
 								</td>
 							</tr>
 						{/each}
@@ -270,35 +177,37 @@
 </div>
 
 <Modal
-	bind:open={modalOpen}
+	bind:open={crud.modalOpen}
+	formId="doctor-form"
+	submitLabel={crud.editing ? 'Save Changes' : 'Create'}
 	size="lg"
-	title={editing ? 'Edit doctor' : 'Add doctor'}
-	description={editing ? editing.name : 'Onboard a new physician'}
+	title={crud.editing ? 'Edit doctor' : 'Add doctor'}
+	description={crud.editing ? crud.editing.name : 'Onboard a new physician'}
 >
 	<form
 		id="doctor-form"
 		method="POST"
-		action={editing ? '?/update' : '?/create'}
+		action={crud.editing ? '?/update' : '?/create'}
 		use:enhance={toastForm({
-			successMessage: editing ? 'Doctor updated.' : 'Doctor created.',
+			successMessage: crud.editing ? 'Doctor updated.' : 'Doctor created.',
 			onSuccess: () => {
-				modalOpen = false;
-				editing = null;
+				crud.modalOpen = false;
+				crud.editing = null;
 			}
 		})}
 		class="space-y-3"
 	>
-		{#if editing}
-			<input type="hidden" name="id" value={editing.id} />
+		{#if crud.editing}
+			<input type="hidden" name="id" value={crud.editing.id} />
 		{/if}
 		<label class="block text-xs font-semibold text-on-surface-variant">
 			Full name *
 			<input
 				name="name"
 				required
-				value={editing?.name ?? ''}
+				value={crud.editing?.name ?? ''}
 				placeholder="Dr. Jane Doe"
-				class="mt-1 w-full rounded-xl border border-outline-variant/50 bg-surface-container-lowest px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+				class={MANAGER_INPUT_CLASS}
 			/>
 		</label>
 		<div class="grid gap-3 sm:grid-cols-2">
@@ -307,8 +216,8 @@
 				<select
 					name="hospitalId"
 					required
-					value={editing?.hospitalId ?? ''}
-					class="mt-1 w-full rounded-xl border border-outline-variant/50 bg-surface-container-lowest px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+					value={crud.editing?.hospitalId ?? ''}
+					class={MANAGER_INPUT_CLASS}
 				>
 					<option value="">Select hospital</option>
 					{#each data.hospitals as h}
@@ -321,8 +230,8 @@
 				<select
 					name="specialistId"
 					required
-					value={editing?.specialistId ?? ''}
-					class="mt-1 w-full rounded-xl border border-outline-variant/50 bg-surface-container-lowest px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+					value={crud.editing?.specialistId ?? ''}
+					class={MANAGER_INPUT_CLASS}
 				>
 					<option value="">Select specialty</option>
 					{#each data.specialists as s}
@@ -340,8 +249,8 @@
 					step="0.1"
 					min="0"
 					max="5"
-					value={editing?.rating ?? '4.5'}
-					class="mt-1 w-full rounded-xl border border-outline-variant/50 bg-surface-container-lowest px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+					value={crud.editing?.rating ?? '4.5'}
+					class={MANAGER_INPUT_CLASS}
 				/>
 			</label>
 			<label class="text-xs font-semibold text-on-surface-variant">
@@ -351,16 +260,16 @@
 					type="number"
 					step="0.01"
 					min="0"
-					value={editing?.consultationFee ?? ''}
+					value={crud.editing?.consultationFee ?? ''}
 					placeholder="150.00"
-					class="mt-1 w-full rounded-xl border border-outline-variant/50 bg-surface-container-lowest px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+					class={MANAGER_INPUT_CLASS}
 				/>
 			</label>
 			<label class="flex items-center gap-2 text-xs font-semibold text-on-surface-variant pt-5">
 				<input
 					type="checkbox"
 					name="isActive"
-					checked={editing ? editing.isActive : true}
+					checked={crud.editing ? crud.editing.isActive : true}
 					class="h-4 w-4 rounded border-outline-variant accent-primary"
 				/>
 				Active
@@ -370,9 +279,9 @@
 			Image URL
 			<input
 				name="imageUrl"
-				value={editing?.imageUrl ?? ''}
+				value={crud.editing?.imageUrl ?? ''}
 				placeholder="https://…"
-				class="mt-1 w-full rounded-xl border border-outline-variant/50 bg-surface-container-lowest px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+				class={MANAGER_INPUT_CLASS}
 			/>
 		</label>
 		<label class="block text-xs font-semibold text-on-surface-variant">
@@ -380,38 +289,21 @@
 			<textarea
 				name="bio"
 				rows="3"
-				value={editing?.bio ?? ''}
+				value={crud.editing?.bio ?? ''}
 				placeholder="Short professional bio shown to patients."
-				class="mt-1 w-full resize-y rounded-xl border border-outline-variant/50 bg-surface-container-lowest px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+				class="{MANAGER_INPUT_CLASS} resize-y"
 			></textarea>
 		</label>
 	</form>
 
-	{#snippet footer()}
-		<button
-			type="button"
-			class="rounded-xl border border-outline-variant px-4 py-2 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container"
-			onclick={() => (modalOpen = false)}
-		>
-			Cancel
-		</button>
-		<button
-			type="submit"
-			form="doctor-form"
-			class="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-on-primary shadow-primary transition-transform active:scale-[0.98]"
-		>
-			{editing ? 'Save Changes' : 'Create'}
-		</button>
-	{/snippet}
 </Modal>
 
-<ConfirmDialog
-	bind:open={confirmOpen}
+<DeleteConfirm
+	bind:open={crud.confirmOpen}
+	target={crud.confirmTarget}
 	title="Delete doctor?"
-	message={`Delete "${confirmTarget?.name ?? ''}"? Their schedules will be removed and existing bookings will lose their doctor reference.`}
-	confirmLabel="Delete"
-	danger
-	loading={deleting}
-	onConfirm={confirmDelete}
-	onCancel={() => (confirmTarget = null)}
+	message={`Delete "${crud.confirmTarget?.name ?? ''}"? Their schedules will be removed and existing bookings will lose their doctor reference.`}
+	successMessage={`Doctor "${crud.confirmTarget?.name ?? ''}" deleted.`}
+	failureMessage="Failed to delete doctor."
+	onclose={() => (crud.confirmTarget = null)}
 />
