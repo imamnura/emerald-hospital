@@ -35,6 +35,8 @@ Effort: **S** < ½ day · **M** 1–3 days · **L** > 3 days.
 | TD-26 | No soft delete or audit log for manager changes | schema | P2 | M |
 | TD-27 | No role-management UI | manager | P2 | M |
 | TD-28 | `@esbuild-kit/*` deprecated subdependencies via `drizzle-kit@0.31`; esbuild CVE neutralised through overrides | `pnpm-workspace.yaml` | P3 | — |
+| TD-29 | `typescript` held at 6.x: `@sveltejs/kit` 3.4 (`^6.0.0`) and `svelte-check` 4.7 (`^5 \|\| ^6`) don't support TS 7 yet. Lift when both peer ranges include `^7` | `package.json` | P2 | S |
+| TD-30 | `@types/node` held at 24.x to match the Node 24 runtime (24.22.3). Move together with a Node runtime upgrade | `package.json` | P3 | S |
 
 ### Resolved
 
