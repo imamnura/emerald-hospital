@@ -1,7 +1,7 @@
 ﻿<script lang="ts">
 	import { fade, fly } from 'svelte/transition';
 	import { Calendar, Check, Clock } from '@lucide/svelte';
-	import { formatAppointmentDateShort, formatTime12h } from '#lib/utils/booking-ui.ts';
+	import { formatDate, formatTime12h } from '#lib/format/date.ts';
 
 	interface Props {
 		open: boolean;
@@ -13,7 +13,7 @@
 
 	let { open, doctorName, appointmentDate, appointmentTime, onClose }: Props = $props();
 
-	const dateLabel = $derived(formatAppointmentDateShort(appointmentDate));
+	const dateLabel = $derived(formatDate(appointmentDate, 'short'));
 	const timeLabel = $derived(formatTime12h(appointmentTime));
 </script>
 

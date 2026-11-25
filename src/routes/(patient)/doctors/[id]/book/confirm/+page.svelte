@@ -8,7 +8,7 @@
 		MapPin,
 		Stethoscope
 	} from '@lucide/svelte';
-	import { formatAppointmentDateLong } from '#lib/utils/booking-ui.ts';
+	import { formatDate } from '#lib/format/date.ts';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 
 	let { data, form } = $props();
@@ -17,7 +17,7 @@
 		`/doctors/${data.doctor.id}/book?date=${data.appointment.date}`
 	);
 	const dateTimeLabel = $derived(
-		`${formatAppointmentDateLong(data.appointment.date)} at ${data.appointment.timeLabel}`
+		`${formatDate(data.appointment.date, 'long')} at ${data.appointment.timeLabel}`
 	);
 	const feeFormatted = $derived(
 		new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { ArrowLeft, MapPin, Star } from '@lucide/svelte';
-	import { DAY_NAMES } from '#lib/utils.ts';
+	import { DAY_NAMES } from '#lib/format/date.ts';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 
 	let { data } = $props();

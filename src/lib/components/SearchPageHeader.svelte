@@ -1,4 +1,5 @@
 ﻿<script lang="ts">
+	import { getInitials } from '#lib/format/text.ts';
 	import { ArrowLeft } from '@lucide/svelte';
 
 	interface Props {
@@ -17,14 +18,7 @@
 		showProfile = true
 	}: Props = $props();
 
-	const initials = $derived(
-		userName
-			.split(' ')
-			.map((n) => n[0])
-			.join('')
-			.slice(0, 2)
-			.toUpperCase()
-	);
+	const initials = $derived(getInitials(userName));
 </script>
 
 <header class="flex items-center justify-between py-2">

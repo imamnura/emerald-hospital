@@ -1,6 +1,7 @@
 import { and, count, desc, eq, ne, sql } from 'drizzle-orm';
 import { db } from './db';
 import { isUuid } from './db-errors';
+import { parseIsoDate } from '#lib/format/date.ts';
 import { bookings, doctorSchedules, doctors, hospitals, specialists } from './db/schema';
 
 export function parseTime(time: string): number {
@@ -25,8 +26,7 @@ export function generateTimeSlots(startTime: string, endTime: string, intervalMi
 }
 
 export function getDayOfWeek(dateStr: string): number {
-	const d = new Date(dateStr + 'T12:00:00');
-	return d.getDay();
+	return parseIsoDate(dateStr).getDay();
 }
 
 type ScheduleSlim = {

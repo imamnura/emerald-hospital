@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { formatDate } from '#lib/format/date.ts';
+
 	type Point = { date: string; total: number };
 
 	interface Props {
@@ -69,10 +71,9 @@
 						Math.round((i * (data.length - 1)) / (targetTicks - 1))
 					);
 		return idxs.map((i) => {
-			const d = new Date(data[i].date + 'T12:00:00');
 			return {
 				x: xPos(i, data.length),
-				label: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+				label: formatDate(data[i].date, 'dayMonth')
 			};
 		});
 	});
@@ -105,11 +106,10 @@
 	const tooltip = $derived.by(() => {
 		if (hoverIdx == null || !data[hoverIdx]) return null;
 		const p = data[hoverIdx];
-		const d = new Date(p.date + 'T12:00:00');
 		return {
 			x: xPos(hoverIdx, data.length),
 			y: yPos(p.total),
-			label: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+			label: formatDate(p.date, 'short'),
 			value: p.total
 		};
 	});

@@ -1,11 +1,8 @@
 ﻿<script lang="ts">
 	import { BriefcaseMedical } from '@lucide/svelte';
-	import {
-		formatCurrency,
-		formatTxDate,
-		txPaymentLabel,
-		type TransactionView
-	} from '#lib/utils/payments.ts';
+	import { formatDate } from '#lib/format/date.ts';
+	import { formatCurrency } from '#lib/format/money.ts';
+	import { txPaymentLabel, type TransactionView } from '#lib/utils/payments.ts';
 
 	interface Props {
 		transaction: TransactionView;
@@ -25,7 +22,7 @@
 	<div class="min-w-0 flex-1">
 		<p class="font-heading text-sm font-bold text-primary">{transaction.title}</p>
 		<p class="mt-0.5 text-xs text-outline">
-			{formatTxDate(transaction.paidAt)} • {txPaymentLabel(transaction)}
+			{formatDate(transaction.paidAt, 'short')} • {txPaymentLabel(transaction)}
 		</p>
 	</div>
 	<p class="shrink-0 font-heading text-sm font-bold text-primary">

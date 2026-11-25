@@ -1,22 +1,9 @@
-import { formatTime12h, toLocalDateString } from './booking-ui';
+import { formatDate, formatTime12h, toLocalDateString } from '#lib/format/date.ts';
 
 export type AppointmentTab = 'upcoming' | 'past';
 
-/** e.g. Oct 17, 2023 — for cancel confirmation modal */
-export function formatCancelModalDate(dateStr: string): string {
-	return new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', {
-		month: 'short',
-		day: 'numeric',
-		year: 'numeric'
-	});
-}
-
 export function formatAppointmentListDate(dateStr: string, time24: string): string {
-	const datePart = new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', {
-		weekday: 'short',
-		month: 'short',
-		day: 'numeric'
-	});
+	const datePart = formatDate(dateStr, 'weekdayDayMonth');
 	return `${datePart} • ${formatTime12h(time24)}`;
 }
 

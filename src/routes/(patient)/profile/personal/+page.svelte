@@ -1,4 +1,5 @@
 ﻿<script lang="ts">
+	import { getInitials } from '#lib/format/text.ts';
 	import { enhance } from '$app/forms';
 	import {
 		Calendar,
@@ -36,14 +37,7 @@
 		bloodType = data.profile.bloodType ?? '';
 	});
 
-	const initials = $derived(
-		name
-			.split(' ')
-			.map((n) => n[0])
-			.join('')
-			.slice(0, 2)
-			.toUpperCase()
-	);
+	const initials = $derived(getInitials(name));
 </script>
 
 <SearchPageHeader title="Personal Information" backHref="/profile" showProfile={false} />

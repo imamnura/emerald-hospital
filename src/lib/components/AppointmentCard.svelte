@@ -1,4 +1,5 @@
 ﻿<script lang="ts">
+	import { getInitials } from '#lib/format/text.ts';
 	import { Calendar, Check, Clock, MapPin } from '@lucide/svelte';
 	import {
 		appointmentStatusLabel,
@@ -40,15 +41,7 @@
 
 	const role = $derived(doctorRoleLabel(specialty, rating));
 	const dateTimeLabel = $derived(formatAppointmentListDate(appointmentDate, appointmentTime));
-	const initials = $derived(
-		doctorName
-			.replace(/^Dr\.\s*/i, '')
-			.split(' ')
-			.map((n) => n[0])
-			.join('')
-			.slice(0, 2)
-			.toUpperCase()
-	);
+	const initials = $derived(getInitials(doctorName.replace(/^Dr\.\s*/i, '')));
 </script>
 
 <article

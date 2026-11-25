@@ -1,6 +1,7 @@
 import { desc, eq } from 'drizzle-orm';
 import { db } from './db';
 import { medicalRecords, type MedicalRecord } from './db/schema';
+import { formatDate, parseIsoDate } from '#lib/format/date.ts';
 import type { MedicalRecordType, MedicalRecordView } from '#lib/utils/medical-records.ts';
 
 const CATEGORY_LABEL: Record<MedicalRecordType, string> = {
@@ -11,7 +12,7 @@ const CATEGORY_LABEL: Record<MedicalRecordType, string> = {
 
 function toView(row: MedicalRecord): MedicalRecordView {
 	const iso = String(row.recordDate);
-	const d = new Date(iso + 'T12:00:00');
+	const d = parseIsoDate(iso);
 	const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 	return {
 		id: row.id,
@@ -19,13 +20,9 @@ function toView(row: MedicalRecord): MedicalRecordView {
 		facility: row.facility,
 		type: row.type,
 		recordDate: iso,
-		dateLabel: d.toLocaleDateString('en-US', {
-			month: 'short',
-			day: 'numeric',
-			year: 'numeric'
-		}),
+		dateLabel: formatDate(iso, 'short'),
 		monthKey,
-		monthLabel: d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase(),
+		monthLabel: formatDate(iso, 'monthYear').toUpperCase(),
 		categoryLabel: CATEGORY_LABEL[row.type],
 		fileUrl: row.fileUrl
 	};

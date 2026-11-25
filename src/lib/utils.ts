@@ -1,15 +1,3 @@
-export const DAY_NAMES = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'] as const;
-
-export function formatDateId(dateStr: string): string {
-	const d = new Date(dateStr + 'T12:00:00');
-	return d.toLocaleDateString('id-ID', {
-		weekday: 'long',
-		day: 'numeric',
-		month: 'long',
-		year: 'numeric'
-	});
-}
-
 export function statusLabel(status: string): string {
 	const labels: Record<string, string> = {
 		pending: 'Menunggu',

@@ -1,4 +1,5 @@
 ﻿<script lang="ts">
+	import { getInitials } from '#lib/format/text.ts';
 	import { page } from '$app/state';
 	import { enhance } from '$app/forms';
 	import {
@@ -42,14 +43,7 @@
 		return path === href || path.startsWith(href + '/');
 	}
 
-	const initials = $derived(
-		data.user.name
-			.split(' ')
-			.map((n) => n[0])
-			.join('')
-			.slice(0, 2)
-			.toUpperCase()
-	);
+	const initials = $derived(getInitials(data.user.name));
 </script>
 
 <div class="min-h-screen bg-surface">

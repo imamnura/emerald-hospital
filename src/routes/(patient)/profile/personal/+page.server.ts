@@ -1,5 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
+import { parseIsoDate } from '#lib/format/date.ts';
 import { getUserById, updateProfile } from '#lib/server/users.ts';
 
 const GENDER_FORM_VALUES = ['female', 'male', 'other', 'prefer_not'] as const;
@@ -10,7 +11,7 @@ const ALLOWED_BLOOD = new Set(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
 /** MM/DD/YYYY for display in the form */
 function formatDobDisplay(iso: string | null): string {
 	if (!iso) return '';
-	const d = new Date(iso + 'T12:00:00');
+	const d = parseIsoDate(iso);
 	if (Number.isNaN(d.getTime())) return '';
 	const mm = String(d.getMonth() + 1).padStart(2, '0');
 	const dd = String(d.getDate()).padStart(2, '0');
@@ -26,7 +27,7 @@ function parseDobInput(value: string): string | null {
 	if (!m) return null;
 	const [, mm, dd, yyyy] = m;
 	const iso = `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`;
-	const test = new Date(iso + 'T12:00:00');
+	const test = parseIsoDate(iso);
 	return Number.isNaN(test.getTime()) ? null : iso;
 }
 

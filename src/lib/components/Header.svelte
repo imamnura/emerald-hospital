@@ -1,4 +1,5 @@
 ﻿<script lang="ts">
+	import { getInitials } from '#lib/format/text.ts';
 	import { Bell, Search, User } from '@lucide/svelte';
 	import brandIcon from '#lib/assets/icon_purwakarta_health.png';
 
@@ -18,14 +19,7 @@
 		leadingIcon = 'avatar'
 	}: Props = $props();
 
-	const initials = $derived(
-		userName
-			.split(' ')
-			.map((n) => n[0])
-			.join('')
-			.slice(0, 2)
-			.toUpperCase()
-	);
+	const initials = $derived(getInitials(userName));
 </script>
 
 <header class="flex items-center justify-between py-2">

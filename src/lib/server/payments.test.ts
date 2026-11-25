@@ -7,8 +7,6 @@ import { makeCard, makeTransaction, makeUser } from '../../test/factories.ts';
 import {
 	addCardForUser,
 	deleteCard,
-	formatCardNumber,
-	formatCurrency,
 	listCardsForUser,
 	listTransactionsForUser,
 	setDefaultCard
@@ -22,17 +20,6 @@ async function defaults(userId: string) {
 	const rows = await db.select().from(paymentCards).where(eq(paymentCards.userId, userId));
 	return rows.filter((r) => r.isDefault).map((r) => r.id);
 }
-
-describe('formatters', () => {
-	it('masks card numbers', () => {
-		expect(formatCardNumber('4242')).toBe('•••• •••• •••• 4242');
-	});
-	it('formats numbers and numeric strings as currency', () => {
-		expect(formatCurrency(150)).toBe('$150.00');
-		expect(formatCurrency('12.5')).toBe('$12.50');
-		expect(formatCurrency(10, 'EUR')).toBe('€10.00');
-	});
-});
 
 describe('listCardsForUser', () => {
 	it('lists default first, then newest, scoped to the user', async () => {

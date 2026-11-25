@@ -4,8 +4,7 @@ import type { Actions, PageServerLoad } from './$types';
 import { clearSessionCookie, deleteSession, SESSION_COOKIE_NAME, toPublicUser } from '#lib/server/auth.ts';
 import { db } from '#lib/server/db/index.ts';
 import { bookings } from '#lib/server/db/schema.ts';
-import { toLocalDateString } from '#lib/utils/booking-ui.ts';
-import { formatMemberSince, formatNextVisitShort } from '#lib/utils/profile.ts';
+import { formatDate, toLocalDateString } from '#lib/format/date.ts';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) throw redirect(303, '/login?redirect=/profile');
@@ -37,10 +36,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	return {
 		profile: toPublicUser(locals.user),
-		memberSince: formatMemberSince(locals.user.createdAt),
+		memberSince: formatDate(locals.user.createdAt, 'monthYearShort'),
 		stats: {
 			bloodType: locals.user.bloodType ?? '—',
-			nextVisit: nextBooking ? formatNextVisitShort(String(nextBooking.appointmentDate)) : '—',
+			nextVisit: nextBooking ? formatDate(String(nextBooking.appointmentDate), 'dayMonth') : '—',
 			reports: Number(reportsRow?.total ?? 0)
 		}
 	};

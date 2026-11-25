@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { fade, scale } from 'svelte/transition';
 	import { AlertTriangle } from '@lucide/svelte';
-	import { formatCancelModalDate } from '#lib/utils/appointments.ts';
+	import { formatDate } from '#lib/format/date.ts';
 
 	interface Props {
 		open: boolean;
@@ -15,7 +15,7 @@
 
 	let { open, bookingId, doctorName, appointmentDate, onClose, onCancelled }: Props = $props();
 
-	const dateLabel = $derived(formatCancelModalDate(appointmentDate));
+	const dateLabel = $derived(formatDate(appointmentDate, 'short'));
 	let submitting = $state(false);
 </script>
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getInitials } from '#lib/format/text.ts';
 	import { tick } from 'svelte';
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
@@ -200,7 +201,7 @@
 										<span
 											class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 font-heading text-xs font-bold text-primary"
 										>
-											{d.name.replace(/^Dr\.?\s*/i, '').charAt(0)}
+											{getInitials(d.name.replace(/^Dr\.?\s*/i, '')).slice(0, 1)}
 										</span>
 										<span class="font-medium text-on-surface">{d.name}</span>
 									</div>

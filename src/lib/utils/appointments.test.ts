@@ -3,16 +3,8 @@ import {
 	appointmentStatusLabel,
 	appointmentStatusStyles,
 	formatAppointmentListDate,
-	formatCancelModalDate,
 	isUpcomingAppointment
 } from '#lib/utils/appointments.ts';
-
-describe('formatCancelModalDate', () => {
-	it('formats as short month, day, year', () => {
-		expect(formatCancelModalDate('2023-10-17')).toBe('Oct 17, 2023');
-		expect(formatCancelModalDate('2026-01-01')).toBe('Jan 1, 2026');
-	});
-});
 
 describe('formatAppointmentListDate', () => {
 	it('joins weekday date and 12h time with a bullet', () => {

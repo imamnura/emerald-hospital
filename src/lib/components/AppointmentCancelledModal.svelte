@@ -1,7 +1,7 @@
 ﻿<script lang="ts">
 	import { fade, scale } from 'svelte/transition';
 	import { Check, X } from '@lucide/svelte';
-	import { formatCancelModalDate } from '#lib/utils/appointments.ts';
+	import { formatDate } from '#lib/format/date.ts';
 
 	interface Props {
 		open: boolean;
@@ -13,7 +13,7 @@
 
 	let { open, doctorName, appointmentDate, onBackToAppointments, onBookNew }: Props = $props();
 
-	const dateLabel = $derived(formatCancelModalDate(appointmentDate));
+	const dateLabel = $derived(formatDate(appointmentDate, 'short'));
 </script>
 
 {#if open}

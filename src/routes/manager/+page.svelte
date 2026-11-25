@@ -1,4 +1,5 @@
 ﻿<script lang="ts">
+	import { formatDate } from '#lib/format/date.ts';
 	import { page } from '$app/state';
 	import {
 		Activity,
@@ -66,14 +67,6 @@
 			value: d.total
 		}))
 	);
-
-	function formatDate(iso: string): string {
-		return new Date(iso + 'T12:00:00').toLocaleDateString('en-US', {
-			month: 'short',
-			day: 'numeric',
-			year: 'numeric'
-		});
-	}
 
 	const exportHref = $derived.by(() => {
 		const params = new URLSearchParams(page.url.searchParams.toString());
@@ -385,7 +378,7 @@
 								<p class="text-xs text-outline">{b.specialty} · {b.hospital}</p>
 							</td>
 							<td class="px-5 py-3 text-on-surface-variant">
-								{formatDate(b.date)}
+								{formatDate(b.date, 'short')}
 								<span class="text-outline">· {b.time}</span>
 							</td>
 							<td class="px-5 py-3">
@@ -412,7 +405,7 @@
 							<p class="truncate text-sm font-semibold text-on-surface">{b.patient}</p>
 							<p class="truncate text-xs text-outline">{b.doctor} · {b.specialty}</p>
 							<p class="mt-1 text-xs text-on-surface-variant">
-								{formatDate(b.date)} · {b.time}
+								{formatDate(b.date, 'short')} · {b.time}
 							</p>
 						</div>
 						<span

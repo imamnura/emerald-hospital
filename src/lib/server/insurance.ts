@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { db } from './db';
 import { insuranceProfiles, type InsuranceProfile } from './db/schema';
+import { formatDate } from '#lib/format/date.ts';
 import type { InsuranceProfileView } from '#lib/utils/insurance.ts';
 
 export type { InsuranceCostItem, InsuranceProfileView } from '#lib/utils/insurance.ts';
@@ -8,17 +9,7 @@ export type { InsuranceCostItem, InsuranceProfileView } from '#lib/utils/insuran
 const DEFAULT_PHONE = '+18005551234';
 
 function formatCoveragePeriod(start: string, end: string): string {
-	const s = new Date(start + 'T12:00:00').toLocaleDateString('en-US', {
-		month: 'short',
-		day: 'numeric',
-		year: 'numeric'
-	});
-	const e = new Date(end + 'T12:00:00').toLocaleDateString('en-US', {
-		month: 'short',
-		day: 'numeric',
-		year: 'numeric'
-	});
-	return `${s} - ${e}`;
+	return `${formatDate(start, 'short')} - ${formatDate(end, 'short')}`;
 }
 
 function dollar(amount: string | null): string {

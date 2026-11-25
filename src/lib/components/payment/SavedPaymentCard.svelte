@@ -1,7 +1,8 @@
 ﻿<script lang="ts">
 	import { Trash2 } from '@lucide/svelte';
 	import CardBrandBadge from './CardBrandBadge.svelte';
-	import { formatCardNumber, type SavedCardView } from '#lib/utils/payments.ts';
+	import { formatCardNumber } from '#lib/format/money.ts';
+	import type { SavedCardView } from '#lib/utils/payments.ts';
 	import { cn } from '#lib/utils.ts';
 
 	interface Props {

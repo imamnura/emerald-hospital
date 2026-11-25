@@ -5,13 +5,9 @@ import {
 	type MedicalRecordView
 } from '#lib/utils/medical-records.ts';
 import {
-	formatCardNumber,
-	formatCurrency,
-	formatTxDate,
 	txPaymentLabel,
 	type TransactionView
 } from '#lib/utils/payments.ts';
-import { formatMemberSince, formatNextVisitShort } from '#lib/utils/profile.ts';
 import {
 	doctorRoleLabel,
 	specialistAvailabilityLabel,
@@ -69,21 +65,6 @@ describe('medical-records', () => {
 });
 
 describe('payments', () => {
-	it('masks card numbers', () => {
-		expect(formatCardNumber('4242')).toBe('•••• •••• •••• 4242');
-	});
-
-	it('formats currency from numbers and strings', () => {
-		expect(formatCurrency(150)).toBe('$150.00');
-		expect(formatCurrency('99.5')).toBe('$99.50');
-		expect(formatCurrency(1234.567, 'EUR')).toBe('€1,234.57');
-	});
-
-	it('formats tx dates from Date and string', () => {
-		expect(formatTxDate(new Date(2026, 2, 5, 10))).toBe('Mar 5, 2026');
-		expect(formatTxDate('2026-03-05T10:00:00')).toBe('Mar 5, 2026');
-	});
-
 	it('labels payment method', () => {
 		const tx = (cardBrand: TransactionView['cardBrand'], cardLast4: string | null): TransactionView => ({
 			id: 't',
@@ -98,17 +79,6 @@ describe('payments', () => {
 		expect(txPaymentLabel(tx('mastercard', '5555'))).toBe('MC *5555');
 		expect(txPaymentLabel(tx(null, '1111'))).toBe('Card');
 		expect(txPaymentLabel(tx('visa', null))).toBe('Card');
-	});
-});
-
-describe('profile', () => {
-	it('formats member since from Date and string', () => {
-		expect(formatMemberSince(new Date(2024, 4, 10))).toBe('May 2024');
-		expect(formatMemberSince('2024-05-10T12:00:00')).toBe('May 2024');
-	});
-
-	it('formats next visit short date', () => {
-		expect(formatNextVisitShort('2026-10-24')).toBe('Oct 24');
 	});
 });
 

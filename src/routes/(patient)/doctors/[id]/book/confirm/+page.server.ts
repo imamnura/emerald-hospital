@@ -6,7 +6,7 @@ import { doctorSchedules } from '#lib/server/db/schema.ts';
 import { createBookingAtomic, getDayOfWeek, getSlotAvailability } from '#lib/server/booking.ts';
 import { isUuid } from '#lib/server/db-errors.ts';
 import { getDoctorDetail } from '#lib/server/doctors.ts';
-import { formatTime12h } from '#lib/utils/booking-ui.ts';
+import { formatTime12h } from '#lib/format/date.ts';
 import { doctorRoleLabel } from '#lib/utils/specialist.ts';
 
 export const load: PageServerLoad = async ({ params, url, parent }) => {

@@ -9,7 +9,7 @@
 	import Pagination from '#lib/components/manager/Pagination.svelte';
 	import StatusBadge from '#lib/components/manager/StatusBadge.svelte';
 	import { toastForm } from '#lib/utils/enhance.ts';
-	import { formatDateId } from '#lib/utils.ts';
+	import { formatDate } from '#lib/format/date.ts';
 
 	let { data } = $props();
 	type Booking = (typeof data.bookings)[number];
@@ -162,7 +162,7 @@
 									<p class="text-xs text-outline">{b.specialty} · {b.hospital}</p>
 								</td>
 								<td class="px-4 py-3 align-middle text-on-surface-variant">
-									<p class="text-sm">{formatDateId(String(b.appointmentDate))}</p>
+									<p class="text-sm">{formatDate(String(b.appointmentDate), 'longId')}</p>
 									<p class="text-xs text-outline">{b.appointmentTime}</p>
 								</td>
 								<td class="px-4 py-3 align-middle">
@@ -201,7 +201,7 @@
 							<StatusBadge status={b.status} />
 						</div>
 						<p class="mt-2 text-xs text-on-surface-variant">
-							{formatDateId(String(b.appointmentDate))} · {b.appointmentTime}
+							{formatDate(String(b.appointmentDate), 'longId')} · {b.appointmentTime}
 						</p>
 						<button
 							type="button"
@@ -249,7 +249,7 @@
 				<div>
 					<dt class="font-semibold text-outline">Date</dt>
 					<dd class="mt-0.5 font-medium text-on-surface">
-						{formatDateId(String(editing.appointmentDate))}
+						{formatDate(String(editing.appointmentDate), 'longId')}
 					</dd>
 				</div>
 				<div>

@@ -3,8 +3,8 @@ import type { PageServerLoad } from './$types';
 import { listSchedulesForDoctor } from '#lib/server/catalog.ts';
 import { getDoctorDetail } from '#lib/server/doctors.ts';
 import { getAllSlotsForDoctorDate } from '#lib/server/booking.ts';
+import { formatDate, formatTime12h } from '#lib/format/date.ts';
 import {
-	formatTime12h,
 	generateCalendarDays,
 	pickDefaultDate,
 	type TimeSlotUi
@@ -52,10 +52,7 @@ export const load: PageServerLoad = async ({ params, url, parent }) => {
 		slots,
 		availableDays,
 		monthLabel: selectedDate
-			? new Date(selectedDate + 'T12:00:00').toLocaleDateString('en-US', {
-					month: 'long',
-					year: 'numeric'
-				})
+			? formatDate(selectedDate, 'monthYear')
 			: ''
 	};
 };

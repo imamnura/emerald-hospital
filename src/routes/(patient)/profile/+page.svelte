@@ -1,4 +1,5 @@
 ﻿<script lang="ts">
+	import { getInitials } from '#lib/format/text.ts';
 	import { enhance } from '$app/forms';
 	import {
 		Banknote,
@@ -26,14 +27,7 @@
 		{ href: '/profile/help', label: 'Help & Support', Icon: HelpCircle }
 	] as const;
 
-	const initials = $derived(
-		data.profile.name
-			.split(' ')
-			.map((n) => n[0])
-			.join('')
-			.slice(0, 2)
-			.toUpperCase()
-	);
+	const initials = $derived(getInitials(data.profile.name));
 </script>
 
 <Header leadingIcon="user" showSearch={false} showNotification={true} />

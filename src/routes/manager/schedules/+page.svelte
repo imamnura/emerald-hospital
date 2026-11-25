@@ -11,7 +11,7 @@
 	import Pagination from '#lib/components/manager/Pagination.svelte';
 	import { toast } from '#lib/stores/toast.svelte.ts';
 	import { toastForm } from '#lib/utils/enhance.ts';
-	import { DAY_NAMES } from '#lib/utils.ts';
+	import { DAY_NAMES } from '#lib/format/date.ts';
 
 	let { data } = $props();
 	type Schedule = (typeof data.schedules)[number];
