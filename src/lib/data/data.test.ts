@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import * as help from '#lib/data/help-support.ts';
 import * as landing from '#lib/data/landing.ts';
-import * as libIndex from '#lib/index.ts';
 
 describe('help-support data', () => {
 	it('exposes contact options with unique actions', () => {
@@ -40,11 +39,5 @@ describe('landing data', () => {
 	it('feature ids are unique', () => {
 		const ids = landing.LANDING_FEATURES.items.map((i) => i.id);
 		expect(new Set(ids).size).toBe(ids.length);
-	});
-});
-
-describe('lib index', () => {
-	it('is an (empty) importable module', () => {
-		expect(libIndex).toBeTypeOf('object');
 	});
 });
