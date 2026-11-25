@@ -54,6 +54,9 @@ describe('AppointmentCard', () => {
 		// Default index 0 means no entrance delay. Check the value, not the serialization:
 		// jsdom 31 drops the default `0s` delay from the `animation` shorthand.
 		const style = container.querySelector('article')!.getAttribute('style')!;
+		// Guard against a vacuous pass: an invalid delay (e.g. `NaNs`) makes jsdom drop the
+		// whole declaration, leaving no time values to check.
+		expect(style).toContain('card-enter');
 		const delays = (style.match(/\d*\.?\d+s\b/g) ?? []).filter((t) => t !== '0.45s');
 		expect(delays.every((t) => parseFloat(t) === 0)).toBe(true);
 		await fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));

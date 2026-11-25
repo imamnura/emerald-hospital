@@ -176,7 +176,7 @@ Brand: **Purwakarta Health**. Logo at `src/lib/assets/icon_purwakarta_health.png
 
 ## Deployment
 
-The repo ships with `@sveltejs/adapter-auto`, which works on Vercel, Netlify, and Cloudflare Pages without changes. For Node / self-hosted, swap to `@sveltejs/adapter-node` in `vite.config.ts` (the `adapter` option of the `sveltekit()` plugin). Then set the production env vars (`DATABASE_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`) and add the OAuth redirect URI for the production domain in Google Cloud Console.
+The repo ships with `@sveltejs/adapter-auto`, which works on Vercel, Netlify, and Cloudflare Workers without changes (since adapter-auto 9 it builds for Cloudflare Workers, not Cloudflare Pages). For Node / self-hosted, swap to `@sveltejs/adapter-node` in `vite.config.ts` (the `adapter` option of the `sveltekit()` plugin). Then set the production env vars (`DATABASE_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`) and add the OAuth redirect URI for the production domain in Google Cloud Console.
 
 Before the first deploy:
 
