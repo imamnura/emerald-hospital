@@ -1,4 +1,5 @@
 ﻿<script lang="ts">
+	import FormAlert from '#lib/components/ui/FormAlert.svelte';
 	import { enhance } from '$app/forms';
 	import { fly } from 'svelte/transition';
 	import { ArrowLeft, Mail } from '@lucide/svelte';
@@ -30,9 +31,7 @@
 			class="mt-8 space-y-5"
 			in:fly={{ y: 16, duration: 420, delay: 80 }}
 		>
-			{#if form?.error}
-				<p class="rounded-xl bg-error-container px-4 py-3 text-sm text-error">{form.error}</p>
-			{/if}
+			<FormAlert message={form?.error} />
 
 			<div>
 				<label for="email" class="mb-1.5 block text-sm font-semibold text-on-surface">

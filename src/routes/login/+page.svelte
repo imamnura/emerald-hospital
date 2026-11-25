@@ -1,4 +1,5 @@
 <script lang="ts">
+	import FormAlert from '#lib/components/ui/FormAlert.svelte';
 	import { enhance } from '$app/forms';
 	import { fly } from 'svelte/transition';
 	import AuthLogo from '#lib/components/auth/AuthLogo.svelte';
@@ -30,9 +31,9 @@
 		{/if}
 
 		{#if form?.error}
-			<p class="rounded-xl bg-error-container px-4 py-3 text-sm text-error">{form.error}</p>
+			<FormAlert message={form.error} />
 		{:else if data.errorMsg}
-			<p class="rounded-xl bg-error-container px-4 py-3 text-sm text-error">{data.errorMsg}</p>
+			<FormAlert message={data.errorMsg} />
 		{:else if data.resetSuccess}
 			<p class="rounded-xl bg-primary/10 px-4 py-3 text-sm font-medium text-primary">
 				Your password has been reset. Please sign in with your new password.

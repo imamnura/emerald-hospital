@@ -1,4 +1,5 @@
 ﻿<script lang="ts">
+	import FormAlert from '#lib/components/ui/FormAlert.svelte';
 	import { enhance } from '$app/forms';
 	import { fly } from 'svelte/transition';
 	import { Eye, EyeOff, Lock, Mail, User } from '@lucide/svelte';
@@ -66,9 +67,7 @@
 		</div>
 
 		<form method="POST" use:enhance class="space-y-4">
-			{#if form?.error}
-				<p class="rounded-xl bg-error-container px-4 py-3 text-sm text-error">{form.error}</p>
-			{/if}
+			<FormAlert message={form?.error} />
 
 			<div>
 				<label for="name" class="mb-1.5 block text-sm font-semibold text-on-surface">Full Name</label>

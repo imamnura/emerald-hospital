@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { Bell, Globe, Lock, LogOut, Mail } from '@lucide/svelte';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
-	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
+	import BackHeader from '#lib/components/layout/BackHeader.svelte';
 	import SettingsCard from '#lib/components/settings/SettingsCard.svelte';
 	import SettingsLinkRow from '#lib/components/settings/SettingsLinkRow.svelte';
 	import SettingsSection from '#lib/components/settings/SettingsSection.svelte';
@@ -11,9 +11,7 @@
 	let { data } = $props();
 </script>
 
-<SearchPageHeader title="Account Settings" backHref="/profile" showProfile={false} />
-
-<div class="-mt-1 mb-2 border-b border-outline-variant/30" aria-hidden="true"></div>
+<BackHeader title="Account Settings" backHref="/profile" divider />
 
 <MotionReveal delay={50}>
 	<SettingsSection title="Security">

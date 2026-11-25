@@ -12,7 +12,7 @@
 	import HelpContactCard from '#lib/components/HelpContactCard.svelte';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 	import SearchBar from '#lib/components/SearchBar.svelte';
-	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
+	import BackHeader from '#lib/components/layout/BackHeader.svelte';
 	import {
 		APP_VERSION,
 		contactOptions,
@@ -64,9 +64,7 @@
 	}
 </script>
 
-<SearchPageHeader title="Help & Support" backHref="/profile" showProfile={false} />
-
-<div class="-mt-1 mb-5 border-b border-outline-variant/30" aria-hidden="true"></div>
+<BackHeader title="Help & Support" backHref="/profile" divider dividerClass="mb-5" />
 
 <MotionReveal delay={50}>
 	<SearchBar

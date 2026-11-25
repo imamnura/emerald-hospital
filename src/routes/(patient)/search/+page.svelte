@@ -2,7 +2,9 @@
 	import { goto } from '$app/navigation';
 	import FilterOptionsModal from '#lib/components/FilterOptionsModal.svelte';
 	import SearchBar from '#lib/components/SearchBar.svelte';
-	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
+	import BackHeader from '#lib/components/layout/BackHeader.svelte';
+	import Avatar from '#lib/components/ui/Avatar.svelte';
+	import { getInitials } from '#lib/format/text.ts';
 	import SearchResultCard from '#lib/components/SearchResultCard.svelte';
 	import { filterAndSortDoctors, useSearchStore } from '#lib/stores/search.ts';
 	import { useZustand } from '#lib/stores/useZustand.svelte.ts';
@@ -61,7 +63,20 @@
 	}
 </script>
 
-<SearchPageHeader userName={data.user?.name} userImage={data.user?.imageUrl} />
+<BackHeader title="Medical Center" backHref="/home">
+	{#snippet trailing()}
+		{#if data.user?.imageUrl}
+			<Avatar src={data.user?.imageUrl} name={data.user?.name ?? 'Guest'} size="md" />
+		{:else}
+			<a
+				href="/profile"
+				class="flex h-10 w-10 items-center justify-center rounded-full bg-primary-container text-sm font-semibold text-on-primary"
+			>
+				{getInitials(data.user?.name ?? 'Guest')}
+			</a>
+		{/if}
+	{/snippet}
+</BackHeader>
 
 <form
 	class="mt-4"

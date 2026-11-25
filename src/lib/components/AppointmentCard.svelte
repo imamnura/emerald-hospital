@@ -1,4 +1,5 @@
 ﻿<script lang="ts">
+	import Avatar from '#lib/components/ui/Avatar.svelte';
 	import { getInitials } from '#lib/format/text.ts';
 	import { Calendar, Check, Clock, MapPin } from '@lucide/svelte';
 	import {
@@ -49,19 +50,14 @@
 	style="animation: card-enter 0.45s ease-out {index * 0.07}s both"
 >
 	<div class="flex items-start gap-3">
-		{#if doctorImage}
-			<img
-				src={doctorImage}
-				alt={doctorName}
-				class="h-14 w-14 shrink-0 rounded-full object-cover"
-			/>
-		{:else}
-			<div
-				class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary"
-			>
-				{initials}
-			</div>
-		{/if}
+		<Avatar
+			src={doctorImage}
+			name={doctorName}
+			size="lg"
+			class="shrink-0"
+			fallbackClass="bg-primary/10 text-sm font-bold text-primary"
+			initials={initials}
+		/>
 
 		<div class="min-w-0 flex-1">
 			<div class="flex items-start justify-between gap-2">

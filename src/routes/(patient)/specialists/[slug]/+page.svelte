@@ -1,5 +1,5 @@
 <script lang="ts">
-	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
+	import BackHeader from '#lib/components/layout/BackHeader.svelte';
 	import SpecialistDoctorCard from '#lib/components/SpecialistDoctorCard.svelte';
 	import {
 		doctorRoleLabel,
@@ -14,7 +14,7 @@
 	const availabilityText = $derived(specialistAvailabilityLabel(data.doctors.length));
 </script>
 
-<SearchPageHeader title={pageTitle} backHref="/specialists" showProfile={false} />
+<BackHeader title={pageTitle} backHref="/specialists" />
 
 <p class="mt-2 text-sm text-outline">{availabilityText}</p>
 

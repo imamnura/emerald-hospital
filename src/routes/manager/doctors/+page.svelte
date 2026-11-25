@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Avatar from '#lib/components/ui/Avatar.svelte';
 	import { getInitials } from '#lib/format/text.ts';
 	import { tick } from 'svelte';
 	import { enhance } from '$app/forms';
@@ -198,11 +199,13 @@
 								</td>
 								<td class="px-4 py-3 align-middle">
 									<div class="flex items-center gap-2.5">
-										<span
-											class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 font-heading text-xs font-bold text-primary"
-										>
-											{getInitials(d.name.replace(/^Dr\.?\s*/i, '')).slice(0, 1)}
-										</span>
+										<Avatar
+											name={d.name}
+											size="sm"
+											class="shrink-0"
+											fallbackClass="bg-primary/10 font-heading text-xs font-bold text-primary"
+											initials={getInitials(d.name.replace(/^Dr\.?\s*/i, '')).slice(0, 1)}
+										/>
 										<span class="font-medium text-on-surface">{d.name}</span>
 									</div>
 								</td>

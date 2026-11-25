@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Avatar from '#lib/components/ui/Avatar.svelte';
 	import { ArrowLeft, MapPin, Star } from '@lucide/svelte';
 	import { DAY_NAMES } from '#lib/format/date.ts';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
@@ -14,15 +15,13 @@
 <MotionReveal delay={60}>
 <div class="flex flex-col items-center text-center">
 	<div class="relative">
-		{#if doctor.imageUrl}
-			<img src={doctor.imageUrl} alt={doctor.name} class="h-24 w-24 rounded-full object-cover" />
-		{:else}
-			<div
-				class="flex h-24 w-24 items-center justify-center rounded-full bg-surface-container text-2xl font-bold text-primary"
-			>
-				{doctor.name.charAt(0)}
-			</div>
-		{/if}
+		<Avatar
+			src={doctor.imageUrl}
+			name={doctor.name}
+			class="h-24 w-24"
+			fallbackClass="bg-surface-container text-2xl font-bold text-primary"
+			initials={doctor.name.charAt(0)}
+		/>
 		<span
 			class="absolute bottom-1 right-1 h-4 w-4 rounded-full border-2 border-white {doctor.isOnline
 				? 'bg-emerald-500'

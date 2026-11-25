@@ -1,5 +1,5 @@
 ﻿<script lang="ts">
-	import { getInitials } from '#lib/format/text.ts';
+	import Avatar from '#lib/components/ui/Avatar.svelte';
 	import { enhance } from '$app/forms';
 	import {
 		Banknote,
@@ -27,26 +27,19 @@
 		{ href: '/profile/help', label: 'Help & Support', Icon: HelpCircle }
 	] as const;
 
-	const initials = $derived(getInitials(data.profile.name));
 </script>
 
 <Header leadingIcon="user" showSearch={false} showNotification={true} />
 
 <MotionReveal delay={40}>
 	<section class="mt-4 flex flex-col items-center text-center">
-		{#if data.profile.imageUrl}
-			<img
-				src={data.profile.imageUrl}
-				alt={data.profile.name}
-				class="h-28 w-28 rounded-full border-4 border-surface-container-lowest object-cover shadow-[var(--shadow-card)]"
-			/>
-		{:else}
-			<div
-				class="flex h-28 w-28 items-center justify-center rounded-full border-4 border-surface-container-lowest bg-primary/10 text-3xl font-bold text-primary shadow-[var(--shadow-card)]"
-			>
-				{initials}
-			</div>
-		{/if}
+		<Avatar
+			src={data.profile.imageUrl}
+			name={data.profile.name}
+			size="xl"
+			class="border-4 border-surface-container-lowest shadow-[var(--shadow-card)]"
+			fallbackClass="bg-primary/10 text-3xl font-bold text-primary"
+		/>
 		<h2 class="mt-4 font-heading text-2xl font-bold text-on-surface">{data.profile.name}</h2>
 		<p class="mt-1 text-sm text-outline">Member since {data.memberSince}</p>
 	</section>

@@ -73,7 +73,10 @@ describe('Modal', () => {
 			footer: snip('<button>Save</button>')
 		});
 		const dialog = screen.getByRole('dialog');
-		expect(dialog).toHaveAttribute('aria-labelledby', 'modal-title');
+		expect(dialog).toHaveAttribute(
+			'aria-labelledby',
+			screen.getByRole('heading', { name: 'Edit' }).id
+		);
 		expect(dialog).toHaveClass('max-w-2xl');
 		expect(screen.getByRole('heading', { name: 'Edit' })).toBeInTheDocument();
 		expect(screen.getByText('Update doctor')).toBeInTheDocument();

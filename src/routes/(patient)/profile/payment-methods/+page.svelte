@@ -1,4 +1,5 @@
 ﻿<script lang="ts">
+	import FormAlert from '#lib/components/ui/FormAlert.svelte';
 	import { enhance } from '$app/forms';
 	import { tick } from 'svelte';
 	import { fly } from 'svelte/transition';
@@ -6,7 +7,7 @@
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 	import SavedPaymentCard from '#lib/components/payment/SavedPaymentCard.svelte';
 	import PaymentTransactionRow from '#lib/components/payment/PaymentTransactionRow.svelte';
-	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
+	import BackHeader from '#lib/components/layout/BackHeader.svelte';
 	import SettingsSection from '#lib/components/settings/SettingsSection.svelte';
 
 	let { data, form } = $props();
@@ -30,13 +31,9 @@
 	}
 </script>
 
-<SearchPageHeader title="Payment Methods" backHref="/profile" showProfile={false} />
+<BackHeader title="Payment Methods" backHref="/profile" divider />
 
-<div class="-mt-1 mb-2 border-b border-outline-variant/30" aria-hidden="true"></div>
-
-{#if form?.error}
-	<p class="mt-2 rounded-xl bg-error-container px-4 py-3 text-sm text-error">{form.error}</p>
-{/if}
+<FormAlert message={form?.error} class="mt-2" />
 
 <form
 	method="POST"

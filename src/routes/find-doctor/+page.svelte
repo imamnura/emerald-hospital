@@ -1,10 +1,10 @@
 <script lang="ts">
+	import BrandMark from '#lib/components/ui/BrandMark.svelte';
 	import { goto } from '$app/navigation';
 	import {
 		ArrowLeft,
 		Building2,
 		ChevronDown,
-		HeartPulse,
 		MapPin,
 		Search,
 		Star
@@ -57,14 +57,7 @@
 				>
 					<ArrowLeft size={16} /> Back
 				</a>
-				<div class="flex items-center gap-2">
-					<div
-						class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-on-primary"
-					>
-						<HeartPulse size={20} strokeWidth={2.5} />
-					</div>
-					<span class="font-heading text-lg font-bold text-primary">{LANDING_BRAND.name}</span>
-				</div>
+				<BrandMark />
 			</div>
 
 			<div class="mt-6">

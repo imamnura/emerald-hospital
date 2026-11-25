@@ -1,5 +1,6 @@
 ﻿<script lang="ts">
-	import { getInitials } from '#lib/format/text.ts';
+	import Avatar from '#lib/components/ui/Avatar.svelte';
+	import FormAlert from '#lib/components/ui/FormAlert.svelte';
 	import { enhance } from '$app/forms';
 	import {
 		Calendar,
@@ -15,7 +16,7 @@
 	} from '@lucide/svelte';
 	import FormIconField from '#lib/components/forms/FormIconField.svelte';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
-	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
+	import BackHeader from '#lib/components/layout/BackHeader.svelte';
 
 	let { data, form } = $props();
 
@@ -37,47 +38,35 @@
 		bloodType = data.profile.bloodType ?? '';
 	});
 
-	const initials = $derived(getInitials(name));
 </script>
 
-<SearchPageHeader title="Personal Information" backHref="/profile" showProfile={false} />
-
-<div class="-mt-1 mb-2 border-b border-outline-variant/30" aria-hidden="true"></div>
+<BackHeader title="Personal Information" backHref="/profile" divider />
 
 <MotionReveal delay={40}>
 	<div class="flex flex-col items-center py-4">
-		<div class="relative">
-			{#if imageUrl}
-				<img
-					src={imageUrl}
-					alt={name}
-					class="h-28 w-28 rounded-full border-4 border-surface-container-lowest object-cover shadow-[var(--shadow-card)]"
-				/>
-			{:else}
-				<div
-					class="flex h-28 w-28 items-center justify-center rounded-full border-4 border-surface-container-lowest bg-primary/10 text-3xl font-bold text-primary shadow-[var(--shadow-card)]"
+		<Avatar
+			src={imageUrl}
+			name={name}
+			size="xl"
+			class="border-4 border-surface-container-lowest shadow-[var(--shadow-card)]"
+			fallbackClass="bg-primary/10 text-3xl font-bold text-primary"
+		>
+			{#snippet badge()}
+				<span
+					class="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-surface-container-lowest bg-primary text-on-primary"
 				>
-					{initials}
-				</div>
-			{/if}
-			<span
-				class="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-surface-container-lowest bg-primary text-on-primary"
-			>
-				<Pencil size={14} strokeWidth={2.5} />
-			</span>
-		</div>
+					<Pencil size={14} strokeWidth={2.5} />
+				</span>
+			{/snippet}
+		</Avatar>
 		<p class="mt-3 text-xs text-outline">Set your profile photo via the Image URL field below.</p>
 	</div>
 </MotionReveal>
 
 <MotionReveal delay={90}>
 	<form method="POST" action="?/update" use:enhance class="space-y-4 pb-6">
-		{#if form?.error}
-			<p class="rounded-xl bg-error-container px-4 py-3 text-sm text-error">{form.error}</p>
-		{/if}
-		{#if form?.success}
-			<p class="rounded-xl bg-primary/10 px-4 py-3 text-sm text-primary">Profile updated successfully.</p>
-		{/if}
+		<FormAlert message={form?.error} />
+		<FormAlert kind="success" message={form?.success ? 'Profile updated successfully.' : null} />
 
 		<FormIconField id="name" label="Full Name" name="name" bind:value={name} required>
 			{#snippet icon()}

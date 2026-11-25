@@ -2,16 +2,14 @@
 	import { enhance } from '$app/forms';
 	import { Check } from '@lucide/svelte';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
-	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
+	import BackHeader from '#lib/components/layout/BackHeader.svelte';
 	import SettingsCard from '#lib/components/settings/SettingsCard.svelte';
 	import { cn } from '#lib/utils.ts';
 
 	let { data } = $props();
 </script>
 
-<SearchPageHeader title="Language" backHref="/profile/settings" showProfile={false} />
-
-<div class="-mt-1 mb-4 border-b border-outline-variant/30" aria-hidden="true"></div>
+<BackHeader title="Language" backHref="/profile/settings" divider dividerClass="mb-4" />
 
 <MotionReveal delay={50}>
 	<SettingsCard>

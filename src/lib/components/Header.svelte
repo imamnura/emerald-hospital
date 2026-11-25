@@ -1,5 +1,5 @@
 ﻿<script lang="ts">
-	import { getInitials } from '#lib/format/text.ts';
+	import Avatar from '#lib/components/ui/Avatar.svelte';
 	import { Bell, Search, User } from '@lucide/svelte';
 	import brandIcon from '#lib/assets/icon_purwakarta_health.png';
 
@@ -19,7 +19,6 @@
 		leadingIcon = 'avatar'
 	}: Props = $props();
 
-	const initials = $derived(getInitials(userName));
 </script>
 
 <header class="flex items-center justify-between py-2">
@@ -30,14 +29,13 @@
 		>
 			<User size={22} strokeWidth={2} />
 		</div>
-	{:else if userImage}
-		<img src={userImage} alt={userName} class="h-10 w-10 rounded-full object-cover" />
 	{:else}
-		<div
-			class="flex h-10 w-10 items-center justify-center rounded-full bg-primary-container text-sm font-semibold text-on-primary"
-		>
-			{initials}
-		</div>
+		<Avatar
+			src={userImage}
+			name={userName}
+			size="md"
+			fallbackClass="bg-primary-container text-sm font-semibold text-on-primary"
+		/>
 	{/if}
 
 	<div class="flex items-center gap-2">

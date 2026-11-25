@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BrandMark from '#lib/components/ui/BrandMark.svelte';
 	import {
 		LANDING_BRAND,
 		LANDING_FEATURES,
@@ -15,7 +16,6 @@
 		Calendar,
 		CalendarClock,
 		ChevronDown,
-		HeartPulse,
 		Mail,
 		MapPin,
 		MessageCircle,
@@ -54,14 +54,7 @@
 	<!-- Hero -->
 	<header class="relative overflow-hidden bg-gradient-to-b from-surface-container-low to-surface px-5 pb-10 pt-6 md:px-8 lg:px-12">
 		<div class="mx-auto max-w-5xl">
-			<div class="flex items-center gap-2">
-				<div
-					class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-on-primary"
-				>
-					<HeartPulse size={20} strokeWidth={2.5} />
-				</div>
-				<span class="font-heading text-lg font-bold text-primary">{LANDING_BRAND.name}</span>
-			</div>
+			<BrandMark />
 
 			<div
 				class="mt-4 flex items-center gap-2 rounded-xl border border-outline-variant/50 bg-surface-container-lowest px-3 py-2.5 text-sm text-on-surface-variant shadow-[var(--shadow-card)]"
@@ -271,14 +264,7 @@
 	<footer class="bg-surface-container px-5 py-12 md:px-8 lg:px-12">
 		<div class="mx-auto grid max-w-5xl gap-10 md:grid-cols-2 lg:grid-cols-3">
 			<div>
-				<div class="flex items-center gap-2">
-					<div
-						class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-on-primary"
-					>
-						<HeartPulse size={20} />
-					</div>
-					<span class="font-heading text-lg font-bold text-primary">{LANDING_BRAND.name}</span>
-				</div>
+				<BrandMark size="sm" />
 				<p class="mt-4 text-sm leading-relaxed text-on-surface-variant">{LANDING_FOOTER.tagline}</p>
 				<div class="mt-4 flex gap-2">
 					{#each LANDING_FOOTER.socialLinks as social}

@@ -5,7 +5,6 @@ import { setPage } from '../../test/mocks/app-state.svelte.ts';
 import BottomNav from './BottomNav.svelte';
 import Header from './Header.svelte';
 import SearchBar from './SearchBar.svelte';
-import SearchPageHeader from './SearchPageHeader.svelte';
 
 describe('Header', () => {
 	it('renders guest initials and search link by default', () => {
@@ -42,32 +41,6 @@ describe('Header', () => {
 	it('limits initials to two letters', () => {
 		render(Header, { userName: 'john ronald smith' });
 		expect(screen.getByText('JR')).toBeInTheDocument();
-	});
-});
-
-describe('SearchPageHeader', () => {
-	it('renders defaults with initials profile link', () => {
-		render(SearchPageHeader);
-		expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/home');
-		expect(screen.getByRole('heading', { name: 'Medical Center' })).toBeInTheDocument();
-		expect(screen.getByRole('link', { name: 'G' })).toHaveAttribute('href', '/profile');
-	});
-
-	it('renders image when provided', () => {
-		render(SearchPageHeader, {
-			title: 'Search',
-			backHref: '/x',
-			userName: 'Amy Pond',
-			userImage: '/a.png'
-		});
-		expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute('href', '/x');
-		expect(screen.getByRole('img', { name: 'Amy Pond' })).toBeInTheDocument();
-	});
-
-	it('hides profile when showProfile is false', () => {
-		const { container } = render(SearchPageHeader, { showProfile: false, userName: 'Amy Pond' });
-		expect(screen.queryByText('AP')).toBeNull();
-		expect(container.querySelector('[aria-hidden="true"].w-10')).toBeInTheDocument();
 	});
 });
 
