@@ -26,6 +26,7 @@ export function generateTimeSlots(startTime: string, endTime: string, intervalMi
 }
 
 export function getDayOfWeek(dateStr: string): number {
+	if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return NaN;
 	return parseIsoDate(dateStr).getDay();
 }
 

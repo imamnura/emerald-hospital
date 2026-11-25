@@ -61,6 +61,13 @@ describe('time helpers', () => {
 		expect(getDayOfWeek(MONDAY)).toBe(1);
 		expect(getDayOfWeek(TUESDAY)).toBe(2);
 		expect(getDayOfWeek('2030-01-06')).toBe(0);
+		expect(getDayOfWeek('2026-10-17')).toBe(6);
+	});
+
+	it('getDayOfWeek is NaN for anything that is not strict YYYY-MM-DD', () => {
+		expect(getDayOfWeek('2026-10-17T05:00:00')).toBeNaN();
+		expect(getDayOfWeek('2026-1-5')).toBeNaN();
+		expect(getDayOfWeek('garbage')).toBeNaN();
 	});
 });
 
