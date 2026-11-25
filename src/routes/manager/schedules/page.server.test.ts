@@ -59,6 +59,12 @@ describe('manager/schedules load', () => {
 		expect(p2).toMatchObject({ total: 4, page: 2, pageSize: 3 });
 		expect(keys(p2)).toEqual(['Dr Bob/2/08:00']);
 	});
+
+	it('ignores a non-uuid doctor filter instead of erroring', async () => {
+		await seed();
+		const data = await run('/manager/schedules?doctorId=abc');
+		expect(data).toMatchObject({ total: 4, doctorFilter: 'abc' });
+	});
 });
 
 describe('manager/schedules actions', () => {

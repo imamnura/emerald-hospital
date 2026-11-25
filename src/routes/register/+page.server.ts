@@ -3,6 +3,7 @@ import type { Actions, PageServerLoad } from './$types';
 import { hashPassword, setSessionCookie } from '#lib/server/auth.ts';
 import { db } from '#lib/server/db/index.ts';
 import { users } from '#lib/server/db/schema.ts';
+import { formOpt, formStr } from '#lib/server/http/forms.ts';
 import { isConfigured as isGoogleConfigured } from '#lib/server/oauth-google.ts';
 import { getUserByEmail } from '#lib/server/users.ts';
 
@@ -14,9 +15,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 export const actions: Actions = {
 	default: async ({ request, cookies }) => {
 		const formData = await request.formData();
-		const name = String(formData.get('name') ?? '').trim();
-		const email = String(formData.get('email') ?? '').trim().toLowerCase();
-		const phone = String(formData.get('phone') ?? '').trim() || null;
+		const name = formStr(formData, 'name');
+		const email = formStr(formData, 'email').toLowerCase();
+		const phone = formOpt(formData, 'phone');
 		const password = String(formData.get('password') ?? '');
 
 		if (!name || !email || password.length < 8) {

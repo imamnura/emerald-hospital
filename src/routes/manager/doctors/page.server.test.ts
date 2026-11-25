@@ -58,6 +58,13 @@ describe('manager/doctors load', () => {
 		expect(data.specialists.map((s) => s.name)).toEqual(['Cardiology', 'Dermatology']);
 	});
 
+	it('ignores a non-uuid hospital or specialty filter instead of erroring', async () => {
+		await seed();
+		const data = await run('/manager/doctors?hospitalId=abc&specialistId=xyz');
+		expect(data).toMatchObject({ total: 3, hospitalFilter: 'abc', specialistFilter: 'xyz' });
+		expect(names(data)).toEqual(['Dr Ann', 'Dr Bob', 'Dr Cat']);
+	});
+
 	it('searches by doctor, specialty or hospital name', async () => {
 		await seed();
 		expect(names(await run('/manager/doctors?q=bob'))).toEqual(['Dr Bob']);

@@ -2,6 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { setSessionCookie, verifyPassword } from '#lib/server/auth.ts';
 import { homeFor, sanitizeRedirect } from '#lib/server/auth/redirect.ts';
+import { formOpt, formStr } from '#lib/server/http/forms.ts';
 import { isConfigured as isGoogleConfigured } from '#lib/server/oauth-google.ts';
 import { getUserByEmail } from '#lib/server/users.ts';
 
@@ -25,7 +26,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 export const actions: Actions = {
 	default: async ({ request, cookies }) => {
 		const formData = await request.formData();
-		const email = String(formData.get('email') ?? '').trim().toLowerCase();
+		const email = formStr(formData, 'email').toLowerCase();
 		const password = String(formData.get('password') ?? '');
 
 		if (!email || !password) {
@@ -47,7 +48,7 @@ export const actions: Actions = {
 
 		await setSessionCookie(cookies, user.id);
 
-		const redirectParam = String(formData.get('redirect') ?? '').trim() || null;
+		const redirectParam = formOpt(formData, 'redirect');
 		throw redirect(303, sanitizeRedirect(redirectParam) ?? homeFor(user.role));
 	}
 };

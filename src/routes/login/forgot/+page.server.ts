@@ -1,6 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { createPasswordResetToken, sendPasswordResetEmail } from '#lib/server/password-reset.ts';
+import { formStr } from '#lib/server/http/forms.ts';
 import { getUserByEmail } from '#lib/server/users.ts';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -9,9 +10,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 export const actions: Actions = {
 	default: async ({ request, url }) => {
-		const email = String((await request.formData()).get('email') ?? '')
-			.trim()
-			.toLowerCase();
+		const email = formStr(await request.formData(), 'email').toLowerCase();
 
 		if (!email) {
 			return fail(400, { error: 'Email address is required.' });

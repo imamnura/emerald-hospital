@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { resetDb, type TestDb } from '../../test/db.ts';
 import { makeDoctor, makeHospital, makeSchedule, makeSpecialist } from '../../test/factories.ts';
-import { getSpecialistBySlug, listHospitals, listSchedulesForDoctor, listSpecialists } from './catalog.ts';
+import { getSpecialistBySlug, listDoctorOptions, listHospitals, listSchedulesForDoctor, listSpecialists } from './catalog.ts';
 
 beforeEach(() => resetDb(db as unknown as TestDb));
 
@@ -41,5 +41,14 @@ describe('catalog', () => {
 		expect(rows.map((r) => r.id).sort()).toEqual([s1.id, s2.id].sort());
 		expect(await listSchedulesForDoctor('00000000-0000-0000-0000-000000000000')).toEqual([]);
 		expect(await listSchedulesForDoctor('not-a-uuid')).toEqual([]);
+	});
+
+	it('listDoctorOptions returns id and name ordered by name', async () => {
+		const z = await makeDoctor({ name: 'Dr Zed' });
+		const a = await makeDoctor({ name: 'Dr Amy' });
+		expect(await listDoctorOptions()).toEqual([
+			{ id: a.id, name: 'Dr Amy' },
+			{ id: z.id, name: 'Dr Zed' }
+		]);
 	});
 });

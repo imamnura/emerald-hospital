@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isForeignKeyViolation, isUuid } from './db-errors.ts';
+import { isForeignKeyViolation, isUniqueViolation, isUuid } from './db-errors.ts';
 
 describe('isUuid', () => {
 	it.each([
@@ -44,5 +44,17 @@ describe('isForeignKeyViolation', () => {
 		['a null cause', { cause: null }]
 	])('returns false for %s', (_c, e) => {
 		expect(isForeignKeyViolation(e)).toBe(false);
+	});
+});
+
+describe('isUniqueViolation', () => {
+	it('detects 23505 on the error or its cause', () => {
+		expect(isUniqueViolation({ code: '23505' })).toBe(true);
+		expect(isUniqueViolation({ cause: { code: '23505' } })).toBe(true);
+	});
+	it('ignores other errors', () => {
+		expect(isUniqueViolation({ code: '23503' })).toBe(false);
+		expect(isUniqueViolation(new Error('x'))).toBe(false);
+		expect(isUniqueViolation(null)).toBe(false);
 	});
 });

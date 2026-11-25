@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { hashPassword } from './auth';
 import { db } from './db';
+import { formOpt, formStr, ISO_DATE_RE } from './http/forms.ts';
 import { BLOOD_TYPES, GENDERS, users, type User } from './db/schema';
 
 export type ProfileUpdate = {
@@ -17,25 +18,24 @@ const ALLOWED_BLOOD: ReadonlySet<string> = new Set(BLOOD_TYPES);
 const ALLOWED_GENDER: ReadonlySet<string> = new Set(GENDERS);
 
 export function parseProfileForm(fd: FormData): ProfileUpdate | { error: string } {
-	const name = String(fd.get('name') ?? '').trim();
+	const name = formStr(fd, 'name');
 	if (!name) return { error: 'Name is required.' };
-	const phone = String(fd.get('phone') ?? '').trim() || null;
-	const imageUrl = String(fd.get('imageUrl') ?? '').trim() || null;
+	const phone = formOpt(fd, 'phone');
+	const imageUrl = formOpt(fd, 'imageUrl');
 
-	const bloodRaw = String(fd.get('bloodType') ?? '').trim();
+	const bloodRaw = formStr(fd, 'bloodType');
 	const bloodType = bloodRaw ? (ALLOWED_BLOOD.has(bloodRaw) ? bloodRaw : null) : null;
 	if (bloodRaw && !bloodType) return { error: 'Invalid blood type.' };
 
-	const dobRaw = String(fd.get('dateOfBirth') ?? '').trim();
-	const dateOfBirth = dobRaw || null;
-	if (dateOfBirth && !/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth)) {
+	const dateOfBirth = formOpt(fd, 'dateOfBirth');
+	if (dateOfBirth && !ISO_DATE_RE.test(dateOfBirth)) {
 		return { error: 'Invalid date of birth.' };
 	}
 
-	const genderRaw = String(fd.get('gender') ?? '').trim() as 'male' | 'female' | 'other' | '';
+	const genderRaw = formStr(fd, 'gender') as 'male' | 'female' | 'other' | '';
 	const gender = genderRaw && ALLOWED_GENDER.has(genderRaw) ? genderRaw : null;
 
-	const address = String(fd.get('address') ?? '').trim() || null;
+	const address = formOpt(fd, 'address');
 
 	return { name, phone, imageUrl, bloodType, dateOfBirth, gender, address };
 }

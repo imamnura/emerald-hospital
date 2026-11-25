@@ -1,11 +1,12 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { requireUser } from '#lib/server/guards.ts';
+import { formOpt, formStr, ISO_DATE_RE } from '#lib/server/http/forms.ts';
 import { getInsuranceForUser, upsertInsurance } from '#lib/server/insurance.ts';
 
 function isoDate(value: FormDataEntryValue | null): string | null {
 	const s = String(value ?? '').trim();
-	return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : null;
+	return ISO_DATE_RE.test(s) ? s : null;
 }
 
 function numericString(value: FormDataEntryValue | null): string | null {
@@ -28,9 +29,9 @@ export const actions: Actions = {
 		const user = requireUser(locals);
 		const fd = await request.formData();
 
-		const providerName = String(fd.get('providerName') ?? '').trim();
-		const planName = String(fd.get('planName') ?? '').trim();
-		const memberId = String(fd.get('memberId') ?? '').trim();
+		const providerName = formStr(fd, 'providerName');
+		const planName = formStr(fd, 'planName');
+		const memberId = formStr(fd, 'memberId');
 		const coverageStart = isoDate(fd.get('coverageStart'));
 		const coverageEnd = isoDate(fd.get('coverageEnd'));
 
@@ -48,8 +49,8 @@ export const actions: Actions = {
 			providerName,
 			planName,
 			memberId,
-			groupNo: String(fd.get('groupNo') ?? '').trim() || null,
-			planType: String(fd.get('planType') ?? '').trim() || null,
+			groupNo: formOpt(fd, 'groupNo'),
+			planType: formOpt(fd, 'planType'),
 			coverageStart,
 			coverageEnd,
 			status: fd.get('status') === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE',
@@ -57,7 +58,7 @@ export const actions: Actions = {
 			costSpecialist: numericString(fd.get('costSpecialist')),
 			costEmergency: numericString(fd.get('costEmergency')),
 			costRx: numericString(fd.get('costRx')),
-			providerPhone: String(fd.get('providerPhone') ?? '').trim() || null
+			providerPhone: formOpt(fd, 'providerPhone')
 		});
 
 		return { success: true };
