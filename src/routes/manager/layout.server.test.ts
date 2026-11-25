@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { makeManager, makeUser } from '../../test/factories.ts';
 import { ev } from '../../test/helpers-routes-manager.ts';
+import { toPublicUser } from '#lib/server/auth.ts';
 import { load } from './+layout.server.ts';
 
 type Event = Parameters<typeof load>[0];
@@ -23,6 +24,6 @@ describe('manager layout load', () => {
 		const data = (await load(ev<Event>({ user }))) as { user: unknown };
 		expect(data.user).not.toHaveProperty('passwordHash');
 		expect(data.user).not.toHaveProperty('googleId');
-		expect(data.user).toMatchObject({ id: user.id, role: 'manager' });
+		expect(data).toEqual({ user: toPublicUser(user) });
 	});
 });

@@ -5,6 +5,7 @@ import { sessions } from '#lib/server/db/schema.ts';
 import { resetDb, type TestDb } from '../../../test/db.ts';
 import { makeBooking, makeDoctor, makeSchedule, makeSession, makeUser } from '../../../test/factories.ts';
 import { ev, thrown } from '../../../test/helpers-routes-public.ts';
+import { toPublicUser } from '#lib/server/auth.ts';
 import { actions, load } from './+page.server.ts';
 
 beforeEach(() => resetDb(db as unknown as TestDb));
@@ -21,7 +22,7 @@ describe('profile load', () => {
 		const data = (await load(ev({ user }))) as Data;
 		expect(data.profile).not.toHaveProperty('passwordHash');
 		expect(data.profile).not.toHaveProperty('googleId');
-		expect(data.profile).toMatchObject({ id: user.id, email: user.email, name: user.name });
+		expect(data.profile).toEqual(toPublicUser(user));
 		expect(data.memberSince).toBeTruthy();
 		expect(data.stats).toEqual({ bloodType: '—', nextVisit: '—', reports: 0 });
 	});
