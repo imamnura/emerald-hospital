@@ -16,6 +16,10 @@
 		large?: boolean;
 		/** Corner close button (in addition to the backdrop). */
 		showClose?: boolean;
+		/** Blur the page behind the dialog. */
+		blur?: boolean;
+		/** Panel entrance: scale up (default) or fly up. */
+		motion?: 'scale' | 'fly';
 	}
 
 	let {
@@ -27,7 +31,9 @@
 		actions,
 		onclose,
 		large = false,
-		showClose = false
+		showClose = false,
+		blur = true,
+		motion = 'scale'
 	}: Props = $props();
 
 	const uid = $props.id();
@@ -39,7 +45,29 @@
 	}
 </script>
 
-<Dialog bind:open {onclose} variant="centered" labelledby={titleId} class="max-w-sm text-center">
+<Dialog
+	bind:open
+	{onclose}
+	variant="centered"
+	labelledby={titleId}
+	overlayClass={cn(
+		'fixed inset-0 z-50 flex items-center justify-center p-5',
+		blur ? 'bg-on-surface/40 backdrop-blur-md' : 'bg-on-surface/50'
+	)}
+	panelClass={cn(
+		'w-full max-w-sm rounded-3xl bg-surface-container-lowest text-center shadow-xl',
+		large ? 'p-8' : 'p-6',
+		showClose && 'relative'
+	)}
+	bodyClass="contents"
+	motion={{
+		fade: 200,
+		panel:
+			motion === 'scale'
+				? { type: 'scale', start: 0.92, duration: 280 }
+				: { type: 'fly', y: 24, duration: 280 }
+	}}
+>
 	{#if showClose}
 		<button
 			type="button"

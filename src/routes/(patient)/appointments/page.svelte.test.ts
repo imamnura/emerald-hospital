@@ -83,4 +83,15 @@ describe('appointments page', () => {
 		await fireEvent.click(btn);
 		expect(goto).toHaveBeenCalledWith('/appointments', { replace: true, reset: false });
 	});
+
+	it('keeps the confirmed booking text while fading out after data drops it', async () => {
+		const { rerender, container } = renderPage({ appointments: [apt()], confirmedBooking: apt() });
+		await fireEvent.click(await screen.findByRole('button', { name: 'View My Appointments' }));
+		await rerender({
+			data: { user: testUser, appointments: [apt()], confirmedBooking: null }
+		} as never);
+		expect(document.body.textContent).not.toMatch(/Invalid Date|NaN/);
+		await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+		expect(container.textContent).not.toMatch(/Invalid Date|NaN/);
+	});
 });

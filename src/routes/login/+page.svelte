@@ -88,7 +88,8 @@
 		href={googleHref}
 		enabled={data.googleEnabled}
 		label="Sign in with Google"
-		class="mt-6 shadow-[var(--shadow-card)]"
+		class="mt-6"
+		enabledClass="shadow-[var(--shadow-card)]"
 		animateIn
 	/>
 

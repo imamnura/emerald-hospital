@@ -56,4 +56,28 @@ describe('ResultDialog', () => {
 		await fireEvent.click(screen.getByRole('button', { name: 'Close' }));
 		expect(onclose).toHaveBeenCalledTimes(1);
 	});
+
+	it('keeps the original modal panel, overlay and body classes', () => {
+		render(ResultDialog, props({ showClose: true, large: true }));
+		const panel = screen.getByRole('dialog');
+		expect(panel.className.split(' ').sort()).toEqual(
+			'relative w-full max-w-sm rounded-3xl bg-surface-container-lowest p-8 text-center shadow-xl'
+				.split(' ')
+				.sort()
+		);
+		expect(panel.parentElement!.className.split(' ').sort()).toEqual(
+			'fixed inset-0 z-50 flex items-center justify-center p-5 bg-on-surface/40 backdrop-blur-md'
+				.split(' ')
+				.sort()
+		);
+	});
+
+	it('drops the blur for the unblurred variant', () => {
+		render(ResultDialog, props({ blur: false, motion: 'fly' }));
+		const panel = screen.getByRole('dialog');
+		expect(panel).toHaveClass('p-6', 'shadow-xl');
+		expect(panel).not.toHaveClass('relative', 'shadow-2xl');
+		expect(panel.parentElement).toHaveClass('bg-on-surface/50');
+		expect(panel.parentElement).not.toHaveClass('backdrop-blur-md', 'backdrop-blur-sm');
+	});
 });

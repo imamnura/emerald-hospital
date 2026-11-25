@@ -64,6 +64,10 @@ describe('search page', () => {
 		expect(screen.getByText('Dr. Alice')).toBeInTheDocument();
 		expect(screen.getByText(/results found/)).toBeInTheDocument();
 		expect(screen.getByRole('button', { name: 'Remove bookmark' })).toBeInTheDocument();
+		const marked = screen.getByRole('button', { name: 'Remove bookmark' });
+		expect(marked.querySelector('.lucide-bookmark')).toHaveClass('fill-primary');
+		const unmarked = screen.getByRole('button', { name: 'Bookmark doctor' });
+		expect(unmarked.querySelector('.fill-primary.lucide-bookmark')).toBeNull();
 		await fireEvent.click(screen.getByRole('button', { name: 'Bookmark doctor' }));
 		expect(useSearchStore.getState().bookmarkedIds).toEqual(['d2', 'd1']);
 	});

@@ -22,6 +22,12 @@ describe('account settings page', () => {
 			'/profile/settings/password'
 		);
 		expect(screen.getByText('English')).toBeInTheDocument();
+		// Each toggle row has its visible label plus the toggle's sr-only label.
+		expect(screen.getAllByText('Push Notifications')).toHaveLength(2);
+		const pushForm = screen.getAllByText('Push Notifications')[0].closest('form')!;
+		const emailForm = screen.getAllByText('Email Notifications')[0].closest('form')!;
+		expect(pushForm.querySelector('.bg-primary')).toBeInTheDocument();
+		expect(emailForm.querySelector('.bg-primary')).toBeNull();
 		await fireEvent.submit(screen.getAllByText('Push Notifications')[0].closest('form')!);
 		await fireEvent.submit(screen.getAllByText('Email Notifications')[0].closest('form')!);
 		await fireEvent.submit(screen.getByRole('button', { name: /Sign Out/ }).closest('form')!);

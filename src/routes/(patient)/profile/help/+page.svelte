@@ -23,6 +23,7 @@
 
 	let searchQuery = $state('');
 	let openFaq = $state<string | null>(null);
+	let noticeId: number | undefined;
 
 	const filteredFaqs = $derived(
 		searchQuery.trim()
@@ -40,7 +41,8 @@
 				scrollToFaqs();
 				break;
 			case 'chat':
-				toast.info(
+				if (noticeId !== undefined) toast.dismiss(noticeId);
+				noticeId = toast.info(
 					'Live chat is not available yet. Try Call Center or Email Us in the meantime.',
 					5000
 				);

@@ -46,8 +46,24 @@ describe('GoogleAuthButton', () => {
 		expect(screen.queryByRole('link')).toBeNull();
 	});
 
-	it('merges extra classes', () => {
-		render(GoogleAuthButton, { href: '/x', enabled: true, label: 'Go', class: 'mt-6' });
-		expect(screen.getByRole('link')).toHaveClass('mt-6', 'w-full');
+	it('merges extra classes, with enabledClass only on the link', () => {
+		const { unmount } = render(GoogleAuthButton, {
+			href: '/x',
+			enabled: true,
+			label: 'Go',
+			class: 'mt-6',
+			enabledClass: 'shadow-x'
+		});
+		expect(screen.getByRole('link')).toHaveClass('mt-6', 'w-full', 'shadow-x');
+		unmount();
+		render(GoogleAuthButton, {
+			href: '/x',
+			enabled: false,
+			label: 'Go',
+			class: 'mt-6',
+			enabledClass: 'shadow-x'
+		});
+		expect(screen.getByRole('button')).toHaveClass('mt-6');
+		expect(screen.getByRole('button')).not.toHaveClass('shadow-x');
 	});
 });

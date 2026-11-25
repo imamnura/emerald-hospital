@@ -23,7 +23,14 @@
 	const timeLabel = $derived(formatTime12h(appointmentTime));
 </script>
 
-<ResultDialog bind:open tone="success" title="Appointment Confirmed!" onclose={onClose}>
+<ResultDialog
+	bind:open
+	tone="success"
+	title="Appointment Confirmed!"
+	blur={false}
+	motion="fly"
+	onclose={onClose}
+>
 	{#snippet icon()}
 		<div class="flex h-12 w-12 items-center justify-center rounded-full bg-primary">
 			<Check size={28} class="text-on-primary" strokeWidth={3} />

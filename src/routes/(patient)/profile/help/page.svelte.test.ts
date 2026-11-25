@@ -42,6 +42,8 @@ describe('help page', () => {
 		expect(toast.toasts[0].message).toMatch(/Live chat is not available yet/);
 		expect(toast.toasts[0].kind).toBe('info');
 		await fireEvent.click(screen.getByRole('button', { name: /Live Chat/ }));
+		// A second click replaces the notice instead of stacking another one.
+		expect(toast.toasts).toHaveLength(1);
 		vi.advanceTimersByTime(5000);
 		vi.useRealTimers();
 		await waitFor(() => expect(toast.toasts).toHaveLength(0));

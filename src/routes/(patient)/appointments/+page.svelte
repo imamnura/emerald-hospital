@@ -19,6 +19,13 @@
 	let activeTab = $state<AppointmentTab>('upcoming');
 	let confirmedDismissed = $state(false);
 	const showConfirmed = $derived(!!data.confirmedBooking && !confirmedDismissed);
+	// Closing navigates to /appointments, which drops `confirmedBooking` while the dialog is still
+	// fading out; keep the last one so it never renders empty dates.
+	let lastConfirmed = $state<typeof data.confirmedBooking>(null);
+	$effect.pre(() => {
+		if (data.confirmedBooking) lastConfirmed = data.confirmedBooking;
+	});
+	const confirmed = $derived(data.confirmedBooking ?? lastConfirmed);
 	let cancelTarget = $state<(typeof data.appointments)[number] | null>(null);
 	let cancelOpen = $state(false);
 	let cancelledSuccess = $state<{ doctorName: string; appointmentDate: string } | null>(null);
@@ -171,8 +178,8 @@
 
 <AppointmentConfirmedModal
 	bind:open={() => showConfirmed, (v) => (confirmedDismissed = !v)}
-	doctorName={data.confirmedBooking?.doctorName ?? ''}
-	appointmentDate={String(data.confirmedBooking?.appointmentDate ?? '')}
-	appointmentTime={data.confirmedBooking?.appointmentTime ?? ''}
+	doctorName={confirmed?.doctorName ?? ''}
+	appointmentDate={String(confirmed?.appointmentDate ?? '')}
+	appointmentTime={confirmed?.appointmentTime ?? ''}
 	onClose={closeConfirmedModal}
 />

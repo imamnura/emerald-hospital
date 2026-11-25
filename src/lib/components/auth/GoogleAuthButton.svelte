@@ -9,11 +9,13 @@
 		label: string;
 		/** Extra classes (spacing / shadow differ per page). */
 		class?: string;
+		/** Extra classes only for the enabled link (the login page adds a shadow). */
+		enabledClass?: string;
 		/** Fade/slide the button in (login page). */
 		animateIn?: boolean;
 	}
 
-	let { href, enabled, label, class: className, animateIn = false }: Props = $props();
+	let { href, enabled, label, class: className, enabledClass, animateIn = false }: Props = $props();
 
 	const intro = $derived({ y: 12, duration: animateIn ? 380 : 0, delay: 200 });
 </script>
@@ -24,7 +26,8 @@
 		data-sveltekit-preload-data="off"
 		class={cn(
 			'flex w-full items-center justify-center gap-3 rounded-xl border border-outline-variant/60 bg-surface-container-lowest py-3.5 text-sm font-bold text-on-surface transition hover:bg-surface-container active:scale-[0.98]',
-			className
+			className,
+			enabledClass
 		)}
 		in:fly={intro}
 	>
