@@ -1,5 +1,6 @@
-import { fail, redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
+import { requireUser } from '#lib/server/guards.ts';
 import { getInsuranceForUser, upsertInsurance } from '#lib/server/insurance.ts';
 
 function isoDate(value: FormDataEntryValue | null): string | null {
@@ -15,16 +16,16 @@ function numericString(value: FormDataEntryValue | null): string | null {
 }
 
 export const load: PageServerLoad = async ({ locals }) => {
-	if (!locals.user) throw redirect(303, '/login?redirect=/profile/insurance');
+	const user = requireUser(locals, '/profile/insurance');
 
 	return {
-		insurance: await getInsuranceForUser(locals.user.id, locals.user.name)
+		insurance: await getInsuranceForUser(user.id, user.name)
 	};
 };
 
 export const actions: Actions = {
 	save: async ({ request, locals }) => {
-		if (!locals.user) throw redirect(303, '/login');
+		const user = requireUser(locals);
 		const fd = await request.formData();
 
 		const providerName = String(fd.get('providerName') ?? '').trim();
@@ -43,7 +44,7 @@ export const actions: Actions = {
 			return fail(400, { error: 'Coverage end must be after start.' });
 		}
 
-		await upsertInsurance(locals.user.id, {
+		await upsertInsurance(user.id, {
 			providerName,
 			planName,
 			memberId,

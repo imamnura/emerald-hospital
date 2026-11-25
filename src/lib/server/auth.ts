@@ -1,4 +1,5 @@
 import { hash, verify } from '@node-rs/argon2';
+import type { Cookies } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import { db } from './db';
@@ -62,27 +63,23 @@ export async function validateSession(sessionId: string): Promise<User | null> {
 	return row.user;
 }
 
-export function sessionCookieOptions(sessionId: string) {
-	return {
-		name: SESSION_COOKIE,
-		value: sessionId,
+/** Create a session for `userId` and set the session cookie. */
+export async function setSessionCookie(cookies: Cookies, userId: string): Promise<void> {
+	const sessionId = await createSession(userId);
+	cookies.set(SESSION_COOKIE, sessionId, {
 		path: '/',
 		httpOnly: true,
-		sameSite: 'lax' as const,
+		sameSite: 'lax',
 		secure: process.env.NODE_ENV === 'production',
 		maxAge: SESSION_DAYS * 24 * 60 * 60
-	};
+	});
 }
 
-export function clearSessionCookie() {
-	return {
-		name: SESSION_COOKIE,
-		value: '',
-		path: '/',
-		httpOnly: true,
-		sameSite: 'lax' as const,
-		maxAge: 0
-	};
+/** Delete the current session (if any) and clear the session cookie. */
+export async function endSession(cookies: Cookies): Promise<void> {
+	const sessionId = cookies.get(SESSION_COOKIE);
+	if (sessionId) await deleteSession(sessionId);
+	cookies.set(SESSION_COOKIE, '', { path: '/', maxAge: 0 });
 }
 
 export const SESSION_COOKIE_NAME = SESSION_COOKIE;

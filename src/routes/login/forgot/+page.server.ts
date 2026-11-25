@@ -1,9 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import { db } from '#lib/server/db/index.ts';
-import { users } from '#lib/server/db/schema.ts';
 import { createPasswordResetToken, sendPasswordResetEmail } from '#lib/server/password-reset.ts';
+import { getUserByEmail } from '#lib/server/users.ts';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (locals.user) throw redirect(303, '/home');
@@ -26,7 +24,7 @@ export const actions: Actions = {
 
 		// Always report success regardless of outcome, so the response can't be
 		// used to enumerate which emails are registered.
-		const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+		const user = await getUserByEmail(email);
 		if (user) {
 			const token = await createPasswordResetToken(user.id);
 			const resetUrl = `${url.origin}/login/reset/${token}`;

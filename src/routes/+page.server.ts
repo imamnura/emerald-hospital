@@ -1,12 +1,8 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import { homeFor } from '#lib/server/auth/redirect.ts';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	if (locals.user?.role === 'manager') {
-		throw redirect(303, '/manager');
-	}
-	if (locals.user?.role === 'patient') {
-		throw redirect(303, '/home');
-	}
+	if (locals.user) throw redirect(303, homeFor(locals.user.role));
 	return {};
 };

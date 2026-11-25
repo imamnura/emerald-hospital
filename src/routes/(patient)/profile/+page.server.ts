@@ -1,16 +1,17 @@
 import { redirect } from '@sveltejs/kit';
 import { and, asc, count, eq, gte, inArray } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import { clearSessionCookie, deleteSession, SESSION_COOKIE_NAME, toPublicUser } from '#lib/server/auth.ts';
+import { endSession, toPublicUser } from '#lib/server/auth.ts';
+import { requireUser } from '#lib/server/guards.ts';
 import { db } from '#lib/server/db/index.ts';
 import { bookings } from '#lib/server/db/schema.ts';
 import { formatDate, toLocalDateString } from '#lib/format/date.ts';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	if (!locals.user) throw redirect(303, '/login?redirect=/profile');
+	const user = requireUser(locals, '/profile');
 
 	const today = toLocalDateString(new Date());
-	const userId = locals.user.id;
+	const userId = user.id;
 
 	const [nextRows, reportsRows] = await Promise.all([
 		db
@@ -35,10 +36,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const reportsRow = reportsRows[0];
 
 	return {
-		profile: toPublicUser(locals.user),
-		memberSince: formatDate(locals.user.createdAt, 'monthYearShort'),
+		profile: toPublicUser(user),
+		memberSince: formatDate(user.createdAt, 'monthYearShort'),
 		stats: {
-			bloodType: locals.user.bloodType ?? '—',
+			bloodType: user.bloodType ?? '—',
 			nextVisit: nextBooking ? formatDate(String(nextBooking.appointmentDate), 'dayMonth') : '—',
 			reports: Number(reportsRow?.total ?? 0)
 		}
@@ -46,11 +47,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
-	logout: async ({ cookies, locals }) => {
-		const sessionId = cookies.get(SESSION_COOKIE_NAME);
-		if (sessionId) await deleteSession(sessionId);
-		const opts = clearSessionCookie();
-		cookies.set(opts.name, opts.value, { path: opts.path, maxAge: opts.maxAge });
+	logout: async ({ cookies }) => {
+		await endSession(cookies);
 		throw redirect(303, '/login');
 	}
 };

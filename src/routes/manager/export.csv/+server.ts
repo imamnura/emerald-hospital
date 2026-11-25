@@ -2,6 +2,7 @@ import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { STATUS_LABEL } from '#lib/domain/booking-status.ts';
 import { exportRows, parseFilters, rangeLabel } from '#lib/server/analytics.ts';
+import { isManager } from '#lib/server/guards.ts';
 
 function escapeCell(value: string | number): string {
 	const s = String(value ?? '');
@@ -12,7 +13,7 @@ function escapeCell(value: string | number): string {
 }
 
 export const GET: RequestHandler = async ({ url, locals }) => {
-	if (!locals.user || locals.user.role !== 'manager') error(403, 'Manager access required');
+	if (!isManager(locals)) error(403, 'Manager access required');
 
 	const filters = parseFilters(url.searchParams);
 	const rows = await exportRows(filters);

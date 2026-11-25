@@ -1,10 +1,10 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import { createSession, hashPassword, sessionCookieOptions } from '#lib/server/auth.ts';
+import { hashPassword, setSessionCookie } from '#lib/server/auth.ts';
 import { db } from '#lib/server/db/index.ts';
 import { users } from '#lib/server/db/schema.ts';
 import { isConfigured as isGoogleConfigured } from '#lib/server/oauth-google.ts';
+import { getUserByEmail } from '#lib/server/users.ts';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (locals.user) throw redirect(303, '/home');
@@ -23,7 +23,7 @@ export const actions: Actions = {
 			return fail(400, { error: 'Please fill all required fields (password min 8 chars).' });
 		}
 
-		const [existing] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+		const existing = await getUserByEmail(email);
 		if (existing) {
 			return fail(400, { error: 'Email already registered.' });
 		}
@@ -34,15 +34,7 @@ export const actions: Actions = {
 			.values({ name, email, phone, passwordHash, role: 'patient' })
 			.returning();
 
-		const sessionId = await createSession(user.id);
-		const opts = sessionCookieOptions(sessionId);
-		cookies.set(opts.name, opts.value, {
-			path: opts.path,
-			httpOnly: opts.httpOnly,
-			sameSite: opts.sameSite,
-			secure: opts.secure,
-			maxAge: opts.maxAge
-		});
+		await setSessionCookie(cookies, user.id);
 
 		throw redirect(303, '/home');
 	}

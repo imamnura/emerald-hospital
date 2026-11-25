@@ -1,5 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
+import { requireUser } from '#lib/server/guards.ts';
 import { parseIsoDate } from '#lib/format/date.ts';
 import { BLOOD_TYPES } from '#lib/server/db/schema.ts';
 import { getUserById, updateProfile } from '#lib/server/users.ts';
@@ -33,9 +34,9 @@ function parseDobInput(value: string): string | null {
 }
 
 export const load: PageServerLoad = async ({ locals }) => {
-	if (!locals.user) throw redirect(303, '/login?redirect=/profile/personal');
+	const user = requireUser(locals, '/profile/personal');
 
-	const fresh = await getUserById(locals.user.id);
+	const fresh = await getUserById(user.id);
 	if (!fresh) throw redirect(303, '/login');
 
 	return {
@@ -55,7 +56,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 export const actions: Actions = {
 	update: async ({ request, locals }) => {
-		if (!locals.user) throw redirect(303, '/login');
+		const user = requireUser(locals);
 
 		const fd = await request.formData();
 		const name = String(fd.get('name') ?? '').trim();
@@ -83,7 +84,7 @@ export const actions: Actions = {
 			return fail(400, { error: 'Invalid blood type.' });
 		}
 
-		await updateProfile(locals.user.id, {
+		await updateProfile(user.id, {
 			name,
 			phone,
 			imageUrl,

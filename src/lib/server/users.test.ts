@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { resetDb, type TestDb } from '../../test/db.ts';
 import { makeUser } from '../../test/factories.ts';
-import { getUserById, parseProfileForm, updateProfile } from './users.ts';
+import { verifyPassword } from './auth.ts';
+import { getUserByEmail, getUserById, parseProfileForm, setPassword, updateProfile } from './users.ts';
 
 beforeEach(() => resetDb(db as unknown as TestDb));
 
@@ -11,6 +12,25 @@ const fd = (o: Record<string, string>) => {
 	for (const [k, v] of Object.entries(o)) f.set(k, v);
 	return f;
 };
+
+describe('getUserByEmail', () => {
+	it('finds by email', async () => {
+		const u = await makeUser({ email: 'find@x.com' });
+		expect((await getUserByEmail('find@x.com'))?.id).toBe(u.id);
+	});
+	it('returns undefined when missing', async () => {
+		expect(await getUserByEmail('nobody@x.com')).toBeUndefined();
+	});
+});
+
+describe('setPassword', () => {
+	it('stores a verifiable hash', async () => {
+		const u = await makeUser();
+		await setPassword(u.id, 'new-pass-123');
+		const row = await getUserById(u.id);
+		expect(await verifyPassword(row!.passwordHash!, 'new-pass-123')).toBe(true);
+	});
+});
 
 describe('parseProfileForm', () => {
 	it('requires a name', () => {

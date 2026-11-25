@@ -1,5 +1,6 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { sanitizeRedirect } from '#lib/server/auth/redirect.ts';
 import {
 	OAUTH_COOKIES,
 	buildAuthorizeUrl,
@@ -8,13 +9,6 @@ import {
 	getConfig,
 	oauthCookieOptions
 } from '#lib/server/oauth-google.ts';
-
-function safeRedirectTarget(value: string | null | undefined): string | null {
-	if (!value) return null;
-	if (!value.startsWith('/') || value.startsWith('//')) return null;
-	if (value.startsWith('/login')) return null;
-	return value;
-}
 
 export const GET: RequestHandler = async ({ url, cookies }) => {
 	const config = getConfig();
@@ -30,7 +24,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 	cookies.set(OAUTH_COOKIES.state, state, opts);
 	cookies.set(OAUTH_COOKIES.verifier, verifier, opts);
 
-	const postLogin = safeRedirectTarget(url.searchParams.get('redirect'));
+	const postLogin = sanitizeRedirect(url.searchParams.get('redirect'));
 	if (postLogin) cookies.set(OAUTH_COOKIES.redirect, postLogin, opts);
 	else cookies.delete(OAUTH_COOKIES.redirect, { path: opts.path });
 

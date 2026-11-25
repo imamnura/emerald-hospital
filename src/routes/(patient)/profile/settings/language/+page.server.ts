@@ -6,11 +6,12 @@ import {
 	writePreference,
 	type AppLanguage
 } from '#lib/server/preferences.ts';
+import { requireUser } from '#lib/server/guards.ts';
 
 const LANGUAGES: AppLanguage[] = ['en', 'id'];
 
 export const load: PageServerLoad = async ({ locals, cookies }) => {
-	if (!locals.user) throw redirect(303, '/login?redirect=/profile/settings/language');
+	requireUser(locals, '/profile/settings/language');
 
 	const preferences = readPreferences(cookies);
 
@@ -22,7 +23,7 @@ export const load: PageServerLoad = async ({ locals, cookies }) => {
 
 export const actions: Actions = {
 	set: async ({ request, cookies, locals }) => {
-		if (!locals.user) throw redirect(303, '/login');
+		requireUser(locals);
 
 		const language = String((await request.formData()).get('language') ?? '');
 		if (language !== 'en' && language !== 'id') {

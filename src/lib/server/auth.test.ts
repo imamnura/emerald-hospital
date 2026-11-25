@@ -1,3 +1,4 @@
+import type { Cookies } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
@@ -6,12 +7,12 @@ import { resetDb, type TestDb } from '../../test/db.ts';
 import { makeSession, makeUser } from '../../test/factories.ts';
 import {
 	SESSION_COOKIE_NAME,
-	clearSessionCookie,
 	createSession,
 	deleteSession,
 	deleteSessionsByUserId,
+	endSession,
 	hashPassword,
-	sessionCookieOptions,
+	setSessionCookie,
 	toPublicUser,
 	validateSession,
 	verifyPassword
@@ -122,39 +123,53 @@ describe('sessions', () => {
 	});
 });
 
-describe('cookie options', () => {
+describe('session cookie', () => {
 	const originalEnv = process.env.NODE_ENV;
 	afterEach(() => {
 		process.env.NODE_ENV = originalEnv;
 	});
 
-	it('sessionCookieOptions is insecure outside production', () => {
-		process.env.NODE_ENV = 'test';
-		expect(sessionCookieOptions('abc')).toEqual({
-			name: 'session_id',
-			value: 'abc',
+	it('setSessionCookie sets the same options as before', async () => {
+		const set = vi.fn();
+		const u = await makeUser();
+		await setSessionCookie({ set } as unknown as Cookies, u.id);
+		expect(set).toHaveBeenCalledWith('session_id', expect.any(String), {
 			path: '/',
 			httpOnly: true,
 			sameSite: 'lax',
 			secure: false,
-			maxAge: 30 * 24 * 60 * 60
+			maxAge: 2592000
 		});
+		const id = set.mock.calls[0][1] as string;
+		expect((await validateSession(id))?.id).toBe(u.id);
 	});
 
-	it('sessionCookieOptions is secure in production', () => {
+	it('setSessionCookie is secure in production', async () => {
 		process.env.NODE_ENV = 'production';
-		expect(sessionCookieOptions('abc').secure).toBe(true);
+		const set = vi.fn();
+		const u = await makeUser();
+		await setSessionCookie({ set } as unknown as Cookies, u.id);
+		expect(set.mock.calls[0][2].secure).toBe(true);
 	});
 
-	it('clearSessionCookie expires the cookie', () => {
-		expect(clearSessionCookie()).toEqual({
-			name: SESSION_COOKIE_NAME,
-			value: '',
-			path: '/',
-			httpOnly: true,
-			sameSite: 'lax',
-			maxAge: 0
-		});
+	it('endSession deletes the session row and clears the cookie', async () => {
+		const u = await makeUser();
+		const id = await makeSession(u.id);
+		const get = vi.fn().mockReturnValue(id);
+		const set = vi.fn();
+		await endSession({ get, set } as unknown as Cookies);
+		expect(get).toHaveBeenCalledWith('session_id');
+		expect(set).toHaveBeenCalledWith('session_id', '', { path: '/', maxAge: 0 });
+		expect(await validateSession(id)).toBeNull();
+	});
+
+	it('endSession still clears the cookie when there is no session', async () => {
+		const set = vi.fn();
+		await endSession({ get: () => undefined, set } as unknown as Cookies);
+		expect(set).toHaveBeenCalledWith('session_id', '', { path: '/', maxAge: 0 });
+	});
+
+	it('exposes the cookie name', () => {
 		expect(SESSION_COOKIE_NAME).toBe('session_id');
 	});
 });

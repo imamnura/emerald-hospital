@@ -1,17 +1,19 @@
-import { fail, redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import { hashPassword, verifyPassword } from '#lib/server/auth.ts';
+import { verifyPassword } from '#lib/server/auth.ts';
 import { db } from '#lib/server/db/index.ts';
 import { users } from '#lib/server/db/schema.ts';
+import { requireUser } from '#lib/server/guards.ts';
+import { setPassword } from '#lib/server/users.ts';
 
 export const load: PageServerLoad = async ({ locals }) => {
-	if (!locals.user) throw redirect(303, '/login?redirect=/profile/settings/password');
+	const current = requireUser(locals, '/profile/settings/password');
 
 	const [user] = await db
 		.select({ passwordHash: users.passwordHash })
 		.from(users)
-		.where(eq(users.id, locals.user.id))
+		.where(eq(users.id, current.id))
 		.limit(1);
 
 	return { hasPassword: Boolean(user?.passwordHash) };
@@ -19,7 +21,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 export const actions: Actions = {
 	change: async ({ request, locals }) => {
-		if (!locals.user) throw redirect(303, '/login');
+		const current = requireUser(locals);
 
 		const formData = await request.formData();
 		const currentPassword = String(formData.get('currentPassword') ?? '');
@@ -39,7 +41,7 @@ export const actions: Actions = {
 		const [user] = await db
 			.select({ passwordHash: users.passwordHash })
 			.from(users)
-			.where(eq(users.id, locals.user.id))
+			.where(eq(users.id, current.id))
 			.limit(1);
 
 		if (!user) return fail(404, { error: 'User not found.' });
@@ -52,8 +54,7 @@ export const actions: Actions = {
 			if (!valid) return fail(400, { error: 'Current password is incorrect.' });
 		}
 
-		const passwordHash = await hashPassword(newPassword);
-		await db.update(users).set({ passwordHash }).where(eq(users.id, locals.user.id));
+		await setPassword(current.id, newPassword);
 
 		return { success: true };
 	}

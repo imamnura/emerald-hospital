@@ -1,21 +1,9 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import {
-	createSession,
-	sessionCookieOptions,
-	verifyPassword
-} from '#lib/server/auth.ts';
-import { db } from '#lib/server/db/index.ts';
-import { users } from '#lib/server/db/schema.ts';
+import { setSessionCookie, verifyPassword } from '#lib/server/auth.ts';
+import { homeFor, sanitizeRedirect } from '#lib/server/auth/redirect.ts';
 import { isConfigured as isGoogleConfigured } from '#lib/server/oauth-google.ts';
-
-function safeRedirect(path: string | null | undefined, role: 'manager' | 'patient'): string {
-	if (path && path.startsWith('/') && !path.startsWith('//') && !path.startsWith('/login')) {
-		return path;
-	}
-	return role === 'manager' ? '/manager' : '/home';
-}
+import { getUserByEmail } from '#lib/server/users.ts';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const redirectTo = url.searchParams.get('redirect');
@@ -23,7 +11,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const resetSuccess = url.searchParams.get('reset') === 'success';
 
 	if (locals.user) {
-		throw redirect(303, safeRedirect(redirectTo, locals.user.role));
+		throw redirect(303, sanitizeRedirect(redirectTo) ?? homeFor(locals.user.role));
 	}
 
 	return {
@@ -44,7 +32,7 @@ export const actions: Actions = {
 			return fail(400, { error: 'Email and password are required.' });
 		}
 
-		const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+		const user = await getUserByEmail(email);
 		if (!user) {
 			return fail(400, { error: 'Invalid email or password.' });
 		}
@@ -57,17 +45,9 @@ export const actions: Actions = {
 			return fail(400, { error: 'Invalid email or password.' });
 		}
 
-		const sessionId = await createSession(user.id);
-		const opts = sessionCookieOptions(sessionId);
-		cookies.set(opts.name, opts.value, {
-			path: opts.path,
-			httpOnly: opts.httpOnly,
-			sameSite: opts.sameSite,
-			secure: opts.secure,
-			maxAge: opts.maxAge
-		});
+		await setSessionCookie(cookies, user.id);
 
 		const redirectParam = String(formData.get('redirect') ?? '').trim() || null;
-		throw redirect(303, safeRedirect(redirectParam, user.role));
+		throw redirect(303, sanitizeRedirect(redirectParam) ?? homeFor(user.role));
 	}
 };
