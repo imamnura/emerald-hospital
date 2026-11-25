@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Page from './+page.svelte';
 import { mockLocationHref } from '../../../../test/helpers-pages-public.ts';
 import { SUPPORT_EMAIL, SUPPORT_PHONE } from '#lib/data/help-support.ts';
+import { toast } from '#lib/stores/toast.svelte.ts';
 
 let loc: ReturnType<typeof mockLocationHref>;
 beforeEach(() => {
@@ -33,14 +34,17 @@ describe('help page', () => {
 	});
 
 	it('live chat shows a notice that auto-hides', async () => {
+		toast.clear();
 		vi.useFakeTimers();
 		renderPage();
 		await fireEvent.click(screen.getByRole('button', { name: /Live Chat/ }));
-		expect(screen.getByText(/Live chat is not available yet/)).toBeInTheDocument();
+		expect(toast.toasts).toHaveLength(1);
+		expect(toast.toasts[0].message).toMatch(/Live chat is not available yet/);
+		expect(toast.toasts[0].kind).toBe('info');
 		await fireEvent.click(screen.getByRole('button', { name: /Live Chat/ }));
 		vi.advanceTimersByTime(5000);
 		vi.useRealTimers();
-		await waitFor(() => expect(screen.queryByText(/Live chat is not available yet/)).toBeNull());
+		await waitFor(() => expect(toast.toasts).toHaveLength(0));
 	});
 
 	it('filters FAQs and toggles answer', async () => {

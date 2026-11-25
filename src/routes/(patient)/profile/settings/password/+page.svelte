@@ -13,9 +13,7 @@
 	<form method="POST" action="?/change" use:enhance class="space-y-4">
 		<FormAlert message={form?.error} />
 		{#if form?.success}
-			<p class="rounded-xl bg-primary/10 px-4 py-3 text-sm text-primary">
-				Password updated successfully.
-			</p>
+			<FormAlert kind="success" message="Password updated successfully." />
 		{/if}
 
 		{#if !data.hasPassword}

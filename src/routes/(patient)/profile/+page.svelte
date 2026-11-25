@@ -1,16 +1,15 @@
-﻿<script lang="ts">
+<script lang="ts">
 	import Avatar from '#lib/components/ui/Avatar.svelte';
-	import { enhance } from '$app/forms';
 	import {
 		Banknote,
 		Bell,
 		FileText,
 		HelpCircle,
-		LogOut,
 		Settings,
 		Shield,
 		User
 	} from '@lucide/svelte';
+	import LogoutButton from '#lib/components/profile/LogoutButton.svelte';
 	import Header from '#lib/components/Header.svelte';
 	import ProfileMenuItem from '#lib/components/ProfileMenuItem.svelte';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
@@ -77,15 +76,7 @@
 </MotionReveal>
 
 <MotionReveal delay={190}>
-	<form method="POST" action="?/logout" use:enhance class="mt-6 pb-2">
-		<button
-			type="submit"
-			class="flex w-full items-center justify-center gap-2 rounded-2xl bg-error-container/60 py-3.5 text-sm font-bold text-error transition-opacity active:opacity-80"
-		>
-			<LogOut size={18} strokeWidth={2.25} />
-			Logout
-		</button>
-	</form>
+	<LogoutButton class="mt-6 pb-2" />
 
 	{#if data.profile.role === 'manager'}
 		<a href="/manager" class="mt-4 block text-center text-sm font-semibold text-primary">

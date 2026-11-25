@@ -1,6 +1,6 @@
 <script lang="ts">
 	import BackHeader from '#lib/components/layout/BackHeader.svelte';
-	import SpecialistDoctorCard from '#lib/components/SpecialistDoctorCard.svelte';
+	import DoctorSummary from '#lib/components/doctor/DoctorSummary.svelte';
 	import {
 		doctorRoleLabel,
 		specialistAvailabilityLabel,
@@ -26,14 +26,9 @@
 		</p>
 	{:else}
 		{#each data.doctors as doctor (doctor.id)}
-			<SpecialistDoctorCard
-				id={doctor.id}
-				name={doctor.name}
-				role={doctorRoleLabel(data.specialist.name, doctor.rating)}
-				hospital={doctor.hospital}
-				imageUrl={doctor.imageUrl}
-				rating={doctor.rating}
-				reviewCount={doctor.reviewCount}
+			<DoctorSummary
+				doctor={{ ...doctor, role: doctorRoleLabel(data.specialist.name, doctor.rating) }}
+				variant="grid"
 			/>
 		{/each}
 	{/if}

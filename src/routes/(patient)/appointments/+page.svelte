@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
 	import { goto } from '$app/navigation';
 	import { fade, fly } from 'svelte/transition';
 	import { Calendar } from '@lucide/svelte';
@@ -20,7 +20,9 @@
 	let confirmedDismissed = $state(false);
 	const showConfirmed = $derived(!!data.confirmedBooking && !confirmedDismissed);
 	let cancelTarget = $state<(typeof data.appointments)[number] | null>(null);
+	let cancelOpen = $state(false);
 	let cancelledSuccess = $state<{ doctorName: string; appointmentDate: string } | null>(null);
+	let cancelledOpen = $state(false);
 
 	const upcoming = $derived(
 		data.appointments.filter((a) =>
@@ -39,25 +41,28 @@
 		goto('/appointments', { replace: true, reset: false });
 	}
 
+	// The targets stay set after closing so the dialogs keep their text while fading out.
 	function openCancelModal(apt: (typeof data.appointments)[number]) {
 		cancelTarget = apt;
+		cancelOpen = true;
 	}
 
 	function closeCancelModal() {
-		cancelTarget = null;
+		cancelOpen = false;
 	}
 
 	function handleCancelled(details: { doctorName: string; appointmentDate: string }) {
-		cancelTarget = null;
+		cancelOpen = false;
 		cancelledSuccess = details;
+		cancelledOpen = true;
 	}
 
 	function closeCancelledSuccess() {
-		cancelledSuccess = null;
+		cancelledOpen = false;
 	}
 
 	function bookNewAppointment() {
-		cancelledSuccess = null;
+		cancelledOpen = false;
 		goto('/home');
 	}
 </script>
@@ -147,33 +152,27 @@
 	{/key}
 </div>
 
-{#if cancelTarget}
-	<CancelAppointmentModal
-		open={true}
-		bookingId={cancelTarget.id}
-		doctorName={cancelTarget.doctorName}
-		appointmentDate={String(cancelTarget.appointmentDate)}
-		onClose={closeCancelModal}
-		onCancelled={handleCancelled}
-	/>
-{/if}
+<CancelAppointmentModal
+	bind:open={cancelOpen}
+	bookingId={cancelTarget?.id ?? ''}
+	doctorName={cancelTarget?.doctorName ?? ''}
+	appointmentDate={String(cancelTarget?.appointmentDate ?? '')}
+	onClose={closeCancelModal}
+	onCancelled={handleCancelled}
+/>
 
-{#if cancelledSuccess}
-	<AppointmentCancelledModal
-		open={true}
-		doctorName={cancelledSuccess.doctorName}
-		appointmentDate={cancelledSuccess.appointmentDate}
-		onBackToAppointments={closeCancelledSuccess}
-		onBookNew={bookNewAppointment}
-	/>
-{/if}
+<AppointmentCancelledModal
+	bind:open={cancelledOpen}
+	doctorName={cancelledSuccess?.doctorName ?? ''}
+	appointmentDate={cancelledSuccess?.appointmentDate ?? ''}
+	onBackToAppointments={closeCancelledSuccess}
+	onBookNew={bookNewAppointment}
+/>
 
-{#if data.confirmedBooking}
-	<AppointmentConfirmedModal
-		open={showConfirmed}
-		doctorName={data.confirmedBooking.doctorName}
-		appointmentDate={String(data.confirmedBooking.appointmentDate)}
-		appointmentTime={data.confirmedBooking.appointmentTime}
-		onClose={closeConfirmedModal}
-	/>
-{/if}
+<AppointmentConfirmedModal
+	bind:open={() => showConfirmed, (v) => (confirmedDismissed = !v)}
+	doctorName={data.confirmedBooking?.doctorName ?? ''}
+	appointmentDate={String(data.confirmedBooking?.appointmentDate ?? '')}
+	appointmentTime={data.confirmedBooking?.appointmentTime ?? ''}
+	onClose={closeConfirmedModal}
+/>

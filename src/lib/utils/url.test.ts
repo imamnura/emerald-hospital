@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { withParams } from './url.ts';
+import { findDoctorHref, withParams } from './url.ts';
 
 describe('withParams', () => {
 	it('resets page and drops empty values', () =>
@@ -23,4 +23,17 @@ describe('withParams', () => {
 		expect(withParams(url, { q: 'b' }, { relative: true })).toBe('?q=b');
 		expect(withParams(url, { q: null }, { relative: true })).toBe('/m');
 	});
+});
+
+describe('findDoctorHref', () => {
+	it('is the bare path without filters', () =>
+		expect(findDoctorHref('  ', 'all')).toBe('/find-doctor'));
+
+	it('adds a trimmed query and a hospital other than all', () =>
+		expect(findDoctorHref(' Cardio ', 'rsud-purwakarta')).toBe(
+			'/find-doctor?q=Cardio&hospital=rsud-purwakarta'
+		));
+
+	it('drops the hospital when it is all', () =>
+		expect(findDoctorHref('Neuro', 'all')).toBe('/find-doctor?q=Neuro'));
 });

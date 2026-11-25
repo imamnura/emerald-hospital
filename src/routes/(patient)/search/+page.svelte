@@ -1,14 +1,14 @@
-﻿<script lang="ts">
+<script lang="ts">
 	import { goto } from '$app/navigation';
 	import FilterOptionsModal from '#lib/components/FilterOptionsModal.svelte';
 	import SearchBar from '#lib/components/SearchBar.svelte';
 	import BackHeader from '#lib/components/layout/BackHeader.svelte';
-	import Avatar from '#lib/components/ui/Avatar.svelte';
-	import { getInitials } from '#lib/format/text.ts';
-	import SearchResultCard from '#lib/components/SearchResultCard.svelte';
+	import ProfileLink from '#lib/components/profile/ProfileLink.svelte';
+	import DoctorSummary from '#lib/components/doctor/DoctorSummary.svelte';
 	import { filterAndSortDoctors, useSearchStore } from '#lib/stores/search.ts';
 	import { useZustand } from '#lib/stores/useZustand.svelte.ts';
-	import { SlidersHorizontal } from '@lucide/svelte';
+	import { Bookmark, SlidersHorizontal } from '@lucide/svelte';
+	import { cn } from '#lib/utils.ts';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 
 	let { data } = $props();
@@ -65,16 +65,7 @@
 
 <BackHeader title="Medical Center" backHref="/home">
 	{#snippet trailing()}
-		{#if data.user?.imageUrl}
-			<Avatar src={data.user?.imageUrl} name={data.user?.name ?? 'Guest'} size="md" />
-		{:else}
-			<a
-				href="/profile"
-				class="flex h-10 w-10 items-center justify-center rounded-full bg-primary-container text-sm font-semibold text-on-primary"
-			>
-				{getInitials(data.user?.name ?? 'Guest')}
-			</a>
-		{/if}
+		<ProfileLink imageUrl={data.user?.imageUrl} name={data.user?.name ?? 'Guest'} />
 	{/snippet}
 </BackHeader>
 
@@ -117,17 +108,22 @@
 		</p>
 	{:else}
 		{#each displayed as doctor (doctor.id)}
-			<SearchResultCard
-				id={doctor.id}
-				name={doctor.name}
-				specialty={doctor.specialty}
-				hospital={doctor.hospital}
-				imageUrl={doctor.imageUrl}
-				rating={doctor.rating}
-				reviewCount={doctor.reviewCount}
-				bookmarked={search.bookmarkedIds.includes(doctor.id)}
-				onBookmark={(id) => useSearchStore.getState().toggleBookmark(id)}
-			/>
+			{@const bookmarked = search.bookmarkedIds.includes(doctor.id)}
+			<DoctorSummary {doctor} variant="search">
+				{#snippet trailing()}
+					<button
+						type="button"
+						class="absolute right-4 top-4 text-outline transition-colors hover:text-primary"
+						aria-label={bookmarked ? 'Remove bookmark' : 'Bookmark doctor'}
+						onclick={(e) => {
+							e.preventDefault();
+							useSearchStore.getState().toggleBookmark(doctor.id);
+						}}
+					>
+						<Bookmark size={20} class={cn(bookmarked && 'fill-primary text-primary')} />
+					</button>
+				{/snippet}
+			</DoctorSummary>
 		{/each}
 	{/if}
 </div>

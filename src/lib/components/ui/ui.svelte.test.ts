@@ -137,3 +137,14 @@ describe('Dialog', () => {
 		expect(screen.getByRole('button', { name: 'Go' })).toBeInTheDocument();
 	});
 });
+
+describe('Dialog labelledby', () => {
+	it('names an untitled dialog by an element inside it', () => {
+		render(Dialog, {
+			open: true,
+			labelledby: 'inner-title',
+			children: snip('<h2 id="inner-title">Inside</h2>')
+		});
+		expect(screen.getByRole('dialog', { name: 'Inside' })).toBeInTheDocument();
+	});
+});

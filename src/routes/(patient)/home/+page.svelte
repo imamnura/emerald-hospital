@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import DoctorCard from '#lib/components/DoctorCard.svelte';
+	import DoctorSummary from '#lib/components/doctor/DoctorSummary.svelte';
 	import Header from '#lib/components/Header.svelte';
 	import SearchBar from '#lib/components/SearchBar.svelte';
-	import SpecialistChip from '#lib/components/SpecialistChip.svelte';
+	import SpecialistTile from '#lib/components/specialist/SpecialistTile.svelte';
 	import { useSearchStore } from '#lib/stores/search.ts';
 	import { SlidersHorizontal } from '@lucide/svelte';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
@@ -63,11 +63,12 @@
 		</div>
 		<div class="scrollbar-hide -mx-5 flex gap-4 overflow-x-auto px-5 pb-2">
 			{#each data.specialists as spec}
-				<SpecialistChip
+				<SpecialistTile
 					name={spec.name}
 					icon={spec.icon}
 					active={data.activeSpecialist === spec.slug}
 					href="/specialists/{spec.slug}"
+					variant="chip"
 				/>
 			{/each}
 		</div>
@@ -79,15 +80,7 @@
 		<h2 class="mb-4 font-heading text-base font-bold text-on-surface">Recommended Doctors</h2>
 		<div class="flex flex-col gap-3">
 			{#each data.doctors as doctor}
-				<DoctorCard
-					id={doctor.id}
-					name={doctor.name}
-					specialty={doctor.specialty}
-					hospital={doctor.hospital}
-					imageUrl={doctor.imageUrl}
-					rating={doctor.rating ?? '4.5'}
-					isOnline={doctor.isOnline}
-				/>
+				<DoctorSummary doctor={{ ...doctor, rating: doctor.rating ?? '4.5' }} variant="compact" />
 			{/each}
 		</div>
 	</section>

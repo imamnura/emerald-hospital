@@ -9,6 +9,8 @@
 		onclose?: () => void;
 		title?: string;
 		description?: string;
+		/** `id` of an element inside `children` that names the dialog when there is no `title`. */
+		labelledby?: string;
 		variant?: 'sheet' | 'centered';
 		class?: string;
 		children: Snippet;
@@ -20,6 +22,7 @@
 		onclose,
 		title,
 		description,
+		labelledby,
 		variant = 'sheet',
 		class: className,
 		children,
@@ -74,7 +77,7 @@
 			transition:fly={{ y: 16, duration: 220 }}
 			role="dialog"
 			aria-modal="true"
-			aria-labelledby={title ? titleId : undefined}
+			aria-labelledby={title ? titleId : labelledby}
 			tabindex="-1"
 		>
 			{#if title}

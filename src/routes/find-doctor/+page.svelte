@@ -1,19 +1,13 @@
 <script lang="ts">
+	import DoctorSummary from '#lib/components/doctor/DoctorSummary.svelte';
 	import BrandMark from '#lib/components/ui/BrandMark.svelte';
 	import { goto } from '$app/navigation';
-	import { withParams } from '#lib/utils/url.ts';
-	import {
-		ArrowLeft,
-		Building2,
-		ChevronDown,
-		MapPin,
-		Search,
-		Star
-	} from '@lucide/svelte';
-	import { LANDING_BRAND, LANDING_HERO, LANDING_HOSPITALS } from '#lib/data/landing.ts';
+	import { findDoctorHref } from '#lib/utils/url.ts';
+	import { ArrowLeft } from '@lucide/svelte';
+	import { LANDING_BRAND } from '#lib/data/landing.ts';
 	import { doctorRoleLabel } from '#lib/domain/specialist.ts';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
-	import SpecialtyAutocomplete from '#lib/components/SpecialtyAutocomplete.svelte';
+	import DoctorSearchForm from '#lib/components/doctor/DoctorSearchForm.svelte';
 
 	let { data } = $props();
 
@@ -32,14 +26,8 @@
 		return isLoggedIn ? target : `/login?redirect=${encodeURIComponent(target)}`;
 	}
 
-	const FIND_DOCTOR_URL = new URL('/find-doctor', 'http://localhost');
-
-	function submitSearch(e: SubmitEvent) {
-		e.preventDefault();
-		const q = specialty.trim();
-		goto(withParams(FIND_DOCTOR_URL, { q, hospital: hospital === 'all' ? null : hospital }), {
-			reset: false
-		});
+	function submitSearch() {
+		goto(findDoctorHref(specialty, hospital), { reset: false });
 	}
 </script>
 
@@ -75,44 +63,7 @@
 				</p>
 			</div>
 
-			<form
-				onsubmit={submitSearch}
-				class="mt-6 rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-4 shadow-[var(--shadow-card)] md:p-5"
-			>
-				<div class="flex flex-col gap-3 md:flex-row md:items-stretch">
-					<SpecialtyAutocomplete
-						bind:value={specialty}
-						placeholder={LANDING_HERO.searchSpecialtyPlaceholder}
-						class="flex-1"
-					/>
-					<label class="relative flex-1">
-						<span class="sr-only">Hospital</span>
-						<Building2
-							size={18}
-							class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-outline"
-						/>
-						<select
-							bind:value={hospital}
-							class="w-full appearance-none rounded-xl border border-outline-variant/50 bg-surface py-3 pl-10 pr-10 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-						>
-							{#each LANDING_HOSPITALS as opt}
-								<option value={opt.value}>{opt.label}</option>
-							{/each}
-						</select>
-						<ChevronDown
-							size={16}
-							class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-outline"
-						/>
-					</label>
-					<button
-						type="submit"
-						class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-on-primary shadow-[var(--shadow-primary)] md:shrink-0"
-					>
-						<Search size={18} />
-						{LANDING_HERO.searchButtonLabel}
-					</button>
-				</div>
-			</form>
+			<DoctorSearchForm bind:specialty bind:hospital onsubmit={submitSearch} class="mt-6" />
 		</div>
 	</header>
 
@@ -133,55 +84,19 @@
 						</li>
 					{:else}
 						{#each data.doctors as doctor (doctor.id)}
-							<li
-								class="flex flex-col gap-4 rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-4 shadow-[var(--shadow-card)] sm:flex-row sm:items-center"
+							<DoctorSummary
+								doctor={{ ...doctor, role: doctorRoleLabel(doctor.specialty, doctor.rating) }}
+								variant="list"
 							>
-								<div class="flex min-w-0 flex-1 items-center gap-4">
-									{#if doctor.imageUrl}
-										<img
-											src={doctor.imageUrl}
-											alt={doctor.name}
-											class="h-16 w-16 shrink-0 rounded-full object-cover"
-											width="64"
-											height="64"
-										/>
-									{:else}
-										<div
-											class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-surface-container text-lg font-semibold text-primary"
-										>
-											{doctor.name.charAt(0)}
-										</div>
-									{/if}
-									<div class="min-w-0">
-										<span
-											class="inline-block rounded-full bg-surface-container px-2.5 py-0.5 text-xs font-semibold text-primary"
-										>
-											{doctor.specialty}
-										</span>
-										<p class="mt-1 truncate font-heading font-semibold text-on-surface">
-											{doctor.name}
-										</p>
-										<p class="text-sm text-on-surface-variant">
-											{doctorRoleLabel(doctor.specialty, doctor.rating)}
-										</p>
-										<p class="mt-1 flex items-center gap-1 text-sm text-outline">
-											<MapPin size={14} class="shrink-0 text-primary" />
-											<span class="truncate">{doctor.hospital}</span>
-										</p>
-										<p class="mt-1 flex items-center gap-1 text-sm text-on-surface-variant">
-											<Star size={14} class="fill-amber-400 text-amber-400" />
-											<span class="font-semibold text-on-surface">{doctor.rating}</span>
-											<span class="text-outline">({doctor.reviewCount} reviews)</span>
-										</p>
-									</div>
-								</div>
-								<a
-									href={bookHref(doctor.id)}
-									class="inline-flex shrink-0 items-center justify-center rounded-xl border-2 border-primary bg-surface-container-lowest px-6 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-surface-container-low sm:ml-auto"
-								>
-									Book Now
-								</a>
-							</li>
+								{#snippet actions()}
+									<a
+										href={bookHref(doctor.id)}
+										class="inline-flex shrink-0 items-center justify-center rounded-xl border-2 border-primary bg-surface-container-lowest px-6 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-surface-container-low sm:ml-auto"
+									>
+										Book Now
+									</a>
+								{/snippet}
+							</DoctorSummary>
 						{/each}
 					{/if}
 				</ul>

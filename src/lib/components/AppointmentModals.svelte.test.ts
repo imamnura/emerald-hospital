@@ -26,10 +26,11 @@ describe('AppointmentCancelledModal', () => {
 		expect(screen.getByText('Dr. Smith')).toBeInTheDocument();
 		expect(screen.getByText('Oct 17, 2024')).toBeInTheDocument();
 
-		await fireEvent.click(screen.getByRole('button', { name: 'Close' }));
 		await fireEvent.click(screen.getByRole('button', { name: 'Back to Appointments' }));
-		expect(p.onBackToAppointments).toHaveBeenCalledTimes(2);
 		await fireEvent.click(screen.getByRole('button', { name: 'Book a New Appointment' }));
+		// The corner close button also closes the dialog itself, so it goes last.
+		await fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+		expect(p.onBackToAppointments).toHaveBeenCalledTimes(2);
 		expect(p.onBookNew).toHaveBeenCalledTimes(1);
 	});
 
@@ -38,7 +39,7 @@ describe('AppointmentCancelledModal', () => {
 		render(AppointmentCancelledModal, p);
 		await fireEvent.click(screen.getByRole('dialog'));
 		expect(p.onBackToAppointments).not.toHaveBeenCalled();
-		await fireEvent.click(screen.getByRole('presentation'));
+		await fireEvent.click(screen.getByRole('button', { name: 'Close modal' }));
 		expect(p.onBackToAppointments).toHaveBeenCalledTimes(1);
 	});
 });
@@ -72,7 +73,7 @@ describe('AppointmentConfirmedModal', () => {
 		expect(home).toHaveAttribute('href', '/home');
 		home.addEventListener('click', (e) => e.preventDefault());
 		await fireEvent.click(home);
-		await fireEvent.click(screen.getByRole('presentation'));
+		await fireEvent.click(screen.getByRole('button', { name: 'Close modal' }));
 		expect(p.onClose).toHaveBeenCalledTimes(3);
 	});
 });
@@ -101,7 +102,7 @@ describe('CancelAppointmentModal', () => {
 		await fireEvent.click(screen.getByRole('dialog'));
 		expect(p.onClose).not.toHaveBeenCalled();
 		await fireEvent.click(screen.getByRole('button', { name: 'Keep Appointment' }));
-		await fireEvent.click(screen.getByRole('presentation'));
+		await fireEvent.click(screen.getByRole('button', { name: 'Close modal' }));
 		expect(p.onClose).toHaveBeenCalledTimes(2);
 	});
 

@@ -28,3 +28,13 @@ export function withParams(
 	if (relative) return qs ? `?${qs}` : url.pathname;
 	return qs ? `${url.pathname}?${qs}` : url.pathname;
 }
+
+const FIND_DOCTOR_URL = new URL('/find-doctor', 'http://localhost');
+
+/** `/find-doctor` href for a specialty query and hospital filter (`'all'` = no filter). */
+export function findDoctorHref(specialty: string, hospital: string): string {
+	return withParams(FIND_DOCTOR_URL, {
+		q: specialty.trim(),
+		hospital: hospital === 'all' ? null : hospital
+	});
+}
