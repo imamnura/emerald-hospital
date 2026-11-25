@@ -2,13 +2,11 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { requireUser } from '#lib/server/guards.ts';
 import { parseIsoDate } from '#lib/format/date.ts';
-import { BLOOD_TYPES } from '#lib/server/db/schema.ts';
-import { getUserById, updateProfile } from '#lib/server/users.ts';
+import { ISO_DATE_RE } from '#lib/server/http/forms.ts';
+import { getUserById, parseProfileForm, updateProfile } from '#lib/server/users.ts';
 
 const GENDER_FORM_VALUES = ['female', 'male', 'other', 'prefer_not'] as const;
 type GenderFormValue = (typeof GENDER_FORM_VALUES)[number];
-
-const ALLOWED_BLOOD: ReadonlySet<string> = new Set(BLOOD_TYPES);
 
 /** MM/DD/YYYY for display in the form */
 function formatDobDisplay(iso: string | null): string {
@@ -24,7 +22,7 @@ function formatDobDisplay(iso: string | null): string {
 function parseDobInput(value: string): string | null {
 	const trimmed = value.trim();
 	if (!trimmed) return null;
-	if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+	if (ISO_DATE_RE.test(trimmed)) return trimmed;
 	const m = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
 	if (!m) return null;
 	const [, mm, dd, yyyy] = m;
@@ -58,41 +56,15 @@ export const actions: Actions = {
 	update: async ({ request, locals }) => {
 		const user = requireUser(locals);
 
-		const fd = await request.formData();
-		const name = String(fd.get('name') ?? '').trim();
-		if (!name) return fail(400, { error: 'Full name is required.' });
-
-		const phone = String(fd.get('phone') ?? '').trim() || null;
-		const imageUrl = String(fd.get('imageUrl') ?? '').trim() || null;
-		const address = String(fd.get('address') ?? '').trim() || null;
-
-		const dobInput = String(fd.get('dateOfBirth') ?? '').trim();
-		const dateOfBirth = dobInput ? parseDobInput(dobInput) : null;
-		if (dobInput && !dateOfBirth) {
-			return fail(400, { error: 'Enter a valid date of birth (MM/DD/YYYY).' });
-		}
-
-		const genderRaw = String(fd.get('gender') ?? '') as GenderFormValue;
-		if (!GENDER_FORM_VALUES.includes(genderRaw)) {
-			return fail(400, { error: 'Please select a valid gender.' });
-		}
-		const gender = genderRaw === 'prefer_not' ? null : genderRaw;
-
-		const bloodRaw = String(fd.get('bloodType') ?? '').trim();
-		const bloodType = bloodRaw ? (ALLOWED_BLOOD.has(bloodRaw) ? bloodRaw : null) : null;
-		if (bloodRaw && !bloodType) {
-			return fail(400, { error: 'Invalid blood type.' });
-		}
-
-		await updateProfile(user.id, {
-			name,
-			phone,
-			imageUrl,
-			dateOfBirth,
-			gender,
-			bloodType,
-			address
+		const parsed = parseProfileForm(await request.formData(), {
+			nameError: 'Full name is required.',
+			parseDob: parseDobInput,
+			dobError: 'Enter a valid date of birth (MM/DD/YYYY).',
+			genderError: 'Please select a valid gender.'
 		});
+		if ('error' in parsed) return fail(400, { error: parsed.error });
+
+		await updateProfile(user.id, parsed);
 
 		return { success: true };
 	}

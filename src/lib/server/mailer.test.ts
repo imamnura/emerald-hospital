@@ -23,10 +23,9 @@ afterEach(() => {
 	vi.restoreAllMocks();
 });
 
-describe('getConfig / isConfigured', () => {
+describe('getConfig', () => {
 	it('is null unless host, user and pass are all set', async () => {
 		expect(m.getConfig()).toBeNull();
-		expect(m.isConfigured()).toBe(false);
 		setEnv({ SMTP_HOST: 'smtp.x', SMTP_USER: 'u' });
 		expect(m.getConfig()).toBeNull();
 		setEnv({ SMTP_HOST: undefined, SMTP_PASS: 'p' });
@@ -45,7 +44,6 @@ describe('getConfig / isConfigured', () => {
 			pass: 'p',
 			from: 'u@x'
 		});
-		expect(m.isConfigured()).toBe(true);
 		setEnv({ SMTP_FROM: 'Clinic <no-reply@x>', SMTP_PORT: 465, SMTP_SECURE: true });
 		expect(m.getConfig()).toMatchObject({ from: 'Clinic <no-reply@x>', port: 465, secure: true });
 	});

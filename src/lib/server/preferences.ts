@@ -2,6 +2,7 @@ import type { Cookies } from '@sveltejs/kit';
 
 const COOKIE_OPTS = { path: '/', maxAge: 60 * 60 * 24 * 365, httpOnly: false, sameSite: 'lax' as const };
 
+/** @internal exported for tests */
 export const PREF_KEYS = {
 	push: 'push_notifications',
 	email: 'email_notifications',

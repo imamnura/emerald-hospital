@@ -17,23 +17,44 @@ export type ProfileUpdate = {
 const ALLOWED_BLOOD: ReadonlySet<string> = new Set(BLOOD_TYPES);
 const ALLOWED_GENDER: ReadonlySet<string> = new Set(GENDERS);
 
-export function parseProfileForm(fd: FormData): ProfileUpdate | { error: string } {
+/** Per-caller overrides; the defaults are the lenient rules used by `parseProfileForm` on its own. */
+export type ProfileFormRules = {
+	nameError?: string;
+	/** Normalises a non-empty date of birth to `YYYY-MM-DD`, or `null` when invalid. */
+	parseDob?: (raw: string) => string | null;
+	dobError?: string;
+	/** When set, gender is mandatory: `prefer_not` maps to `null`, anything else unknown fails with this message. */
+	genderError?: string;
+};
+
+export function parseProfileForm(
+	fd: FormData,
+	rules: ProfileFormRules = {}
+): ProfileUpdate | { error: string } {
 	const name = formStr(fd, 'name');
-	if (!name) return { error: 'Name is required.' };
+	if (!name) return { error: rules.nameError ?? 'Name is required.' };
 	const phone = formOpt(fd, 'phone');
 	const imageUrl = formOpt(fd, 'imageUrl');
+
+	const dobRaw = formOpt(fd, 'dateOfBirth');
+	const parseDob = rules.parseDob ?? ((raw: string) => (ISO_DATE_RE.test(raw) ? raw : null));
+	const dateOfBirth = dobRaw ? parseDob(dobRaw) : null;
+	if (dobRaw && !dateOfBirth) return { error: rules.dobError ?? 'Invalid date of birth.' };
+
+	const genderRaw = formStr(fd, 'gender');
+	let gender: ProfileUpdate['gender'] = null;
+	if (rules.genderError !== undefined) {
+		if (genderRaw !== 'prefer_not' && !ALLOWED_GENDER.has(genderRaw)) {
+			return { error: rules.genderError };
+		}
+		if (genderRaw !== 'prefer_not') gender = genderRaw as NonNullable<ProfileUpdate['gender']>;
+	} else if (ALLOWED_GENDER.has(genderRaw)) {
+		gender = genderRaw as NonNullable<ProfileUpdate['gender']>;
+	}
 
 	const bloodRaw = formStr(fd, 'bloodType');
 	const bloodType = bloodRaw ? (ALLOWED_BLOOD.has(bloodRaw) ? bloodRaw : null) : null;
 	if (bloodRaw && !bloodType) return { error: 'Invalid blood type.' };
-
-	const dateOfBirth = formOpt(fd, 'dateOfBirth');
-	if (dateOfBirth && !ISO_DATE_RE.test(dateOfBirth)) {
-		return { error: 'Invalid date of birth.' };
-	}
-
-	const genderRaw = formStr(fd, 'gender') as 'male' | 'female' | 'other' | '';
-	const gender = genderRaw && ALLOWED_GENDER.has(genderRaw) ? genderRaw : null;
 
 	const address = formOpt(fd, 'address');
 

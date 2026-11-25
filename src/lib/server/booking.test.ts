@@ -14,14 +14,12 @@ import {
 import {
 	cancelBookingForUser,
 	createBookingAtomic,
-	formatTime,
 	generateTimeSlots,
 	getAllSlotsForDoctorDate,
 	getAppointmentForUser,
 	getDayOfWeek,
 	getSlotAvailability,
-	listAppointmentsForUser,
-	parseTime
+	listAppointmentsForUser
 } from './booking.ts';
 
 beforeEach(() => resetDb(db as unknown as TestDb));
@@ -38,16 +36,12 @@ async function setup(scheduleOverrides: Parameters<typeof makeSchedule>[1] = {})
 }
 
 describe('time helpers', () => {
-	it('parseTime converts HH:MM to minutes', () => {
-		expect(parseTime('00:00')).toBe(0);
-		expect(parseTime('09:30')).toBe(570);
-		expect(parseTime('23:59')).toBe(1439);
-	});
-
-	it('formatTime zero-pads hours and minutes', () => {
-		expect(formatTime(0)).toBe('00:00');
-		expect(formatTime(65)).toBe('01:05');
-		expect(formatTime(810)).toBe('13:30');
+	it('parses HH:MM to minutes and back (through generateTimeSlots)', () => {
+		expect(generateTimeSlots('00:00', '00:01')).toEqual(['00:00']);
+		expect(generateTimeSlots('09:30', '09:31')).toEqual(['09:30']);
+		expect(generateTimeSlots('23:59', '24:00')).toEqual(['23:59']);
+		expect(generateTimeSlots('01:05', '01:06')).toEqual(['01:05']);
+		expect(generateTimeSlots('13:30', '13:31')).toEqual(['13:30']);
 	});
 
 	it('generateTimeSlots covers [start, end) at the interval', () => {

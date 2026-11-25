@@ -4,17 +4,18 @@ import { isUuid } from './db-errors';
 import { parseIsoDate } from '#lib/format/date.ts';
 import { bookings, doctorSchedules, doctors, hospitals, specialists } from './db/schema';
 
-export function parseTime(time: string): number {
+function parseTime(time: string): number {
 	const [h, m] = time.split(':').map(Number);
 	return h * 60 + m;
 }
 
-export function formatTime(minutes: number): string {
+function formatTime(minutes: number): string {
 	const h = Math.floor(minutes / 60);
 	const m = minutes % 60;
 	return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 }
 
+/** @internal exported for tests */
 export function generateTimeSlots(startTime: string, endTime: string, intervalMinutes = 30): string[] {
 	const start = parseTime(startTime);
 	const end = parseTime(endTime);
@@ -196,6 +197,15 @@ const appointmentSelect = {
 	hospital: hospitals.name
 };
 
+function appointmentQuery() {
+	return db
+		.select(appointmentSelect)
+		.from(bookings)
+		.innerJoin(doctors, eq(bookings.doctorId, doctors.id))
+		.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
+		.innerJoin(hospitals, eq(doctors.hospitalId, hospitals.id));
+}
+
 export type AppointmentRow = {
 	id: string;
 	doctorId: string;
@@ -211,12 +221,7 @@ export type AppointmentRow = {
 };
 
 export async function listAppointmentsForUser(userId: string): Promise<AppointmentRow[]> {
-	return db
-		.select(appointmentSelect)
-		.from(bookings)
-		.innerJoin(doctors, eq(bookings.doctorId, doctors.id))
-		.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
-		.innerJoin(hospitals, eq(doctors.hospitalId, hospitals.id))
+	return appointmentQuery()
 		.where(eq(bookings.userId, userId))
 		.orderBy(desc(bookings.appointmentDate), desc(bookings.appointmentTime));
 }
@@ -226,12 +231,7 @@ export async function getAppointmentForUser(
 	bookingId: string
 ): Promise<AppointmentRow | null> {
 	if (!isUuid(bookingId)) return null;
-	const [row] = await db
-		.select(appointmentSelect)
-		.from(bookings)
-		.innerJoin(doctors, eq(bookings.doctorId, doctors.id))
-		.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
-		.innerJoin(hospitals, eq(doctors.hospitalId, hospitals.id))
+	const [row] = await appointmentQuery()
 		.where(and(eq(bookings.id, bookingId), eq(bookings.userId, userId)))
 		.limit(1);
 	return row ?? null;

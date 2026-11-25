@@ -4,8 +4,11 @@ import * as env from '$app/env/private';
 import { db } from './db';
 import { users, type User } from './db/schema';
 
+/** @internal exported for tests */
 export const GOOGLE_AUTHORIZE_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
+/** @internal exported for tests */
 export const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
+/** @internal exported for tests */
 export const GOOGLE_USERINFO_URL = 'https://openidconnect.googleapis.com/v1/userinfo';
 
 export type GoogleConfig = {

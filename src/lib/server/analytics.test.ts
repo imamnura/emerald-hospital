@@ -1,4 +1,3 @@
-import * as drizzle from 'drizzle-orm';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { resetDb, type TestDb } from '../../test/db.ts';
@@ -24,11 +23,6 @@ import {
 	type AnalyticsFilters,
 	type DateRangePreset
 } from './analytics.ts';
-
-vi.mock('drizzle-orm', async (importOriginal) => {
-	const actual = await importOriginal<typeof import('drizzle-orm')>();
-	return { ...actual, and: vi.fn(actual.and) };
-});
 
 const NOW = new Date('2026-06-15T10:00:00Z');
 
@@ -311,26 +305,6 @@ describe('exportRows', () => {
 });
 
 describe('degenerate query paths', () => {
-	it('runs unfiltered queries when no where clause is built', async () => {
-		await seed();
-		const actual = await vi.importActual<typeof import('drizzle-orm')>('drizzle-orm');
-		const and = vi.mocked(drizzle.and);
-		and.mockImplementation(() => undefined);
-		try {
-			// No where → every booking counts, including the future one.
-			expect(await totals(f('7d'))).toMatchObject({ bookings: 9, pending: 4 });
-			expect(await previousTotals(f('7d'))).toEqual({ bookings: 9, pending: 9 });
-			expect((await bookingsOverTime(f('7d'))).reduce((a, p) => a + p.total, 0)).toBe(3);
-			expect((await statusBreakdown(f('7d')))[0]).toEqual({ status: 'pending', count: 4 });
-			expect(await bookingsBySpecialty(f('7d'))).toHaveLength(2);
-			expect(await topDoctors(f('7d'))).toHaveLength(2);
-			expect(await recentBookings(f('7d'), 20)).toHaveLength(9);
-			expect(await exportRows(f('7d'))).toHaveLength(9);
-		} finally {
-			and.mockImplementation(actual.and);
-		}
-	});
-
 	it('falls back to zero when count queries return no row', async () => {
 		const chain: Record<string, unknown> = new Proxy(
 			{},

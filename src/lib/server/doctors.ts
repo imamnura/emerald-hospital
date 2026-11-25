@@ -29,30 +29,32 @@ const doctorListSelect = {
 	hospital: hospitals.name
 };
 
+const DEFAULT_RATING = '4.5';
+
+function doctorBaseQuery() {
+	return db
+		.select(doctorListSelect)
+		.from(doctors)
+		.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
+		.innerJoin(hospitals, eq(doctors.hospitalId, hospitals.id));
+}
+
 function normalize(rows: Awaited<ReturnType<typeof db.select>> | unknown[]): DoctorListItem[] {
 	return (rows as DoctorListItem[]).map((d) => ({
 		...d,
-		rating: d.rating ?? '4.5'
+		rating: d.rating ?? DEFAULT_RATING
 	}));
 }
 
 export async function listActiveDoctors(): Promise<DoctorListItem[]> {
-	const rows = await db
-		.select(doctorListSelect)
-		.from(doctors)
-		.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
-		.innerJoin(hospitals, eq(doctors.hospitalId, hospitals.id))
+	const rows = await doctorBaseQuery()
 		.where(eq(doctors.isActive, true));
 
 	return normalize(rows);
 }
 
 export async function listActiveDoctorsBySpecialistId(specialistId: string): Promise<DoctorListItem[]> {
-	const rows = await db
-		.select(doctorListSelect)
-		.from(doctors)
-		.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
-		.innerJoin(hospitals, eq(doctors.hospitalId, hospitals.id))
+	const rows = await doctorBaseQuery()
 		.where(and(eq(doctors.specialistId, specialistId), eq(doctors.isActive, true)));
 
 	return normalize(rows);
@@ -84,7 +86,7 @@ export async function getDoctorDetail(id: string) {
 		.limit(1);
 
 	if (!row) return null;
-	return { ...row, rating: row.rating ?? '4.5' };
+	return { ...row, rating: row.rating ?? DEFAULT_RATING };
 }
 
 export function filterDoctorsByQuery<

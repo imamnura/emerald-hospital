@@ -1,4 +1,5 @@
 import { and, count, desc, eq, gte, lte, type SQL } from 'drizzle-orm';
+import type { SelectedFields } from 'drizzle-orm/pg-core';
 import { db } from './db';
 import { bookings, doctors, hospitals, specialists, users } from './db/schema';
 
@@ -22,9 +23,11 @@ export function parseFilters(searchParams: URLSearchParams): AnalyticsFilters {
 	};
 }
 
+const RANGE_DAYS = { '7d': 7, '30d': 30, '90d': 90, '365d': 365 } as const;
+
 function startOfRange(range: DateRangePreset): Date | null {
 	if (range === 'all') return null;
-	const days = { '7d': 7, '30d': 30, '90d': 90, '365d': 365 }[range];
+	const days = RANGE_DAYS[range];
 	const d = new Date();
 	d.setUTCHours(0, 0, 0, 0);
 	d.setUTCDate(d.getUTCDate() - (days - 1));
@@ -35,7 +38,15 @@ function isoDate(d: Date): string {
 	return d.toISOString().slice(0, 10);
 }
 
-function whereForFilters(filters: AnalyticsFilters): SQL | undefined {
+/** bookings joined to their doctor — the base of every dashboard aggregate. */
+function bookingsWithDoctors<T extends SelectedFields>(fields: T) {
+	return db
+		.select(fields)
+		.from(bookings)
+		.innerJoin(doctors, eq(bookings.doctorId, doctors.id));
+}
+
+function whereForFilters(filters: AnalyticsFilters): SQL {
 	const start = startOfRange(filters.range);
 	const today = isoDate(new Date());
 
@@ -45,7 +56,7 @@ function whereForFilters(filters: AnalyticsFilters): SQL | undefined {
 	if (filters.hospitalId) conditions.push(eq(doctors.hospitalId, filters.hospitalId));
 	if (filters.specialistId) conditions.push(eq(doctors.specialistId, filters.specialistId));
 
-	return conditions.length === 0 ? undefined : and(...conditions);
+	return and(...conditions) as SQL;
 }
 
 export type Totals = {
@@ -60,22 +71,10 @@ export async function totals(filters: AnalyticsFilters): Promise<Totals> {
 	const [doctorsRow] = await db.select({ value: count() }).from(doctors);
 
 	const where = whereForFilters(filters);
-	const bookingsQ = db
-		.select({ value: count() })
-		.from(bookings)
-		.innerJoin(doctors, eq(bookings.doctorId, doctors.id));
-	if (where) bookingsQ.where(where);
-	const [bookingsRow] = await bookingsQ;
-
-	const pendingQ = db
-		.select({ value: count() })
-		.from(bookings)
-		.innerJoin(doctors, eq(bookings.doctorId, doctors.id));
-	const pendingWhere = where
-		? and(where, eq(bookings.status, 'pending'))
-		: eq(bookings.status, 'pending');
-	pendingQ.where(pendingWhere as SQL);
-	const [pendingRow] = await pendingQ;
+	const [bookingsRow] = await bookingsWithDoctors({ value: count() }).where(where);
+	const [pendingRow] = await bookingsWithDoctors({ value: count() }).where(
+		and(where, eq(bookings.status, 'pending'))
+	);
 
 	return {
 		hospitals: Number(hospitalsRow?.value ?? 0),
@@ -88,7 +87,7 @@ export async function totals(filters: AnalyticsFilters): Promise<Totals> {
 /** Previous-period totals for trend % */
 export async function previousTotals(filters: AnalyticsFilters): Promise<{ bookings: number; pending: number }> {
 	if (filters.range === 'all') return { bookings: 0, pending: 0 };
-	const days = { '7d': 7, '30d': 30, '90d': 90, '365d': 365 }[filters.range];
+	const days = RANGE_DAYS[filters.range];
 	const end = new Date();
 	end.setUTCHours(0, 0, 0, 0);
 	end.setUTCDate(end.getUTCDate() - days);
@@ -103,17 +102,10 @@ export async function previousTotals(filters: AnalyticsFilters): Promise<{ booki
 	if (filters.specialistId) conditions.push(eq(doctors.specialistId, filters.specialistId));
 	const where = and(...conditions);
 
-	const [b] = await db
-		.select({ value: count() })
-		.from(bookings)
-		.innerJoin(doctors, eq(bookings.doctorId, doctors.id))
-		.where(where as SQL);
-
-	const [p] = await db
-		.select({ value: count() })
-		.from(bookings)
-		.innerJoin(doctors, eq(bookings.doctorId, doctors.id))
-		.where(and(where, eq(bookings.status, 'pending')) as SQL);
+	const [b] = await bookingsWithDoctors({ value: count() }).where(where);
+	const [p] = await bookingsWithDoctors({ value: count() }).where(
+		and(where, eq(bookings.status, 'pending'))
+	);
 
 	return { bookings: Number(b?.value ?? 0), pending: Number(p?.value ?? 0) };
 }
@@ -123,17 +115,10 @@ export type TimeSeriesPoint = { date: string; total: number };
 /** Bookings per day across the active range (fills missing days with 0) */
 export async function bookingsOverTime(filters: AnalyticsFilters): Promise<TimeSeriesPoint[]> {
 	const where = whereForFilters(filters);
-	const q = db
-		.select({
-			date: bookings.appointmentDate,
-			value: count()
-		})
-		.from(bookings)
-		.innerJoin(doctors, eq(bookings.doctorId, doctors.id))
+	const rows = await bookingsWithDoctors({ date: bookings.appointmentDate, value: count() })
+		.where(where)
 		.groupBy(bookings.appointmentDate)
 		.orderBy(bookings.appointmentDate);
-	if (where) q.where(where);
-	const rows = await q;
 
 	const map = new Map<string, number>();
 	for (const r of rows) map.set(String(r.date), Number(r.value));
@@ -163,13 +148,9 @@ export type StatusSegment = {
 
 export async function statusBreakdown(filters: AnalyticsFilters): Promise<StatusSegment[]> {
 	const where = whereForFilters(filters);
-	const q = db
-		.select({ status: bookings.status, value: count() })
-		.from(bookings)
-		.innerJoin(doctors, eq(bookings.doctorId, doctors.id))
+	const rows = await bookingsWithDoctors({ status: bookings.status, value: count() })
+		.where(where)
 		.groupBy(bookings.status);
-	if (where) q.where(where);
-	const rows = await q;
 
 	const out: Record<StatusSegment['status'], number> = {
 		pending: 0,
@@ -188,15 +169,11 @@ export type SpecialtyRow = { specialty: string; total: number };
 
 export async function bookingsBySpecialty(filters: AnalyticsFilters): Promise<SpecialtyRow[]> {
 	const where = whereForFilters(filters);
-	const q = db
-		.select({ specialty: specialists.name, value: count() })
-		.from(bookings)
-		.innerJoin(doctors, eq(bookings.doctorId, doctors.id))
+	const rows = await bookingsWithDoctors({ specialty: specialists.name, value: count() })
 		.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
+		.where(where)
 		.groupBy(specialists.name)
 		.orderBy(desc(count()));
-	if (where) q.where(where);
-	const rows = await q;
 	return rows.map((r) => ({ specialty: r.specialty, total: Number(r.value) }));
 }
 
@@ -209,21 +186,17 @@ export type TopDoctorRow = {
 
 export async function topDoctors(filters: AnalyticsFilters, limit = 5): Promise<TopDoctorRow[]> {
 	const where = whereForFilters(filters);
-	const q = db
-		.select({
-			id: doctors.id,
-			name: doctors.name,
-			specialty: specialists.name,
-			value: count()
-		})
-		.from(bookings)
-		.innerJoin(doctors, eq(bookings.doctorId, doctors.id))
+	const rows = await bookingsWithDoctors({
+		id: doctors.id,
+		name: doctors.name,
+		specialty: specialists.name,
+		value: count()
+	})
 		.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
+		.where(where)
 		.groupBy(doctors.id, doctors.name, specialists.name)
 		.orderBy(desc(count()))
 		.limit(limit);
-	if (where) q.where(where);
-	const rows = await q;
 	return rows.map((r) => ({
 		id: r.id,
 		name: r.name,
@@ -243,29 +216,28 @@ export type RecentBookingRow = {
 	status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
 };
 
-export async function recentBookings(filters: AnalyticsFilters, limit = 8): Promise<RecentBookingRow[]> {
-	const where = whereForFilters(filters);
-	const q = db
-		.select({
-			id: bookings.id,
-			patient: users.name,
-			doctor: doctors.name,
-			specialty: specialists.name,
-			hospital: hospitals.name,
-			date: bookings.appointmentDate,
-			time: bookings.appointmentTime,
-			status: bookings.status,
-			createdAt: bookings.createdAt
-		})
-		.from(bookings)
+const bookingRowSelect = {
+	id: bookings.id,
+	patient: users.name,
+	doctor: doctors.name,
+	specialty: specialists.name,
+	hospital: hospitals.name,
+	date: bookings.appointmentDate,
+	time: bookings.appointmentTime,
+	status: bookings.status
+};
+
+async function bookingRowsQuery(
+	where: SQL,
+	{ order, limit }: { order: SQL[]; limit?: number }
+): Promise<RecentBookingRow[]> {
+	const q = bookingsWithDoctors(bookingRowSelect)
 		.innerJoin(users, eq(bookings.userId, users.id))
-		.innerJoin(doctors, eq(bookings.doctorId, doctors.id))
 		.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
 		.innerJoin(hospitals, eq(doctors.hospitalId, hospitals.id))
-		.orderBy(desc(bookings.createdAt))
-		.limit(limit);
-	if (where) q.where(where);
-	const rows = await q;
+		.where(where)
+		.orderBy(...order);
+	const rows = await (limit === undefined ? q : q.limit(limit));
 	return rows.map((r) => ({
 		id: r.id,
 		patient: r.patient,
@@ -278,38 +250,15 @@ export async function recentBookings(filters: AnalyticsFilters, limit = 8): Prom
 	}));
 }
 
+export async function recentBookings(filters: AnalyticsFilters, limit = 8): Promise<RecentBookingRow[]> {
+	return bookingRowsQuery(whereForFilters(filters), { order: [desc(bookings.createdAt)], limit });
+}
+
 /** Full booking list for CSV export — same filters as dashboard. */
 export async function exportRows(filters: AnalyticsFilters): Promise<RecentBookingRow[]> {
-	const where = whereForFilters(filters);
-	const q = db
-		.select({
-			id: bookings.id,
-			patient: users.name,
-			doctor: doctors.name,
-			specialty: specialists.name,
-			hospital: hospitals.name,
-			date: bookings.appointmentDate,
-			time: bookings.appointmentTime,
-			status: bookings.status
-		})
-		.from(bookings)
-		.innerJoin(users, eq(bookings.userId, users.id))
-		.innerJoin(doctors, eq(bookings.doctorId, doctors.id))
-		.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
-		.innerJoin(hospitals, eq(doctors.hospitalId, hospitals.id))
-		.orderBy(desc(bookings.appointmentDate), desc(bookings.appointmentTime));
-	if (where) q.where(where);
-	const rows = await q;
-	return rows.map((r) => ({
-		id: r.id,
-		patient: r.patient,
-		doctor: r.doctor,
-		specialty: r.specialty,
-		hospital: r.hospital,
-		date: String(r.date),
-		time: r.time,
-		status: r.status as RecentBookingRow['status']
-	}));
+	return bookingRowsQuery(whereForFilters(filters), {
+		order: [desc(bookings.appointmentDate), desc(bookings.appointmentTime)]
+	});
 }
 
 export function rangeLabel(range: DateRangePreset): string {
