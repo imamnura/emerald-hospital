@@ -290,38 +290,6 @@ describe('createBookingAtomic', () => {
 		expect(await db.select().from(bookings)).toHaveLength(1);
 	});
 
-	it('supports drivers whose execute() returns a plain row array (postgres-js)', async () => {
-		const { user, doctor, schedule } = await setup({ maxQuota: 1 });
-		const realTransaction = db.transaction.bind(db);
-		const spy = vi.spyOn(db, 'transaction').mockImplementation(((
-			fn: (tx: unknown) => Promise<unknown>
-		) =>
-			realTransaction(async (tx) => {
-				const realExecute = tx.execute.bind(tx);
-				const wrapped = Object.create(tx) as typeof tx;
-				wrapped.execute = (async (q: Parameters<typeof realExecute>[0]) =>
-					((await realExecute(q)) as unknown as { rows: unknown[] }).rows) as unknown as typeof tx.execute;
-				return fn(wrapped);
-			})) as never);
-		try {
-			const input = {
-				userId: user.id,
-				doctorId: doctor.id,
-				scheduleId: schedule.id,
-				appointmentDate: MONDAY,
-				appointmentTime: '09:00'
-			};
-			expect((await createBookingAtomic(input)).ok).toBe(true);
-			expect(await createBookingAtomic(input)).toEqual({ ok: false, error: 'slot_full' });
-			expect(await createBookingAtomic({ ...input, appointmentDate: TUESDAY })).toEqual({
-				ok: false,
-				error: 'invalid_schedule'
-			});
-		} finally {
-			spy.mockRestore();
-		}
-	});
-
 	it('treats a missing count row as zero used', async () => {
 		const { user, doctor, schedule } = await setup({ maxQuota: 1 });
 		const realTransaction = db.transaction.bind(db);

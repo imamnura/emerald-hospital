@@ -28,12 +28,6 @@ describe('profile/settings/password load', () => {
 		expect(await load(ev({ user: local }))).toEqual({ hasPassword: true });
 		expect(await load(ev({ user: { id: randomId() } as never }))).toEqual({ hasPassword: false });
 	});
-
-	it('reads the password hash from locals.user without re-querying the database', async () => {
-		expect(await load(ev({ user: { id: randomId(), passwordHash: 'x' } as never }))).toEqual({
-			hasPassword: true
-		});
-	});
 });
 
 describe('profile/settings/password change action', () => {
@@ -54,15 +48,9 @@ describe('profile/settings/password change action', () => {
 		expect(await actions.change(ev({ user, form }))).toMatchObject({ status: 400, data: { error } });
 	});
 
-	it('verifies the current password against the hash in locals.user', async () => {
-		const user = await makeUser({ passwordHash: await hashPassword('old-password') });
-		const stale = { ...user, passwordHash: await hashPassword('locals-password') };
-		expect(await actions.change(ev({ user: stale, form: { ...pw, currentPassword: 'old-password' } }))).toMatchObject({
-			status: 400,
-			data: { error: 'Current password is incorrect.' }
-		});
-		expect(await actions.change(ev({ user: stale, form: { ...pw, currentPassword: 'locals-password' } }))).toEqual({
-			success: true
+	it('404s when the user row is gone', async () => {
+		expect(await actions.change(ev({ user: { id: randomId() } as never, form: pw }))).toMatchObject({
+			status: 404
 		});
 	});
 
@@ -80,6 +68,15 @@ describe('profile/settings/password change action', () => {
 			success: true
 		});
 		expect(await verifyPassword((await hashOf(user.id))!, 'new-password')).toBe(true);
+	});
+
+	it('load after the action (no-JS submit, same stale locals) reports the new password', async () => {
+		const user = await makeUser({ passwordHash: null });
+		const event = ev({ user, form: pw });
+		expect(await actions.change(event)).toEqual({ success: true });
+		// SvelteKit reruns load in the same request: locals.user still has no hash.
+		expect(event.locals.user.passwordHash).toBeNull();
+		expect(await load(event)).toEqual({ hasPassword: true });
 	});
 
 	it('lets Google-only users set a password without a current one', async () => {

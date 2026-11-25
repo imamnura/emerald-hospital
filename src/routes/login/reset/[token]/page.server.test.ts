@@ -90,6 +90,28 @@ describe('reset password action', () => {
 		expect(await verifyPassword(row.passwordHash!, 'brand-new-pw')).toBe(true);
 	});
 
+	it('two concurrent resets with one token: exactly one wins, the other gets the invalid-token failure', async () => {
+		const user = await makeUser();
+		const token = await createPasswordResetToken(user.id);
+		const results = await Promise.allSettled([
+			submit(token, { password: 'first-password', confirmPassword: 'first-password' }),
+			submit(token, { password: 'second-password', confirmPassword: 'second-password' })
+		]);
+		const wins = results.filter((r) => r.status === 'rejected');
+		const losses = results.filter((r) => r.status === 'fulfilled');
+		expect(wins).toHaveLength(1);
+		expect((wins[0] as PromiseRejectedResult).reason).toMatchObject({ status: 303, location: '/login?reset=success' });
+		expect(losses).toHaveLength(1);
+		expect((losses[0] as PromiseFulfilledResult<unknown>).value).toMatchObject({
+			status: 400,
+			data: { error: 'This reset link is invalid or has expired.', expired: true }
+		});
+		// The stored hash is the winner's password.
+		const winner = results[0].status === 'rejected' ? 'first-password' : 'second-password';
+		const [row] = await db.select().from(users).where(eq(users.id, user.id));
+		expect(await verifyPassword(row.passwordHash!, winner)).toBe(true);
+	});
+
 	it('rolls everything back when a step fails: token stays valid, password and sessions untouched', async () => {
 		const user = await makeUser({ passwordHash: 'old-hash' });
 		await makeSession(user.id);

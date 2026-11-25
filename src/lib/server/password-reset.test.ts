@@ -90,6 +90,16 @@ describe('findValidPasswordResetToken', () => {
 		const [stored] = await db.select().from(passwordResetTokens).where(eq(passwordResetTokens.id, row!.id));
 		expect(stored.usedAt).toBeInstanceOf(Date);
 	});
+
+	it('consumes a token only once: a second consume reports false and keeps the first usedAt', async () => {
+		const u = await makeUser();
+		const row = await findValidPasswordResetToken(await createPasswordResetToken(u.id));
+		expect(await consumePasswordResetToken(row!.id)).toBe(true);
+		const [first] = await db.select().from(passwordResetTokens).where(eq(passwordResetTokens.id, row!.id));
+		expect(await consumePasswordResetToken(row!.id)).toBe(false);
+		const [second] = await db.select().from(passwordResetTokens).where(eq(passwordResetTokens.id, row!.id));
+		expect(second.usedAt).toEqual(first.usedAt);
+	});
 });
 
 describe('sendPasswordResetEmail', () => {

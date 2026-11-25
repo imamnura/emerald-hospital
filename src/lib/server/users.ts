@@ -76,8 +76,12 @@ export async function getUserByEmail(email: string): Promise<User | undefined> {
 	return row;
 }
 
-export async function setPassword(userId: string, plain: string, executor: DbExecutor = db): Promise<void> {
-	const passwordHash = await hashPassword(plain);
+export async function setPassword(userId: string, plain: string): Promise<void> {
+	await setPasswordHash(userId, await hashPassword(plain));
+}
+
+/** Stores an already computed hash — lets callers hash before opening a transaction. */
+export async function setPasswordHash(userId: string, passwordHash: string, executor: DbExecutor = db): Promise<void> {
 	await executor.update(users).set({ passwordHash }).where(eq(users.id, userId));
 }
 

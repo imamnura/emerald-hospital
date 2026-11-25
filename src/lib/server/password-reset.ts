@@ -42,8 +42,17 @@ export async function findValidPasswordResetToken(token: string) {
 	return row;
 }
 
-export async function consumePasswordResetToken(id: string, executor: DbExecutor = db): Promise<void> {
-	await executor.update(passwordResetTokens).set({ usedAt: new Date() }).where(eq(passwordResetTokens.id, id));
+/**
+ * Marks the token used, only if it is still unused. Returns `false` when another
+ * request already consumed it (so callers can refuse a concurrent second reset).
+ */
+export async function consumePasswordResetToken(id: string, executor: DbExecutor = db): Promise<boolean> {
+	const consumed = await executor
+		.update(passwordResetTokens)
+		.set({ usedAt: new Date() })
+		.where(and(eq(passwordResetTokens.id, id), isNull(passwordResetTokens.usedAt)))
+		.returning({ id: passwordResetTokens.id });
+	return consumed.length > 0;
 }
 
 export async function sendPasswordResetEmail(user: User, resetUrl: string): Promise<void> {

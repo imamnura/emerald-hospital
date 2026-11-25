@@ -1,9 +1,9 @@
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { requireUser } from '#lib/server/guards.ts';
 import { parseIsoDate } from '#lib/format/date.ts';
 import { ISO_DATE_RE } from '#lib/server/http/forms.ts';
-import { parseProfileForm, updateProfile } from '#lib/server/users.ts';
+import { getUserById, parseProfileForm, updateProfile } from '#lib/server/users.ts';
 
 const GENDER_FORM_VALUES = ['female', 'male', 'other', 'prefer_not'] as const;
 type GenderFormValue = (typeof GENDER_FORM_VALUES)[number];
@@ -32,21 +32,23 @@ function parseDobInput(value: string): string | null {
 }
 
 export const load: PageServerLoad = async ({ locals }) => {
-	// locals.user is the row hooks loaded for this request; no need to read it again.
 	const user = requireUser(locals, '/profile/personal');
+
+	const fresh = await getUserById(user.id);
+	if (!fresh) throw redirect(303, '/login');
 
 	return {
 		profile: {
-			id: user.id,
-			email: user.email,
-			name: user.name,
-			phone: user.phone,
-			imageUrl: user.imageUrl,
-			bloodType: user.bloodType,
-			address: user.address
+			id: fresh.id,
+			email: fresh.email,
+			name: fresh.name,
+			phone: fresh.phone,
+			imageUrl: fresh.imageUrl,
+			bloodType: fresh.bloodType,
+			address: fresh.address
 		},
-		dateOfBirth: formatDobDisplay(user.dateOfBirth ? String(user.dateOfBirth) : null),
-		gender: (user.gender ?? 'prefer_not') as GenderFormValue
+		dateOfBirth: formatDobDisplay(fresh.dateOfBirth ? String(fresh.dateOfBirth) : null),
+		gender: (fresh.gender ?? 'prefer_not') as GenderFormValue
 	};
 };
 

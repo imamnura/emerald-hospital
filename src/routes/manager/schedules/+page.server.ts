@@ -1,5 +1,5 @@
 import { fail } from '@sveltejs/kit';
-import { asc, count, eq, ilike } from 'drizzle-orm';
+import { asc, count, eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { db } from '#lib/server/db/index.ts';
 import { doctorSchedules, doctors } from '#lib/server/db/schema.ts';

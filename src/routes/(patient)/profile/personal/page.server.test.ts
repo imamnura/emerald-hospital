@@ -12,20 +12,13 @@ beforeEach(() => resetDb(db as unknown as TestDb));
 const fresh = async (id: string) => (await db.select().from(users).where(eq(users.id, id)))[0];
 
 describe('profile/personal load', () => {
-	it('redirects anonymous users', async () => {
+	it('redirects anonymous users and users that no longer exist', async () => {
 		expect(await thrown(() => load(ev()))).toMatchObject({
 			status: 303,
 			location: '/login?redirect=/profile/personal'
 		});
-	});
-
-	it('builds the profile from locals.user without re-querying the database', async () => {
-		const id = randomId();
-		const user = { id, email: 'a@b.c', name: 'Ana', phone: null, imageUrl: null, bloodType: 'B+', address: null, dateOfBirth: '1990-03-05', gender: null };
-		expect(await load(ev({ user: user as never }))).toEqual({
-			profile: { id, email: 'a@b.c', name: 'Ana', phone: null, imageUrl: null, bloodType: 'B+', address: null },
-			dateOfBirth: '03/05/1990',
-			gender: 'prefer_not'
+		expect(await thrown(() => load(ev({ user: { id: randomId() } as never })))).toMatchObject({
+			location: '/login'
 		});
 	});
 
@@ -102,6 +95,17 @@ describe('profile/personal update action', () => {
 			gender: 'male',
 			bloodType: 'AB-'
 		});
+	});
+
+	it('load after the action (no-JS submit, same stale locals) shows the saved profile', async () => {
+		const user = await makeUser({ name: 'Old Name', phone: '1' });
+		const event = ev({ user, form: { name: 'New Name', phone: '0812', gender: 'male', dateOfBirth: '1990-03-05' } });
+		expect(await actions.update(event)).toEqual({ success: true });
+		// SvelteKit reruns load in the same request: locals.user is still the pre-update row.
+		expect(event.locals.user.name).toBe('Old Name');
+		const data = (await load(event)) as { profile: Record<string, unknown>; dateOfBirth: string; gender: string };
+		expect(data.profile).toMatchObject({ name: 'New Name', phone: '0812' });
+		expect(data).toMatchObject({ dateOfBirth: '03/05/1990', gender: 'male' });
 	});
 
 	it('accepts ISO dates, clears empties and maps prefer_not to null', async () => {
