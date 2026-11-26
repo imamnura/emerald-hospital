@@ -8,10 +8,10 @@
 		MessageCircleQuestion,
 		Phone
 	} from '@lucide/svelte';
-	import HelpContactCard from '#lib/components/HelpContactCard.svelte';
+	import HelpContactCard from '#lib/components/profile/HelpContactCard.svelte';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 	import { toast } from '#lib/stores/toast.svelte.ts';
-	import SearchBar from '#lib/components/SearchBar.svelte';
+	import SearchBar from '#lib/components/layout/SearchBar.svelte';
 	import BackHeader from '#lib/components/layout/BackHeader.svelte';
 	import {
 		APP_VERSION,

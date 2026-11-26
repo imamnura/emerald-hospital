@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { ArrowLeft } from '@lucide/svelte';
-	import { cn } from '#lib/utils.ts';
+	import { cn } from '#lib/utils/cn.ts';
 
 	interface Props {
 		title: string;

@@ -4,11 +4,11 @@
 	import { page } from '$app/state';
 	import { Sparkles } from '@lucide/svelte';
 	import DeleteConfirm from '#lib/components/manager/DeleteConfirm.svelte';
-	import EmptyState from '#lib/components/manager/EmptyState.svelte';
-	import Modal from '#lib/components/manager/Modal.svelte';
+	import EmptyState from '#lib/components/ui/EmptyState.svelte';
+	import Modal from '#lib/components/ui/Modal.svelte';
 	import ManagerSearchForm from '#lib/components/manager/ManagerSearchForm.svelte';
 	import PageHeader from '#lib/components/manager/PageHeader.svelte';
-	import Pagination from '#lib/components/manager/Pagination.svelte';
+	import Pagination from '#lib/components/ui/Pagination.svelte';
 	import RowActions from '#lib/components/manager/RowActions.svelte';
 	import { MANAGER_INPUT_CLASS } from '#lib/components/manager/styles.ts';
 	import { createCrudState } from '#lib/utils/crud.svelte.ts';

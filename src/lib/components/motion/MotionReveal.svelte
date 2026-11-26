@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { fly } from 'svelte/transition';
-	import { cn } from '#lib/utils.ts';
+	import { cn } from '#lib/utils/cn.ts';
 
 	interface Props {
 		delay?: number;

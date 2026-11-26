@@ -14,7 +14,7 @@
 		Save,
 		User
 	} from '@lucide/svelte';
-	import FormIconField from '#lib/components/forms/FormIconField.svelte';
+	import FormIconField from '#lib/components/ui/FormIconField.svelte';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 	import BackHeader from '#lib/components/layout/BackHeader.svelte';
 

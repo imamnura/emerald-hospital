@@ -2,7 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import { X } from '@lucide/svelte';
 	import Dialog from '#lib/components/ui/Dialog.svelte';
-	import { cn } from '#lib/utils.ts';
+	import { cn } from '#lib/utils/cn.ts';
 
 	interface Props {
 		open: boolean;

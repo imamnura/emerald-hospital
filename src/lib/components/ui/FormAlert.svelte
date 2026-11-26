@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { cn } from '#lib/utils.ts';
+	import { cn } from '#lib/utils/cn.ts';
 
 	interface Props {
 		kind?: 'error' | 'success' | 'info';

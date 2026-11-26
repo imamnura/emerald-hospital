@@ -4,10 +4,10 @@
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 	import BackHeader from '#lib/components/layout/BackHeader.svelte';
 	import LogoutButton from '#lib/components/profile/LogoutButton.svelte';
-	import SettingsCard from '#lib/components/settings/SettingsCard.svelte';
-	import SettingsRow from '#lib/components/settings/SettingsRow.svelte';
-	import SettingsSection from '#lib/components/settings/SettingsSection.svelte';
-	import SettingsToggle from '#lib/components/settings/SettingsToggle.svelte';
+	import SettingsCard from '#lib/components/profile/settings/SettingsCard.svelte';
+	import SettingsRow from '#lib/components/profile/settings/SettingsRow.svelte';
+	import SettingsSection from '#lib/components/profile/settings/SettingsSection.svelte';
+	import SettingsToggle from '#lib/components/profile/settings/SettingsToggle.svelte';
 
 	let { data } = $props();
 </script>

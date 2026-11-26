@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import FilterOptionsModal from '#lib/components/FilterOptionsModal.svelte';
-	import SearchBar from '#lib/components/SearchBar.svelte';
+	import FilterOptionsModal from '#lib/components/doctor/FilterOptionsModal.svelte';
+	import SearchBar from '#lib/components/layout/SearchBar.svelte';
 	import BackHeader from '#lib/components/layout/BackHeader.svelte';
 	import ProfileLink from '#lib/components/profile/ProfileLink.svelte';
 	import DoctorSummary from '#lib/components/doctor/DoctorSummary.svelte';
 	import { filterAndSortDoctors, useSearchStore } from '#lib/stores/search.ts';
 	import { useZustand } from '#lib/stores/useZustand.svelte.ts';
 	import { Bookmark, SlidersHorizontal } from '@lucide/svelte';
-	import { cn } from '#lib/utils.ts';
+	import { cn } from '#lib/utils/cn.ts';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 
 	let { data } = $props();

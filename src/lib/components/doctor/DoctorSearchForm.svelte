@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { Building2, ChevronDown, Search } from '@lucide/svelte';
-	import SpecialtyAutocomplete from '#lib/components/SpecialtyAutocomplete.svelte';
+	import SpecialtyAutocomplete from '#lib/components/doctor/SpecialtyAutocomplete.svelte';
 	import { LANDING_HERO, LANDING_HOSPITALS } from '#lib/data/landing.ts';
-	import { cn } from '#lib/utils.ts';
+	import { cn } from '#lib/utils/cn.ts';
 
 	interface Props {
 		specialty: string;

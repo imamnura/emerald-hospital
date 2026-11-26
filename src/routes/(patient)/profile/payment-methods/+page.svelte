@@ -4,10 +4,10 @@
 	import { fly } from 'svelte/transition';
 	import { Plus } from '@lucide/svelte';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
-	import SavedPaymentCard from '#lib/components/payment/SavedPaymentCard.svelte';
-	import PaymentTransactionRow from '#lib/components/payment/PaymentTransactionRow.svelte';
+	import SavedPaymentCard from '#lib/components/profile/payment/SavedPaymentCard.svelte';
+	import PaymentTransactionRow from '#lib/components/profile/payment/PaymentTransactionRow.svelte';
 	import BackHeader from '#lib/components/layout/BackHeader.svelte';
-	import SettingsSection from '#lib/components/settings/SettingsSection.svelte';
+	import SettingsSection from '#lib/components/profile/settings/SettingsSection.svelte';
 
 	let { data, form } = $props();
 

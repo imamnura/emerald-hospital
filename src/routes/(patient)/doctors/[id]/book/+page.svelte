@@ -10,7 +10,7 @@
 		Star
 	} from '@lucide/svelte';
 	import { groupSlotsByPeriod } from '#lib/utils/booking-ui.ts';
-	import { cn } from '#lib/utils.ts';
+	import { cn } from '#lib/utils/cn.ts';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 
 	let { data } = $props();

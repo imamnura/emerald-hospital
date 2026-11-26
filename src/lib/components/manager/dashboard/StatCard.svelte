@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { TrendingDown, TrendingUp } from '@lucide/svelte';
 	import type { Component } from 'svelte';
-	import { cn } from '#lib/utils.ts';
+	import { cn } from '#lib/utils/cn.ts';
 
 	interface Props {
 		icon: Component<{ size?: number; strokeWidth?: number }>;

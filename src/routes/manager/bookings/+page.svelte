@@ -4,12 +4,12 @@
 	import { page } from '$app/state';
 	import { ClipboardList, FileSpreadsheet, Pencil } from '@lucide/svelte';
 	import BookingStatusFields from '#lib/components/manager/BookingStatusFields.svelte';
-	import EmptyState from '#lib/components/manager/EmptyState.svelte';
-	import Modal from '#lib/components/manager/Modal.svelte';
+	import EmptyState from '#lib/components/ui/EmptyState.svelte';
+	import Modal from '#lib/components/ui/Modal.svelte';
 	import ManagerSearchForm from '#lib/components/manager/ManagerSearchForm.svelte';
 	import PageHeader from '#lib/components/manager/PageHeader.svelte';
-	import Pagination from '#lib/components/manager/Pagination.svelte';
-	import StatusBadge from '#lib/components/manager/StatusBadge.svelte';
+	import Pagination from '#lib/components/ui/Pagination.svelte';
+	import StatusBadge from '#lib/components/ui/StatusBadge.svelte';
 	import { createCrudState } from '#lib/utils/crud.svelte.ts';
 	import { toastForm } from '#lib/utils/enhance.ts';
 	import { withParams } from '#lib/utils/url.ts';

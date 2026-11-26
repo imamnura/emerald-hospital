@@ -3,8 +3,8 @@
 	import { Check } from '@lucide/svelte';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 	import BackHeader from '#lib/components/layout/BackHeader.svelte';
-	import SettingsCard from '#lib/components/settings/SettingsCard.svelte';
-	import { cn } from '#lib/utils.ts';
+	import SettingsCard from '#lib/components/profile/settings/SettingsCard.svelte';
+	import { cn } from '#lib/utils/cn.ts';
 
 	let { data } = $props();
 </script>

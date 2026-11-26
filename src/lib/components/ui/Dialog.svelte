@@ -2,7 +2,7 @@
 	import { fade, fly, scale } from 'svelte/transition';
 	import { X } from '@lucide/svelte';
 	import type { Snippet } from 'svelte';
-	import { cn } from '#lib/utils.ts';
+	import { cn } from '#lib/utils/cn.ts';
 
 	type PanelMotion =
 		| { type: 'fly'; y: number; duration: number }

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { formatDate } from '#lib/format/date.ts';
 	import { getStatusClass, getStatusLabel } from '#lib/domain/booking-status.ts';
-	import { cn } from '#lib/utils.ts';
+	import { cn } from '#lib/utils/cn.ts';
 
 	type RecentBooking = {
 		id: string;

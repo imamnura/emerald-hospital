@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import DoctorSummary from '#lib/components/doctor/DoctorSummary.svelte';
-	import Header from '#lib/components/Header.svelte';
-	import SearchBar from '#lib/components/SearchBar.svelte';
+	import Header from '#lib/components/layout/Header.svelte';
+	import SearchBar from '#lib/components/layout/SearchBar.svelte';
 	import SpecialistTile from '#lib/components/specialist/SpecialistTile.svelte';
 	import { useSearchStore } from '#lib/stores/search.ts';
 	import { SlidersHorizontal } from '@lucide/svelte';

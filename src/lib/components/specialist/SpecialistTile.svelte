@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolveSpecialistIcon } from '#lib/domain/specialist.ts';
-	import { cn } from '#lib/utils.ts';
+	import { cn } from '#lib/utils/cn.ts';
 
 	interface Props {
 		name: string;

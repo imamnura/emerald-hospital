@@ -10,9 +10,9 @@
 		SquarePlus,
 		Sparkles
 	} from '@lucide/svelte';
-	import CoveragePeriodCard from '#lib/components/insurance/CoveragePeriodCard.svelte';
-	import CostDetailCard from '#lib/components/insurance/CostDetailCard.svelte';
-	import InsuranceCoverageCard from '#lib/components/insurance/InsuranceCoverageCard.svelte';
+	import CoveragePeriodCard from '#lib/components/profile/insurance/CoveragePeriodCard.svelte';
+	import CostDetailCard from '#lib/components/profile/insurance/CostDetailCard.svelte';
+	import InsuranceCoverageCard from '#lib/components/profile/insurance/InsuranceCoverageCard.svelte';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 	import BackHeader from '#lib/components/layout/BackHeader.svelte';
 

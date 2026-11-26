@@ -10,8 +10,8 @@
 		User
 	} from '@lucide/svelte';
 	import LogoutButton from '#lib/components/profile/LogoutButton.svelte';
-	import Header from '#lib/components/Header.svelte';
-	import ProfileMenuItem from '#lib/components/ProfileMenuItem.svelte';
+	import Header from '#lib/components/layout/Header.svelte';
+	import ProfileMenuItem from '#lib/components/profile/ProfileMenuItem.svelte';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 
 	let { data } = $props();

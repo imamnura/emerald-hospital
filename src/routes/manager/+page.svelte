@@ -6,9 +6,9 @@
 	} from '#lib/domain/booking-status.ts';
 	import { page } from '$app/state';
 	import { Building2, CalendarDays, Clock, Download, FileSpreadsheet, Stethoscope } from '@lucide/svelte';
-	import AreaChart from '#lib/components/charts/AreaChart.svelte';
-	import BarChart from '#lib/components/charts/BarChart.svelte';
-	import DonutChart from '#lib/components/charts/DonutChart.svelte';
+	import AreaChart from '#lib/components/manager/charts/AreaChart.svelte';
+	import BarChart from '#lib/components/manager/charts/BarChart.svelte';
+	import DonutChart from '#lib/components/manager/charts/DonutChart.svelte';
 	import ChartCard from '#lib/components/manager/dashboard/ChartCard.svelte';
 	import FilterBar from '#lib/components/manager/dashboard/FilterBar.svelte';
 	import RecentBookings from '#lib/components/manager/dashboard/RecentBookings.svelte';
