@@ -1,6 +1,6 @@
 # User & System Flows
 
-> Part of the [Purwakarta Health docs](./DEVELOPMENT_STATUS.md). Last verified against code: 2026-10-22.
+> Part of the [Purwakarta Health docs](./DEVELOPMENT_STATUS.md). Last verified against code: 2026-11-26.
 
 Diagrams use Mermaid and render on GitHub, GitLab, and VS Code's Markdown preview.
 
@@ -81,7 +81,7 @@ flowchart LR
   Q -->|yes, no password| G[Use Continue with Google]
   Q -->|yes| P{Argon2 verify}
   P -->|fail| E
-  P -->|ok| S2[create session] --> D[safeRedirect → redirect param or role home]
+  P -->|ok| S2[create session] --> D[sanitizeRedirect → redirect param or role home]
 ```
 
 ## 5. Google sign-in (OAuth 2.0 + PKCE)

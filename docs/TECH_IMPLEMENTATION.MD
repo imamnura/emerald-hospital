@@ -1,6 +1,6 @@
 # Technical Implementation
 
-> Part of the [Purwakarta Health docs](./DEVELOPMENT_STATUS.md). Last verified against code: 2026-10-22.
+> Part of the [Purwakarta Health docs](./DEVELOPMENT_STATUS.md). Last verified against code: 2026-11-26.
 
 This file covers feature status, setup, configuration, and implementation notes per feature. For the big picture see [ARCHITECTURE.MD](./ARCHITECTURE.MD).
 
@@ -22,9 +22,9 @@ Legend: ✅ done · 🟡 partial · ⬜ not started · ❌ blocked
 | Area | Status | Implementation |
 | ---- | ------ | -------------- |
 | Email + password registration | ✅ | `register/+page.server.ts`. Argon2 hash, auto-login. |
-| Email + password login | ✅ | `login/+page.server.ts`, with `?redirect=` support via `safeRedirect`. |
-| Google sign-in | ✅ | `login/google/*`, `lib/server/oauth-google.ts`. PKCE, verified-email auto-link. |
-| Forgot / reset password | ✅ | `login/forgot`, `login/reset/[token]`, `lib/server/password-reset.ts`, `lib/server/mailer.ts`. |
+| Email + password login | ✅ | `login/+page.server.ts`, with `?redirect=` support via `sanitizeRedirect`. |
+| Google sign-in | ✅ | `login/google/*`, `lib/server/auth/oauth-google.ts`. PKCE, verified-email auto-link. |
+| Forgot / reset password | ✅ | `login/forgot`, `login/reset/[token]`, `lib/server/auth/password-reset.ts`, `lib/server/mailer.ts`. |
 | Home / specialty discovery | ✅ | `(patient)/home`, `?specialist=` filter. |
 | Specialist list + detail | ✅ | `(patient)/specialists`, `(patient)/specialists/[slug]`. |
 | Search + filters + bookmarks | ✅ | `(patient)/search`, Zustand `useSearchStore` (persisted to `localStorage`). |
@@ -33,7 +33,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started · ❌ blocked
 | Booking confirmation | ✅ | `AppointmentConfirmedModal` via `/appointments?booked=`. |
 | My appointments + cancel | ✅ | `(patient)/appointments`, `cancelBookingForUser`. |
 | Profile dashboard | ✅ | Blood type, next visit, completed count. |
-| Personal information edit | ✅ | `profile/personal`, `lib/server/users.ts`. |
+| Personal information edit | ✅ | `profile/personal`, `lib/server/patient/users.ts`. |
 | Account settings | ✅ | Push / email toggles stored in cookies. |
 | Change / set password | ✅ | Google-only users can add a password. |
 | Language picker | 🟡 | Saves a cookie only. No translated strings. |
@@ -48,7 +48,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started · ❌ blocked
 
 | Area | Status | Implementation |
 | ---- | ------ | -------------- |
-| Dashboard with charts | ✅ | `manager/+page.server.ts` + `lib/server/analytics.ts`, SVG charts. |
+| Dashboard with charts | ✅ | `manager/+page.server.ts` + `lib/server/booking/analytics.ts`, SVG charts. |
 | Filters (range, hospital, specialty) | ✅ | URL-driven GET form. |
 | Trend chips vs previous period | ✅ | `previousTotals`. Hidden for `range=all`. |
 | CSV export | ✅ | `manager/export.csv/+server.ts`. |
@@ -123,7 +123,6 @@ The seed also creates 3 hospitals, 12 specialties, 12 doctors, 66 schedule block
 | Variable | Required | Notes |
 | -------- | -------- | ----- |
 | `DATABASE_URL` | ✅ | `postgresql://user:pass@host:port/db` |
-| `SESSION_SECRET` | advisory | **Not read by any code.** Reserved for future cookie signing. |
 | `GOOGLE_CLIENT_ID` | optional | Enables "Continue with Google". The button is hidden when unset. |
 | `GOOGLE_CLIENT_SECRET` | optional | Pair with `GOOGLE_CLIENT_ID`. |
 | `SMTP_HOST` | optional | Enables reset emails. Without it, links are logged to the console. |
@@ -139,7 +138,7 @@ Google OAuth redirect URIs to register: `http://localhost:5173/login/google/call
 
 ### 4.1 Specialty autocomplete
 
-- Component: `src/lib/components/SpecialtyAutocomplete.svelte`. Endpoint: `src/routes/api/specialists/+server.ts`.
+- Component: `src/lib/components/doctor/SpecialtyAutocomplete.svelte`. Endpoint: `src/routes/api/specialists/+server.ts`.
 - 250 ms debounce. A token counter discards out-of-order responses.
 - Keyboard: ↑ / ↓ move, Enter selects, Esc closes. The blur is delayed so a mouse click registers before the list closes.
 - Roles: `combobox` on the input, `listbox` / `option` on the results.
@@ -175,11 +174,11 @@ See [ARCHITECTURE.MD §6.3](./ARCHITECTURE.MD#63-race-safe-booking) and the sequ
 
 ### 4.7 Preferences
 
-`lib/server/preferences.ts` stores `push_notifications`, `email_notifications`, and `app_language` in non-HttpOnly cookies for 1 year. Push defaults to on, email to off, language to `en`.
+`lib/server/patient/preferences.ts` stores `push_notifications`, `email_notifications`, and `app_language` in non-HttpOnly cookies for 1 year. Push defaults to on, email to off, language to `en`.
 
 ### 4.8 Analytics
 
-`lib/server/analytics.ts`: `parseFilters` (default `30d`), `totals`, `previousTotals`, `bookingsOverTime`, `statusBreakdown`, `bookingsBySpecialty`, `topDoctors(limit 5)`, `recentBookings(limit 8)`, `exportRows` (no limit), `rangeLabel`.
+`lib/server/booking/analytics.ts`: `parseFilters` (default `30d`), `totals`, `previousTotals`, `bookingsOverTime`, `statusBreakdown`, `bookingsBySpecialty`, `topDoctors(limit 5)`, `recentBookings(limit 8)`, `exportRows` (no limit), `rangeLabel`.
 
 ### 4.9 Pagination
 

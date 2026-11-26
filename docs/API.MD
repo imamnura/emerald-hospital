@@ -1,6 +1,6 @@
 # API Reference
 
-> Part of the [Purwakarta Health docs](./DEVELOPMENT_STATUS.md). Last verified against code: 2026-10-22.
+> Part of the [Purwakarta Health docs](./DEVELOPMENT_STATUS.md). Last verified against code: 2026-11-26.
 
 The app has no standalone REST API. Its server surface is:
 
@@ -83,7 +83,7 @@ Google redirect target. Validates `state`, exchanges `code` with the PKCE verifi
 | `/profile` | `logout` | — | any session | Deletes session, clears cookie → `303 /login`. Also used by the manager layout. |
 | `/profile/settings` | `logout` | — | any session | Same as above. |
 
-`redirect` safety rule (`safeRedirect` in `login/+page.server.ts`): must start with `/`, not `//`, and not `/login`; otherwise the role default (`/manager` or `/home`) is used.
+`redirect` safety rule (`sanitizeRedirect` in `lib/server/auth/redirect.ts`): must start with `/`, not `//`, and not `/login`; otherwise the role default (`/manager` or `/home`) is used.
 
 ### 2.2 Patient
 
@@ -140,4 +140,4 @@ Manager status updates allow any transition (for example `completed → pending`
 | `/manager/schedules` | `q`, `doctorId`, `page`, `pageSize` | |
 | `/manager/bookings` | `q`, `status`, `page`, `pageSize` | Status tab counts ignore the `status` filter. |
 
-Pagination (`src/lib/server/pagination.ts`): `page` ≥ 1 (default 1), `pageSize` 1–100 (default 10).
+Pagination (`src/lib/server/http/pagination.ts`): `page` ≥ 1 (default 1), `pageSize` 1–100 (default 10).

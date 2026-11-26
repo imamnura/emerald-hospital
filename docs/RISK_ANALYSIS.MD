@@ -1,6 +1,6 @@
 # Risk Analysis
 
-> Part of the [Purwakarta Health docs](./DEVELOPMENT_STATUS.md). Last verified against code: 2026-10-22.
+> Part of the [Purwakarta Health docs](./DEVELOPMENT_STATUS.md). Last verified against code: 2026-11-26.
 
 Scoring: **Likelihood** and **Impact** are 1 (low) – 3 (high). **Score = L × I**. 🔴 ≥ 6 · 🟠 3–4 · 🟢 ≤ 2.
 
@@ -18,14 +18,14 @@ Scoring: **Likelihood** and **Impact** are 1 (low) – 3 (high). **Score = L × 
 | R8 | No error monitoring or structured logging | Operations | 3 | 1 | 🟠 3 | Open |
 | R9 | Sessions never rotate; password change keeps other sessions alive | Security | 1 | 2 | 🟢 2 | Open |
 | R10 | Expired sessions / reset tokens never purged (table growth) | Operations | 2 | 1 | 🟢 2 | Open |
-| R11 | `logs/combined.log` tracked in git (tool log, may leak local info) | Hygiene | 2 | 1 | 🟢 2 | Open |
+| R11 | `logs/combined.log` tracked in git (tool log, may leak local info) | Hygiene | 2 | 1 | 🟢 2 | **Fixed** 2026-11-26 (8782637: untracked, `logs/` gitignored) |
 | R12 | Single manager role, no audit trail of who changed what | Compliance | 2 | 2 | 🟠 4 | Open |
 | R13 | Health data (blood type, medical records) without encryption-at-rest policy or retention rules | Compliance | 1 | 3 | 🟠 3 | Open |
 | R14 | Dependency drift: SvelteKit 3 / Vite 8 / TS 6 are recent majors; transitive CVEs patched via overrides | Supply chain | 1 | 2 | 🟢 2 | Monitored |
 | R15 | Double booking under concurrency | Correctness | 1 | 3 | 🟠 3 | **Mitigated** (`SELECT … FOR UPDATE`) |
 | R16 | Google account takeover via unverified email | Security | 1 | 3 | 🟠 3 | **Mitigated** (link only when `email_verified`) |
 | R17 | Email enumeration via forgot password | Security | 1 | 1 | 🟢 1 | **Mitigated** (always success) |
-| R18 | Open redirect via `?redirect=` | Security | 1 | 2 | 🟢 2 | **Mitigated** (`safeRedirect`) |
+| R18 | Open redirect via `?redirect=` | Security | 1 | 2 | 🟢 2 | **Mitigated** (`sanitizeRedirect`) |
 
 ## 2. Details and mitigations
 
@@ -33,7 +33,7 @@ Scoring: **Likelihood** and **Impact** are 1 (low) – 3 (high). **Score = L × 
 
 - **What:** `manager/+layout.server.ts` protects page loads only. SvelteKit does not run layout loads before a form action, so `POST /manager/{hospitals,specialists,doctors,schedules}?/create|update|delete` and `POST /manager/bookings?/updateStatus` run for anyone, including anonymous users.
 - **Impact:** Anyone can wipe or change the catalogue and every booking status. SvelteKit's CSRF origin check blocks cross-site browser forms but not direct requests (curl, scripts).
-- **Fix (2026-10-22):** `denyUnlessManager(locals)` at the top of all 13 manager actions (`src/lib/server/guards.ts`), plus a backstop in `hooks.server.ts` that returns 403 for any non-GET request to `/manager/**` from a non-manager. Verified manually against the dev server: anonymous and patient POSTs → 403, manager POSTs work.
+- **Fix (2026-10-22):** `denyUnlessManager(locals)` at the top of all 13 manager actions (`src/lib/server/auth/guards.ts`), plus a backstop in `hooks.server.ts` that returns 403 for any non-GET request to `/manager/**` from a non-manager. Verified manually against the dev server: anonymous and patient POSTs → 403, manager POSTs work.
 - **Remaining:** automated regression test T-01.
 
 ### R2 — No automated tests 🔴

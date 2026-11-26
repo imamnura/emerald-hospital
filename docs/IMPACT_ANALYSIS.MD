@@ -1,6 +1,6 @@
 # Impact Analysis
 
-> Part of the [Purwakarta Health docs](./DEVELOPMENT_STATUS.md). Last verified against code: 2026-10-22.
+> Part of the [Purwakarta Health docs](./DEVELOPMENT_STATUS.md). Last verified against code: 2026-11-26.
 
 Use this file before changing a shared module: it lists who depends on what, so you know what to re-test.
 
@@ -10,15 +10,15 @@ Use this file before changing a shared module: it lists who depends on what, so 
 | ------ | -------------- | ------------ | ------- |
 | `src/lib/server/db/schema.ts` | Every server module, all `+page.server.ts`, `scripts/seed.ts`, `drizzle/` | 🔴 Whole app | `pnpm db:generate` → review SQL → `db:migrate` → `pnpm check` → full smoke test. Update `seed.ts`. |
 | `src/hooks.server.ts` | Every request (`locals.user`) | 🔴 Whole app | Login, logout, every guarded route, manager access. |
-| `src/lib/server/auth.ts` | hooks, login, register, OAuth callback, reset, logout, password change | 🔴 Auth | All flows in [FLOW.MD §4–7](./FLOW.MD#4-registration-and-email-login). |
-| `src/lib/server/booking.ts` | `doctors/[id]/book`, `book/confirm`, `/appointments`, profile stats | 🔴 Core business | Booking, full slot, concurrent booking, cancel. |
-| `src/lib/server/analytics.ts` | Manager dashboard, `export.csv` | 🟠 Manager reporting | Dashboard filters + CSV parity. |
-| `src/lib/server/doctors.ts`, `catalog.ts` | `/find-doctor`, `/home`, `/search`, `/specialists`, `/specialists/[slug]`, `/doctors/[id]`, `book`, `book/confirm`, `/manager` (filter lists) | 🟠 Discovery | All patient browse pages + booking + dashboard filters. |
-| `src/lib/server/oauth-google.ts` | `/login/google`, callback | 🟠 Google sign-in | Google login (new, link, refuse). |
-| `src/lib/server/password-reset.ts`, `mailer.ts` | `/login/forgot`, `/login/reset/[token]` | 🟢 | Reset flow with and without SMTP. |
-| `src/lib/server/pagination.ts` | All 5 manager list pages | 🟢 | Pagination on each list. |
-| `src/lib/server/preferences.ts` | `/profile/settings`, `/language` | 🟢 | Toggles persist. |
-| `src/lib/stores/search.ts` | `/search`, `FilterOptionsModal`, `SearchResultCard` | 🟢 | Filters, bookmarks. Changing the persisted shape needs a migration in `persist` or users keep stale state. |
+| `src/lib/server/auth/*` (session, password, guards, redirect) | hooks, login, register, OAuth callback, reset, logout, password change | 🔴 Auth | All flows in [FLOW.MD §4–7](./FLOW.MD#4-registration-and-email-login). |
+| `src/lib/server/booking/booking.ts` | `doctors/[id]/book`, `book/confirm`, `/appointments`, profile stats | 🔴 Core business | Booking, full slot, concurrent booking, cancel. |
+| `src/lib/server/booking/analytics.ts` | Manager dashboard, `export.csv` | 🟠 Manager reporting | Dashboard filters + CSV parity. |
+| `src/lib/server/catalog/doctors.ts`, `catalog.ts` | `/find-doctor`, `/home`, `/search`, `/specialists`, `/specialists/[slug]`, `/doctors/[id]`, `book`, `book/confirm`, `/manager` (filter lists) | 🟠 Discovery | All patient browse pages + booking + dashboard filters. |
+| `src/lib/server/auth/oauth-google.ts` | `/login/google`, callback | 🟠 Google sign-in | Google login (new, link, refuse). |
+| `src/lib/server/auth/password-reset.ts`, `src/lib/server/mailer.ts` | `/login/forgot`, `/login/reset/[token]` | 🟢 | Reset flow with and without SMTP. |
+| `src/lib/server/http/pagination.ts`, `list-query.ts` | All 5 manager list pages | 🟢 | Pagination on each list. |
+| `src/lib/server/patient/preferences.ts` | `/profile/settings`, `/language` | 🟢 | Toggles persist. |
+| `src/lib/stores/search.ts` | `/search`, `FilterOptionsModal`, `DoctorSummary` | 🟢 | Filters, bookmarks. Changing the persisted shape needs a migration in `persist` or users keep stale state. |
 | `src/lib/utils/enhance.ts` (`toastForm`) | Nearly every form | 🟠 UX feedback | Success/error toasts on forms. |
 | `src/app.css` tokens | Every component | 🟠 Visual | Visual pass on patient + manager. |
 | `src/lib/components/manager/*` | All manager pages | 🟢 | Manager pages. |

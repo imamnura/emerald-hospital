@@ -78,7 +78,7 @@ Log in as `manager@emerald.com` or `patient@emerald.com` (password `password123`
 
 - [ ] Run the quick start and log in as both a manager and a patient.
 - [ ] Read [ARCHITECTURE.MD](./ARCHITECTURE.MD) and `src/lib/server/db/schema.ts`.
-- [ ] Read `src/lib/server/booking.ts` (booking transaction) and `src/lib/server/analytics.ts` (dashboard data).
+- [ ] Read `src/lib/server/booking/booking.ts` (booking transaction) and `src/lib/server/booking/analytics.ts` (dashboard data).
 - [ ] Walk `src/routes/(patient)/+layout.svelte` and `src/routes/manager/+layout.svelte` to see the two shells.
 - [ ] Read [PERMISSION.MD](./PERMISSION.MD) before adding any route or action.
 - [ ] Before pushing: `pnpm check` (0 errors / 0 warnings), `pnpm build`, `pnpm audit` (0 vulnerabilities).
