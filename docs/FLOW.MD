@@ -153,7 +153,7 @@ The same pattern applies to hospitals, specialists, doctors, and schedules. Book
 | Doctor without bookings | schedules `ON DELETE CASCADE` | OK |
 | Schedule with bookings | `bookings.schedule_id` → no action | `409` |
 
-Delete actions catch the Postgres FK violation (SQLSTATE `23503`, via `isForeignKeyViolation` in `src/lib/server/db-errors.ts`) and return `fail(409, { error })`. Fixed 2026-10-22 (TD-04).
+Delete actions catch the Postgres FK violation (SQLSTATE `23503`, via `isForeignKeyViolation` in `src/lib/server/db/errors.ts`) and return `fail(409, { error })`. Fixed 2026-10-22 (TD-04).
 
 ## 9. Manager dashboard and CSV export
 

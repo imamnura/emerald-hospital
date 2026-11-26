@@ -85,13 +85,14 @@ emerald-hospital/
 │  │  ├─ data/                     # Static content: help-support.ts, landing.ts
 │  │  ├─ domain/                   # Isomorphic domain constants
 │  │  │  ├─ booking-status.ts      # BOOKING_STATUSES, labels, badge classes, chart colours
+│  │  │  ├─ doctor.ts              # DEFAULT_RATING, DoctorListItem
 │  │  │  └─ specialist.ts          # Icon resolver + specialty labels
 │  │  ├─ format/                   # Isomorphic formatting
-│  │  │  ├─ date.ts                # formatDate(value, preset), toLocalDateString, formatTime12h, DAY_NAMES
+│  │  │  ├─ date.ts                # formatDate(value, preset), ISO_DATE_RE, toLocalDateString, formatTime12h, DAY_NAMES
 │  │  │  ├─ money.ts               # formatCurrency, formatCardNumber
 │  │  │  └─ text.ts                # getInitials
 │  │  ├─ server/                   # SERVER-ONLY modules (DB, secrets)
-│  │  │  ├─ auth/                  # session.ts (sessions, cookie, PublicUser), password.ts, guards.ts,
+│  │  │  ├─ auth/                  # session.ts (sessions, cookie, PublicUser), password.ts (hashPassword + verifyPassword, argon2 only), guards.ts,
 │  │  │  │                         # redirect.ts, oauth-google.ts, password-reset.ts
 │  │  │  ├─ booking/               # booking.ts (slots, createBookingAtomic, cancel), analytics.ts
 │  │  │  ├─ catalog/               # catalog.ts (hospitals / specialists / schedules), doctors.ts

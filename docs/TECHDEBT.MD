@@ -34,10 +34,12 @@ Effort: **S** < ½ day · **M** 1–3 days · **L** > 3 days.
 | TD-31 | Mixed English / Indonesian `DAY_NAMES` (Indonesian) and the `longId` date preset, next to English UI strings (relates to TD-12) | `lib/format/date.ts` | P3 | S |
 | TD-32 | Three hand-rolled back headers do not use `BackHeader` | `doctors/[id]/+page.svelte`, `book/+page.svelte`, `book/confirm/+page.svelte` | P3 | S |
 | TD-33 | Register / forgot / reset password icon inputs do not use `FormIconField` | `register/`, `login/forgot/`, `login/reset/[token]/` | P3 | S |
-| TD-34 | `analytics.parseFilters` does not UUID-check the hospital / specialist filters (the manager list pages use `uuidOrUndefined`) | `lib/server/booking/analytics.ts` | P3 | S |
+| TD-35 | Dashboard loader (`manager/+page.server.ts`) issues ~11 parallel queries while the postgres-js pool defaults to `max: 10`; set `max` explicitly or group reads | `lib/server/db/index.ts:9`, `routes/manager/+page.server.ts` | P3 | S |
+| TD-36 | `src/routes/+page.svelte` is 262 lines (target is 250); split a landing section into a component | `routes/+page.svelte` | P3 | S |
 
 ### Resolved
 
+- ~~TD-34 `analytics.parseFilters` did not UUID-check the hospital / specialist filters (`/manager?hospitalId=abc` and the CSV export returned 500)~~ — fixed 2026-11-26 (d5bce72): non-UUID values are ignored via `uuidOrUndefined`.
 - ~~TD-06 `requirePatient` / `requireManager` unused, inline checks repeated~~ — fixed 2026-11-26 (fbee7b9): shared guards in `lib/server/auth/guards.ts` (`requireUser`, `requirePatient`, `requireManager`) used by loads.
 - ~~TD-08 `validateSession` ran two queries per request~~ — fixed 2026-11-26 (8be435d): one `sessions` ⨝ `users` query with the expiry check.
 - ~~TD-11 Unused session-secret env var documented~~ — fixed 2026-11-26 (8782637): variable removed from `.env.example` and the docs.
