@@ -17,8 +17,14 @@
 
 	let selectedDate = $derived(data.selectedDate);
 	// Reset whenever navigation brings a new date; editable locally in between.
-	let selectedTime = $derived.by(() => (data.selectedDate, ''));
-	let selectedScheduleId = $derived.by(() => (data.selectedDate, ''));
+	let selectedTime = $derived.by(() => {
+		void data.selectedDate;
+		return '';
+	});
+	let selectedScheduleId = $derived.by(() => {
+		void data.selectedDate;
+		return '';
+	});
 
 	const slotGroups = $derived(groupSlotsByPeriod(data.slots));
 	const backHref = $derived(`/specialists/${data.doctor.specialistSlug}`);

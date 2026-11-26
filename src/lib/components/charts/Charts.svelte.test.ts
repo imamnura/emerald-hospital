@@ -37,9 +37,9 @@ describe('AreaChart', () => {
 
 	it('renders line, area, x labels and tooltip on hover', async () => {
 		const data = days([1, 5, 2, 8, 3, 0, 4]);
-		const { container } = render(AreaChart, { data, height: 300 });
+		const { container } = render(AreaChart, { data });
 		const svg = screen.getByRole('img');
-		expect(svg).toHaveAttribute('viewBox', '0 0 800 300');
+		expect(svg).toHaveAttribute('viewBox', '0 0 800 220');
 		expect(container.querySelectorAll('path')).toHaveLength(2);
 		// 5 x-axis labels picked out of 7 points
 		expect(screen.getByText('Jan 1')).toBeInTheDocument();
@@ -58,10 +58,11 @@ describe('AreaChart', () => {
 		expect(container.querySelector('circle')).toBeNull();
 	});
 
-	it('uses larger tick steps for big values and can hide the x axis', () => {
-		const { container } = render(AreaChart, { data: days([7, 10]), showXAxis: false });
-		expect(screen.queryByText('Jan 1')).toBeNull();
-		const ticks = [...container.querySelectorAll('text')].map((t) => t.textContent?.trim());
+	it('uses larger tick steps for big values', () => {
+		const { container } = render(AreaChart, { data: days([7, 10]) });
+		const ticks = [...container.querySelectorAll('text')]
+			.map((t) => t.textContent?.trim())
+			.filter((t) => /^\d+$/.test(t ?? ''));
 		expect(ticks).toEqual(['0', '2', '4', '6', '8', '10']);
 	});
 
@@ -80,15 +81,15 @@ describe('BarChart', () => {
 		expect(screen.getByText('No data for the selected filters.')).toBeInTheDocument();
 	});
 
-	it('renders rows scaled to max, value label, sublabel and maxRows', () => {
+	it('renders rows scaled to max, value label, sublabel and the 8-row cap', () => {
 		const { container } = render(BarChart, {
 			data: [
 				{ key: 'a', label: 'Alpha', sublabel: 'first', value: 10 },
 				{ key: 'b', label: 'Beta', value: 5 },
+				...Array.from({ length: 6 }, (_, i) => ({ key: `f${i}`, label: `Filler ${i}`, value: 1 })),
 				{ key: 'c', label: 'Gamma', value: 1 }
 			],
-			valueLabel: 'visits',
-			maxRows: 2
+			valueLabel: 'visits'
 		});
 		expect(screen.queryByText('No data for the selected filters.')).toBeNull();
 		expect(screen.getByText('10 visits')).toBeInTheDocument();
@@ -124,7 +125,7 @@ describe('DonutChart', () => {
 	});
 
 	it('renders arcs for non-zero segments and legend for all', () => {
-		const { container } = render(DonutChart, { data, centerLabel: 'All', size: 200, thickness: 20 });
+		const { container } = render(DonutChart, { data, centerLabel: 'All' });
 		const paths = container.querySelectorAll('path');
 		expect(paths).toHaveLength(2);
 		// 3/4 sweep > 180 → large-arc flag
@@ -169,12 +170,11 @@ describe('DonutChart', () => {
 });
 
 describe('DonutChart with nullish props', () => {
-	it('renders when size and colors are null', () => {
+	it('renders when colors are null', () => {
 		const { container } = render(DonutChart, {
-			size: null as unknown as number,
 			data: [{ key: 'a', label: 'A', value: 2, color: null as unknown as string }]
 		});
-		expect(container.querySelector('svg')).toHaveAttribute('viewBox', '0 0  ');
+		expect(container.querySelector('svg')).toHaveAttribute('viewBox', '0 0 180 180');
 		expect(container.querySelector<HTMLElement>('li span span')!.style.backgroundColor).toBe('');
 	});
 });

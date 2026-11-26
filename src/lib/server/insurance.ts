@@ -68,7 +68,7 @@ export async function getInsuranceForUser(
 	};
 }
 
-export type UpsertInsuranceInput = {
+type UpsertInsuranceInput = {
 	providerName: string;
 	planName: string;
 	memberId: string;

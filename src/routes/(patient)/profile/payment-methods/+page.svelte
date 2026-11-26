@@ -1,7 +1,6 @@
 ﻿<script lang="ts">
 	import FormAlert from '#lib/components/ui/FormAlert.svelte';
-	import { enhance } from '$app/forms';
-	import { tick } from 'svelte';
+	import { enhance, type SubmitFunction } from '$app/forms';
 	import { fly } from 'svelte/transition';
 	import { Plus } from '@lucide/svelte';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
@@ -17,16 +16,18 @@
 	let deleteFormEl: HTMLFormElement;
 	let pendingCardId = $state('');
 
-	async function submitSetDefault(cardId: string) {
+	/** Stamps the chosen card id onto the outgoing request, so it never depends on a DOM flush. */
+	const withPendingCard: SubmitFunction = ({ formData }) => {
+		formData.set('cardId', pendingCardId);
+	};
+
+	function submitSetDefault(cardId: string) {
 		pendingCardId = cardId;
-		// Let bind:value write the id into the hidden input before submitting.
-		await tick();
 		setDefaultFormEl.requestSubmit();
 	}
 
-	async function submitDelete(cardId: string) {
+	function submitDelete(cardId: string) {
 		pendingCardId = cardId;
-		await tick();
 		deleteFormEl.requestSubmit();
 	}
 </script>
@@ -38,20 +39,20 @@
 <form
 	method="POST"
 	action="?/setDefault"
-	use:enhance
+	use:enhance={withPendingCard}
 	bind:this={setDefaultFormEl}
 	class="hidden"
 >
-	<input type="hidden" name="cardId" bind:value={pendingCardId} />
+	<input type="hidden" name="cardId" value={pendingCardId} />
 </form>
 <form
 	method="POST"
 	action="?/delete"
-	use:enhance
+	use:enhance={withPendingCard}
 	bind:this={deleteFormEl}
 	class="hidden"
 >
-	<input type="hidden" name="cardId" bind:value={pendingCardId} />
+	<input type="hidden" name="cardId" value={pendingCardId} />
 </form>
 
 <MotionReveal delay={50}>

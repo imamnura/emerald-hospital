@@ -1,6 +1,6 @@
 import { formatDate, toLocalDateString } from '#lib/format/date.ts';
 
-export type CalendarDay = {
+type CalendarDay = {
 	date: string;
 	dayLabel: string;
 	dayNum: number;

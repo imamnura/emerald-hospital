@@ -16,7 +16,7 @@ describe('(patient) +layout', () => {
 		expect(screen.getByRole('navigation')).toBeInTheDocument();
 	});
 
-	it.each(['/login', '/register', '/doctors/abc/book', '/doctors/abc/book/confirm'])(
+	it.each(['/doctors/abc/book', '/doctors/abc/book/confirm'])(
 		'hides bottom nav on %s',
 		(path) => {
 			renderAt(path);

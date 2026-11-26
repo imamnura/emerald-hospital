@@ -35,7 +35,7 @@ export async function listTransactionsForUser(userId: string, limit = 10) {
 		.limit(limit);
 }
 
-export type AddCardResult =
+type AddCardResult =
 	| { ok: true; id: string }
 	| { ok: false; error: 'invalid' };
 

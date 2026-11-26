@@ -9,12 +9,13 @@
 	interface Props {
 		data: Row[];
 		valueLabel?: string;
-		maxRows?: number;
 	}
 
-	let { data, valueLabel = '', maxRows = 8 }: Props = $props();
+	const MAX_ROWS = 8;
 
-	const visible = $derived(data.slice(0, maxRows));
+	let { data, valueLabel = '' }: Props = $props();
+
+	const visible = $derived(data.slice(0, MAX_ROWS));
 	const max = $derived(
 		Math.max(
 			1,

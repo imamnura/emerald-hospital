@@ -6,8 +6,7 @@
 	let { children } = $props();
 
 	const hideNav = $derived(
-		['/login', '/register'].includes(page.url.pathname) ||
-			(page.url.pathname.includes('/doctors/') && page.url.pathname.includes('/book'))
+		page.url.pathname.includes('/doctors/') && page.url.pathname.includes('/book')
 	);
 </script>
 

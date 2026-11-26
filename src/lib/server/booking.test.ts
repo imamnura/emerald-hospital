@@ -16,9 +16,8 @@ import {
 	createBookingAtomic,
 	generateTimeSlots,
 	getAllSlotsForDoctorDate,
-	getAppointmentForUser,
 	getDayOfWeek,
-	getSlotAvailability,
+	getSlotAvailabilityForSchedule,
 	listAppointmentsForUser
 } from './booking.ts';
 
@@ -65,12 +64,7 @@ describe('time helpers', () => {
 	});
 });
 
-describe('getSlotAvailability', () => {
-	it('returns an empty map for an unknown schedule', async () => {
-		const res = await getSlotAvailability('00000000-0000-0000-0000-000000000000', MONDAY);
-		expect(res.size).toBe(0);
-	});
-
+describe('getSlotAvailabilityForSchedule', () => {
 	it('subtracts active bookings per slot, ignores cancelled ones, clamps at 0', async () => {
 		const { user, doctor, schedule } = await setup({ maxQuota: 2 });
 		const base = { userId: user.id, doctorId: doctor.id, scheduleId: schedule.id, appointmentDate: MONDAY };
@@ -82,7 +76,7 @@ describe('getSlotAvailability', () => {
 		// Different date must not count.
 		await makeBooking({ ...base, appointmentDate: '2030-01-14', appointmentTime: '10:30' });
 
-		const res = await getSlotAvailability(schedule.id, MONDAY);
+		const res = await getSlotAvailabilityForSchedule(schedule, MONDAY);
 		expect(Object.fromEntries(res)).toEqual({
 			'09:00': 1,
 			'09:30': 0,
@@ -370,10 +364,11 @@ describe('appointments', () => {
 		expect(await listAppointmentsForUser(u.id)).toEqual([]);
 	});
 
-	it('getAppointmentForUser enforces ownership', async () => {
+	it('listAppointmentsForUser only returns the caller\'s own bookings', async () => {
 		const { user, b1, foreign } = await seed();
-		expect((await getAppointmentForUser(user.id, b1.id))?.id).toBe(b1.id);
-		expect(await getAppointmentForUser(user.id, foreign.id)).toBeNull();
+		const ids = (await listAppointmentsForUser(user.id)).map((r) => r.id);
+		expect(ids).toContain(b1.id);
+		expect(ids).not.toContain(foreign.id);
 	});
 });
 
@@ -415,10 +410,6 @@ describe('cancelBookingForUser', () => {
 });
 
 describe('non-UUID id guards', () => {
-	it('getSlotAvailability returns an empty map', async () => {
-		expect((await getSlotAvailability('not-a-uuid', MONDAY)).size).toBe(0);
-	});
-
 	it.each([
 		['scheduleId', { scheduleId: 'not-a-uuid' }],
 		['doctorId', { doctorId: 'not-a-uuid' }]
@@ -434,11 +425,6 @@ describe('non-UUID id guards', () => {
 		});
 		expect(res).toEqual({ ok: false, error: 'invalid_schedule' });
 		expect(await db.select().from(bookings)).toHaveLength(0);
-	});
-
-	it('getAppointmentForUser returns null', async () => {
-		const u = await makeUser();
-		expect(await getAppointmentForUser(u.id, 'not-a-uuid')).toBeNull();
 	});
 
 	it('cancelBookingForUser returns not_found', async () => {

@@ -1,11 +1,14 @@
-import { hash, verify } from '@node-rs/argon2';
+import { verify } from '@node-rs/argon2';
 import type { Cookies } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import { db, type DbExecutor } from './db';
 import { sessions, users, type User } from './db/schema';
+import { hashPassword } from './password.ts';
 
-export type PublicUser = Omit<User, 'passwordHash' | 'googleId'>;
+export { hashPassword };
+
+type PublicUser = Omit<User, 'passwordHash' | 'googleId'>;
 
 /** Strip credentials so a user row is safe to serialize to the client. */
 export function toPublicUser(user: User): PublicUser {
@@ -21,19 +24,11 @@ export function publicUserOrNull(user: User | null): PublicUser | null {
 const SESSION_COOKIE = 'session_id';
 const SESSION_DAYS = 30;
 
-export async function hashPassword(password: string): Promise<string> {
-	return hash(password, {
-		memoryCost: 19456,
-		timeCost: 2,
-		outputLen: 32,
-		parallelism: 1
-	});
-}
-
 export async function verifyPassword(hashValue: string, password: string): Promise<boolean> {
 	return verify(hashValue, password);
 }
 
+/** @internal exported for tests */
 export async function createSession(userId: string): Promise<string> {
 	const sessionId = nanoid(32);
 	const expiresAt = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000);
@@ -41,6 +36,7 @@ export async function createSession(userId: string): Promise<string> {
 	return sessionId;
 }
 
+/** @internal exported for tests */
 export async function deleteSession(sessionId: string): Promise<void> {
 	await db.delete(sessions).where(eq(sessions.id, sessionId));
 }

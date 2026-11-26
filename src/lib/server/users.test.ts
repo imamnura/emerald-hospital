@@ -34,12 +34,16 @@ describe('setPassword', () => {
 
 describe('parseProfileForm', () => {
 	it('requires a name', () => {
-		expect(parseProfileForm(fd({}))).toEqual({ error: 'Name is required.' });
-		expect(parseProfileForm(fd({ name: '   ' }))).toEqual({ error: 'Name is required.' });
+		expect(parseProfileForm(fd({ gender: 'prefer_not' }))).toEqual({
+			error: 'Full name is required.'
+		});
+		expect(parseProfileForm(fd({ name: '   ', gender: 'prefer_not' }))).toEqual({
+			error: 'Full name is required.'
+		});
 	});
 
 	it('nulls out empty optional fields', () => {
-		expect(parseProfileForm(fd({ name: ' Ann ' }))).toEqual({
+		expect(parseProfileForm(fd({ name: ' Ann ', gender: 'prefer_not' }))).toEqual({
 			name: 'Ann',
 			phone: null,
 			imageUrl: null,
@@ -75,17 +79,26 @@ describe('parseProfileForm', () => {
 	});
 
 	it('rejects an invalid blood type', () => {
-		expect(parseProfileForm(fd({ name: 'A', bloodType: 'Z+' }))).toEqual({ error: 'Invalid blood type.' });
-	});
-
-	it('rejects a malformed date of birth', () => {
-		expect(parseProfileForm(fd({ name: 'A', dateOfBirth: '01/05/1990' }))).toEqual({
-			error: 'Invalid date of birth.'
+		expect(parseProfileForm(fd({ name: 'A', gender: 'male', bloodType: 'Z+' }))).toEqual({
+			error: 'Invalid blood type.'
 		});
 	});
 
-	it('drops an unknown gender', () => {
-		expect((parseProfileForm(fd({ name: 'A', gender: 'robot' })) as { gender: unknown }).gender).toBeNull();
+	it('rejects a malformed date of birth', () => {
+		expect(parseProfileForm(fd({ name: 'A', gender: 'male', dateOfBirth: 'nope' }))).toEqual({
+			error: 'Enter a valid date of birth (MM/DD/YYYY).'
+		});
+	});
+
+	it('accepts a MM/DD/YYYY date of birth and normalises it to ISO', () => {
+		const parsed = parseProfileForm(fd({ name: 'A', gender: 'male', dateOfBirth: '5/1/1990' }));
+		expect((parsed as { dateOfBirth: unknown }).dateOfBirth).toBe('1990-05-01');
+	});
+
+	it('rejects an unknown gender', () => {
+		expect(parseProfileForm(fd({ name: 'A', gender: 'robot' }))).toEqual({
+			error: 'Please select a valid gender.'
+		});
 	});
 });
 

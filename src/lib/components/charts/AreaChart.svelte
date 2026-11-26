@@ -5,16 +5,15 @@
 
 	interface Props {
 		data: Point[];
-		height?: number;
-		showXAxis?: boolean;
 	}
 
-	let { data, height = 220, showXAxis = true }: Props = $props();
+	let { data }: Props = $props();
 
 	const width = 800; // viewBox width — scales responsively
+	const height = 220;
 	const padX = 28;
 	const padTop = 16;
-	const padBottom = $derived(showXAxis ? 28 : 12);
+	const padBottom = 28;
 
 	const yMax = $derived(
 		Math.max(
@@ -176,19 +175,17 @@
 		{/if}
 
 		<!-- X-axis labels -->
-		{#if showXAxis}
-			{#each xLabels as l}
-				<text
-					x={l.x}
-					y={height - 8}
-					text-anchor="middle"
-					font-size="10"
-					fill="var(--color-outline)"
-				>
-					{l.label}
-				</text>
-			{/each}
-		{/if}
+		{#each xLabels as l}
+			<text
+				x={l.x}
+				y={height - 8}
+				text-anchor="middle"
+				font-size="10"
+				fill="var(--color-outline)"
+			>
+				{l.label}
+			</text>
+		{/each}
 
 		<!-- Hover marker + tooltip -->
 		{#if tooltip}

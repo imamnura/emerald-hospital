@@ -44,23 +44,21 @@ describe('SpecialtyAutocomplete', () => {
 		expect(screen.getByText('Specialty')).toHaveClass('sr-only');
 	});
 
-	it('uses inputId and class props', () => {
-		const input = setup({ inputId: 'spec', class: 'w-full', placeholder: 'Pick one' });
-		expect(input).toHaveAttribute('id', 'spec');
-		expect(input).toHaveAttribute('aria-controls', 'spec-suggestions');
+	it('uses class and placeholder props', () => {
+		const input = setup({ class: 'w-full', placeholder: 'Pick one' });
 		expect(input).toHaveAttribute('placeholder', 'Pick one');
 		expect(input.closest('label')).toHaveClass('w-full');
 	});
 
 	it('debounces fetch and shows suggestions', async () => {
-		const input = setup({ inputId: 'spec' });
+		const input = setup();
 		await fireEvent.input(input, { target: { value: ' car ' } });
 		expect(fetchMock).not.toHaveBeenCalled();
 		await vi.advanceTimersByTimeAsync(300);
 		expect(fetchMock).toHaveBeenCalledWith('/api/specialists?q=car&limit=8');
 		expect(fetchMock).toHaveBeenCalledTimes(1);
 		const listbox = await screen.findByRole('listbox');
-		expect(listbox).toHaveAttribute('id', 'spec-suggestions');
+		expect(listbox.getAttribute('id')).toMatch(/^specialty-suggestions-\d+$/);
 		expect(screen.getAllByRole('option')).toHaveLength(3);
 		expect(input).toHaveAttribute('aria-expanded', 'true');
 	});

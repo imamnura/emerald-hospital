@@ -19,8 +19,8 @@ export function resetStores() {
 	useSearchStore.setState({
 		query: '',
 		results: [],
-		filters: { ...defaultSearchFilters, specialties: [], priceRange: [50, 250] },
-		draftFilters: { ...defaultSearchFilters, specialties: [], priceRange: [50, 250] },
+		filters: { ...defaultSearchFilters, specialties: [] },
+		draftFilters: { ...defaultSearchFilters, specialties: [] },
 		isFilterOpen: false,
 		bookmarkedIds: []
 	});

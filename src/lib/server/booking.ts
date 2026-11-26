@@ -42,7 +42,7 @@ type ScheduleSlim = {
 /** The schedule columns slot availability is computed from. */
 type ScheduleQuota = Pick<ScheduleSlim, 'id' | 'startTime' | 'endTime' | 'maxQuota'>;
 
-export type SlotWithQuota = {
+type SlotWithQuota = {
 	time: string;
 	quota: number;
 	scheduleId: string;
@@ -100,21 +100,6 @@ export async function getSlotAvailabilityForSchedule(
 	return availabilityFrom(schedule, booked.get(schedule.id));
 }
 
-export async function getSlotAvailability(
-	scheduleId: string,
-	appointmentDate: string
-): Promise<Map<string, number>> {
-	if (!isUuid(scheduleId)) return new Map();
-	const [schedule] = await db
-		.select()
-		.from(doctorSchedules)
-		.where(eq(doctorSchedules.id, scheduleId))
-		.limit(1);
-
-	if (!schedule) return new Map();
-	return getSlotAvailabilityForSchedule(schedule, appointmentDate);
-}
-
 /**
  * Merged slots of every schedule on the weekday of `appointmentDate`, keeping the
  * schedule with the most remaining quota per time. Schedule rows are re-read from the
@@ -154,7 +139,7 @@ export async function getAllSlotsForDoctorDate(
 /** The `FOR UPDATE`-locked schedule row read by `createBookingAtomic`. */
 type LockedSchedule = { dayOfWeek: number; maxQuota: number };
 
-export type CreateBookingResult =
+type CreateBookingResult =
 	| { ok: true; id: string }
 	| { ok: false; error: 'invalid_schedule' | 'slot_full' };
 
@@ -243,7 +228,7 @@ function appointmentQuery() {
 		.innerJoin(hospitals, eq(doctors.hospitalId, hospitals.id));
 }
 
-export type AppointmentRow = {
+type AppointmentRow = {
 	id: string;
 	doctorId: string;
 	appointmentDate: string;
@@ -263,18 +248,7 @@ export async function listAppointmentsForUser(userId: string): Promise<Appointme
 		.orderBy(desc(bookings.appointmentDate), desc(bookings.appointmentTime));
 }
 
-export async function getAppointmentForUser(
-	userId: string,
-	bookingId: string
-): Promise<AppointmentRow | null> {
-	if (!isUuid(bookingId)) return null;
-	const [row] = await appointmentQuery()
-		.where(and(eq(bookings.id, bookingId), eq(bookings.userId, userId)))
-		.limit(1);
-	return row ?? null;
-}
-
-export type CancelResult =
+type CancelResult =
 	| { ok: true }
 	| { ok: false; error: 'not_found' | 'already_cancelled' | 'already_completed' };
 

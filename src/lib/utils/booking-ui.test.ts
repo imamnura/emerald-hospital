@@ -3,9 +3,10 @@ import {
 	generateCalendarDays,
 	groupSlotsByPeriod,
 	pickDefaultDate,
-	type CalendarDay,
 	type TimeSlotUi
 } from '#lib/utils/booking-ui.ts';
+
+type CalendarDay = ReturnType<typeof generateCalendarDays>[number];
 
 describe('generateCalendarDays', () => {
 	afterEach(() => {

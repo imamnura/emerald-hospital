@@ -8,16 +8,17 @@
 
 	interface Props {
 		data: Segment[];
-		size?: number;
-		thickness?: number;
 		centerLabel?: string;
 	}
 
-	let { data, size = 180, thickness = 22, centerLabel = 'Total' }: Props = $props();
+	const size = 180;
+	const thickness = 22;
 
-	const cx = $derived(size / 2);
-	const cy = $derived(size / 2);
-	const r = $derived((size - thickness) / 2);
+	let { data, centerLabel = 'Total' }: Props = $props();
+
+	const cx = size / 2;
+	const cy = size / 2;
+	const r = (size - thickness) / 2;
 	const total = $derived(data.reduce((s, d) => s + d.value, 0));
 
 	function polar(angle: number, radius: number): [number, number] {

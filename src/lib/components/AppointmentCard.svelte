@@ -3,10 +3,9 @@
 	import { getInitials } from '#lib/format/text.ts';
 	import { Calendar, Check, Clock, MapPin } from '@lucide/svelte';
 	import {
-		appointmentStatusLabel,
-		appointmentStatusStyles,
 		formatAppointmentListDate
 	} from '#lib/utils/appointments.ts';
+	import { getStatusClass, getStatusLabel } from '#lib/domain/booking-status.ts';
 	import { doctorRoleLabel } from '#lib/domain/specialist.ts';
 	import { cn } from '#lib/utils.ts';
 
@@ -68,7 +67,7 @@
 				<span
 					class={cn(
 						'inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold',
-						appointmentStatusStyles(status)
+						getStatusClass('appointment', status)
 					)}
 				>
 					{#if status === 'confirmed'}
@@ -76,7 +75,7 @@
 					{:else if status === 'pending'}
 						<Clock size={12} strokeWidth={2.5} />
 					{/if}
-					{appointmentStatusLabel(status)}
+					{getStatusLabel(status)}
 				</span>
 			</div>
 		</div>

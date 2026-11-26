@@ -1,10 +1,11 @@
 import { eq } from 'drizzle-orm';
 import { hashPassword } from './auth';
 import { db, type DbExecutor } from './db';
+import { parseIsoDate } from '#lib/format/date.ts';
 import { formOpt, formStr, ISO_DATE_RE } from './http/forms.ts';
 import { BLOOD_TYPES, GENDERS, users, type User } from './db/schema';
 
-export type ProfileUpdate = {
+type ProfileUpdate = {
 	name?: string;
 	phone?: string | null;
 	imageUrl?: string | null;
@@ -17,40 +18,36 @@ export type ProfileUpdate = {
 const ALLOWED_BLOOD: ReadonlySet<string> = new Set(BLOOD_TYPES);
 const ALLOWED_GENDER: ReadonlySet<string> = new Set(GENDERS);
 
-/** Per-caller overrides; the defaults are the lenient rules used by `parseProfileForm` on its own. */
-export type ProfileFormRules = {
-	nameError?: string;
-	/** Normalises a non-empty date of birth to `YYYY-MM-DD`, or `null` when invalid. */
-	parseDob?: (raw: string) => string | null;
-	dobError?: string;
-	/** When set, gender is mandatory: `prefer_not` maps to `null`, anything else unknown fails with this message. */
-	genderError?: string;
-};
+/** Parse MM/DD/YYYY or YYYY-MM-DD into ISO YYYY-MM-DD */
+function parseDobInput(value: string): string | null {
+	const trimmed = value.trim();
+	if (!trimmed) return null;
+	if (ISO_DATE_RE.test(trimmed)) return trimmed;
+	const m = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+	if (!m) return null;
+	const [, mm, dd, yyyy] = m;
+	const iso = `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`;
+	const test = parseIsoDate(iso);
+	return Number.isNaN(test.getTime()) ? null : iso;
+}
 
-export function parseProfileForm(
-	fd: FormData,
-	rules: ProfileFormRules = {}
-): ProfileUpdate | { error: string } {
+export function parseProfileForm(fd: FormData): ProfileUpdate | { error: string } {
 	const name = formStr(fd, 'name');
-	if (!name) return { error: rules.nameError ?? 'Name is required.' };
+	if (!name) return { error: 'Full name is required.' };
 	const phone = formOpt(fd, 'phone');
 	const imageUrl = formOpt(fd, 'imageUrl');
 
 	const dobRaw = formOpt(fd, 'dateOfBirth');
-	const parseDob = rules.parseDob ?? ((raw: string) => (ISO_DATE_RE.test(raw) ? raw : null));
-	const dateOfBirth = dobRaw ? parseDob(dobRaw) : null;
-	if (dobRaw && !dateOfBirth) return { error: rules.dobError ?? 'Invalid date of birth.' };
+	const dateOfBirth = dobRaw ? parseDobInput(dobRaw) : null;
+	if (dobRaw && !dateOfBirth) return { error: 'Enter a valid date of birth (MM/DD/YYYY).' };
 
+	// Gender is mandatory: `prefer_not` maps to null, anything else unknown fails.
 	const genderRaw = formStr(fd, 'gender');
-	let gender: ProfileUpdate['gender'] = null;
-	if (rules.genderError !== undefined) {
-		if (genderRaw !== 'prefer_not' && !ALLOWED_GENDER.has(genderRaw)) {
-			return { error: rules.genderError };
-		}
-		if (genderRaw !== 'prefer_not') gender = genderRaw as NonNullable<ProfileUpdate['gender']>;
-	} else if (ALLOWED_GENDER.has(genderRaw)) {
-		gender = genderRaw as NonNullable<ProfileUpdate['gender']>;
+	if (genderRaw !== 'prefer_not' && !ALLOWED_GENDER.has(genderRaw)) {
+		return { error: 'Please select a valid gender.' };
 	}
+	const gender =
+		genderRaw === 'prefer_not' ? null : (genderRaw as NonNullable<ProfileUpdate['gender']>);
 
 	const bloodRaw = formStr(fd, 'bloodType');
 	const bloodType = bloodRaw ? (ALLOWED_BLOOD.has(bloodRaw) ? bloodRaw : null) : null;

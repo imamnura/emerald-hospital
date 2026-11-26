@@ -3,8 +3,10 @@ import type { SelectedFields } from 'drizzle-orm/pg-core';
 import { db } from './db';
 import { bookings, doctors, hospitals, specialists, users } from './db/schema';
 
+/** @internal exported for tests */
 export type DateRangePreset = '7d' | '30d' | '90d' | '365d' | 'all';
 
+/** @internal exported for tests */
 export type AnalyticsFilters = {
 	range: DateRangePreset;
 	hospitalId: string | null;
@@ -59,7 +61,7 @@ function whereForFilters(filters: AnalyticsFilters): SQL {
 	return and(...conditions) as SQL;
 }
 
-export type Totals = {
+type Totals = {
 	hospitals: number;
 	doctors: number;
 	bookings: number;
@@ -108,7 +110,7 @@ export async function previousTotals(filters: AnalyticsFilters): Promise<{ booki
 	return bookingAndPendingCounts(and(...conditions));
 }
 
-export type TimeSeriesPoint = { date: string; total: number };
+type TimeSeriesPoint = { date: string; total: number };
 
 /** Bookings per day across the active range (fills missing days with 0) */
 export async function bookingsOverTime(filters: AnalyticsFilters): Promise<TimeSeriesPoint[]> {
@@ -139,7 +141,7 @@ export async function bookingsOverTime(filters: AnalyticsFilters): Promise<TimeS
 	return out;
 }
 
-export type StatusSegment = {
+type StatusSegment = {
 	status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
 	count: number;
 };
@@ -163,7 +165,7 @@ export async function statusBreakdown(filters: AnalyticsFilters): Promise<Status
 	}));
 }
 
-export type SpecialtyRow = { specialty: string; total: number };
+type SpecialtyRow = { specialty: string; total: number };
 
 export async function bookingsBySpecialty(filters: AnalyticsFilters): Promise<SpecialtyRow[]> {
 	const where = whereForFilters(filters);
@@ -175,7 +177,7 @@ export async function bookingsBySpecialty(filters: AnalyticsFilters): Promise<Sp
 	return rows.map((r) => ({ specialty: r.specialty, total: Number(r.value) }));
 }
 
-export type TopDoctorRow = {
+type TopDoctorRow = {
 	id: string;
 	name: string;
 	specialty: string;
@@ -203,7 +205,7 @@ export async function topDoctors(filters: AnalyticsFilters, limit = 5): Promise<
 	}));
 }
 
-export type RecentBookingRow = {
+type RecentBookingRow = {
 	id: string;
 	patient: string;
 	doctor: string;

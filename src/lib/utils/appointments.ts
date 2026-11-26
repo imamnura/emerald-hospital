@@ -1,4 +1,3 @@
-import { getStatusClass, getStatusLabel } from '#lib/domain/booking-status.ts';
 import { formatDate, formatTime12h, toLocalDateString } from '#lib/format/date.ts';
 
 export type AppointmentTab = 'upcoming' | 'past';
@@ -16,12 +15,4 @@ export function isUpcomingAppointment(
 	const todayStr = toLocalDateString(today);
 	if (status === 'cancelled' || status === 'completed') return false;
 	return appointmentDate >= todayStr;
-}
-
-export function appointmentStatusLabel(status: string): string {
-	return getStatusLabel(status);
-}
-
-export function appointmentStatusStyles(status: string): string {
-	return getStatusClass('appointment', status);
 }

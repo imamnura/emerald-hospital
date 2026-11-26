@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import {
-	appointmentStatusLabel,
-	appointmentStatusStyles,
 	formatAppointmentListDate,
 	isUpcomingAppointment
 } from '#lib/utils/appointments.ts';
@@ -40,30 +38,5 @@ describe('isUpcomingAppointment', () => {
 	it('defaults today to now', () => {
 		expect(isUpcomingAppointment('2999-01-01', 'pending')).toBe(true);
 		expect(isUpcomingAppointment('2000-01-01', 'pending')).toBe(false);
-	});
-});
-
-describe('appointmentStatusLabel', () => {
-	it.each([
-		['pending', 'Pending'],
-		['confirmed', 'Confirmed'],
-		['cancelled', 'Cancelled'],
-		['completed', 'Completed'],
-		['weird', 'weird']
-	])('%s -> %s', (status, label) => {
-		expect(appointmentStatusLabel(status)).toBe(label);
-	});
-});
-
-describe('appointmentStatusStyles', () => {
-	it('maps known statuses', () => {
-		expect(appointmentStatusStyles('cancelled')).toBe('bg-red-50 text-error');
-		expect(appointmentStatusStyles('completed')).toBe('bg-surface-container text-outline');
-		expect(appointmentStatusStyles('pending')).toBe('bg-surface-container text-on-surface-variant');
-		expect(appointmentStatusStyles('confirmed')).toBe('bg-surface-container text-on-surface-variant');
-	});
-
-	it('falls back for unknown statuses', () => {
-		expect(appointmentStatusStyles('unknown')).toBe('bg-surface-container text-on-surface-variant');
 	});
 });

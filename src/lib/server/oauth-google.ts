@@ -11,7 +11,7 @@ export const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 /** @internal exported for tests */
 export const GOOGLE_USERINFO_URL = 'https://openidconnect.googleapis.com/v1/userinfo';
 
-export type GoogleConfig = {
+type GoogleConfig = {
 	clientId: string;
 	clientSecret: string;
 };
@@ -61,7 +61,7 @@ export function buildAuthorizeUrl(args: {
 	return `${GOOGLE_AUTHORIZE_URL}?${params.toString()}`;
 }
 
-export type GoogleTokens = {
+type GoogleTokens = {
 	accessToken: string;
 	idToken: string | null;
 	expiresIn: number;
@@ -109,6 +109,7 @@ export async function exchangeCodeForTokens(args: {
 	};
 }
 
+/** @internal exported for tests */
 export type GoogleUserInfo = {
 	sub: string;
 	email: string;

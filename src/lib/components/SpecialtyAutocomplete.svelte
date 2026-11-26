@@ -11,20 +11,16 @@
 		value: string;
 		placeholder?: string;
 		class?: string;
-		inputId?: string;
 	}
 
 	let {
 		value = $bindable(''),
 		placeholder = 'Specialty',
-		class: className = '',
-		inputId
+		class: className = ''
 	}: Props = $props();
 
 	const uid = nextId++;
-	const listboxId = $derived(
-		inputId ? `${inputId}-suggestions` : `specialty-suggestions-${uid}`
-	);
+	const listboxId = `specialty-suggestions-${uid}`;
 
 	let suggestions = $state<SpecialistSuggestion[]>([]);
 	let suggestionsOpen = $state(false);
@@ -101,7 +97,6 @@
 		class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-outline"
 	/>
 	<input
-		id={inputId}
 		type="text"
 		bind:value
 		oninput={onInput}

@@ -11,7 +11,7 @@ export const PREF_KEYS = {
 
 export type AppLanguage = 'en' | 'id';
 
-export type UserPreferences = {
+type UserPreferences = {
 	pushNotifications: boolean;
 	emailNotifications: boolean;
 	language: AppLanguage;

@@ -29,16 +29,4 @@ describe('SettingsToggle', () => {
 		expect(track).not.toHaveClass('opacity-60');
 		expect(track.querySelector('[aria-hidden="true"]')).toHaveClass('translate-x-5');
 	});
-
-	it('renders unchecked disabled state', () => {
-		const { container } = render(SettingsToggle, {
-			checked: false,
-			disabled: true,
-			ariaLabel: 'Email'
-		});
-		const track = container.querySelector('[role="presentation"]')!;
-		expect(track).toHaveClass('opacity-60');
-		expect(track).not.toHaveClass('bg-primary');
-		expect(track.querySelector('[aria-hidden="true"]')).toHaveClass('translate-x-0');
-	});
 });

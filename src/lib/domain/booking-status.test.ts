@@ -45,4 +45,25 @@ describe('booking-status', () => {
 		);
 		expect(getStatusClass('dot', 'unknown')).toBe('bg-outline');
 	});
+
+	it.each([
+		['pending', 'Pending'],
+		['confirmed', 'Confirmed'],
+		['cancelled', 'Cancelled'],
+		['completed', 'Completed'],
+		['weird', 'weird']
+	])('getStatusLabel %s -> %s', (status, label) => {
+		expect(getStatusLabel(status)).toBe(label);
+	});
+
+	it('getStatusClass appointment maps known statuses and falls back', () => {
+		expect(getStatusClass('appointment', 'cancelled')).toBe('bg-red-50 text-error');
+		expect(getStatusClass('appointment', 'completed')).toBe('bg-surface-container text-outline');
+		expect(getStatusClass('appointment', 'pending')).toBe(
+			'bg-surface-container text-on-surface-variant'
+		);
+		expect(getStatusClass('appointment', 'confirmed')).toBe(
+			'bg-surface-container text-on-surface-variant'
+		);
+	});
 });

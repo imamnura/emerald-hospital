@@ -14,8 +14,9 @@ export const STATUS_LABEL: Record<BookingStatus, string> = {
 	completed: 'Completed'
 };
 
-export type StatusClassVariant = 'badge' | 'pill' | 'dot' | 'appointment';
+type StatusClassVariant = 'badge' | 'pill' | 'dot' | 'appointment';
 
+/** @internal exported for tests */
 export const STATUS_CLASS: Record<StatusClassVariant, Record<BookingStatus, string>> = {
 	badge: {
 		pending: 'bg-amber-100 text-amber-800',

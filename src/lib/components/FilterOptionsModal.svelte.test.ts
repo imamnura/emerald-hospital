@@ -4,8 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
 	defaultSearchFilters,
 	useSearchStore,
-	type DoctorSearchResult,
-	type SearchFilters
+	type DoctorSearchResult
 } from '#lib/stores/search.ts';
 import FilterOptionsModal from './FilterOptionsModal.svelte';
 
@@ -62,6 +61,8 @@ const countBadge = () =>
 	screen.getByRole('button', { name: /Show Results/ }).querySelector('span')!.textContent?.trim();
 
 /** Seed the store and render. The component re-renders on later store changes. */
+type SearchFilters = typeof defaultSearchFilters;
+
 function setup(opts: { draft?: Partial<SearchFilters>; open?: boolean; query?: string } = {}) {
 	useSearchStore.setState(
 		{

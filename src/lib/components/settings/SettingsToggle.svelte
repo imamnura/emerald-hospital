@@ -3,19 +3,17 @@
 
 	interface Props {
 		checked: boolean;
-		disabled?: boolean;
 		ariaLabel: string;
 	}
 
-	let { checked, disabled = false, ariaLabel }: Props = $props();
+	let { checked, ariaLabel }: Props = $props();
 </script>
 
 <span
 	role="presentation"
 	class={cn(
 		'relative inline-flex h-7 w-12 shrink-0 rounded-full transition-colors duration-200',
-		checked ? 'bg-primary' : 'bg-outline-variant/50',
-		disabled && 'opacity-60'
+		checked ? 'bg-primary' : 'bg-outline-variant/50'
 	)}
 >
 	<span
