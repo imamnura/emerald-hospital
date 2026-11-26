@@ -1,6 +1,6 @@
 import { eq, sql } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { verifyPassword } from '#lib/server/auth/session.ts';
+import { verifyPassword } from '#lib/server/auth/password.ts';
 import { db } from '#lib/server/db/index.ts';
 import { passwordResetTokens, sessions, users } from '#lib/server/db/schema.ts';
 import { createPasswordResetToken } from '#lib/server/auth/password-reset.ts';

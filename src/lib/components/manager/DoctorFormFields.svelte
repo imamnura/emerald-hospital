@@ -1,4 +1,5 @@
 <script lang="ts">
+import { DEFAULT_RATING } from '#lib/domain/doctor.ts';
 	import { MANAGER_INPUT_CLASS } from '#lib/components/manager/styles.ts';
 
 	type Option = { id: string; name: string };
@@ -71,7 +72,7 @@
 			step="0.1"
 			min="0"
 			max="5"
-			value={editing?.rating ?? '4.5'}
+			value={editing?.rating ?? DEFAULT_RATING}
 			class={MANAGER_INPUT_CLASS}
 		/>
 	</label>

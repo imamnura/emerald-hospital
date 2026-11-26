@@ -1,4 +1,5 @@
 <script lang="ts">
+import { DEFAULT_RATING } from '#lib/domain/doctor.ts';
 	import { goto } from '$app/navigation';
 	import DoctorSummary from '#lib/components/doctor/DoctorSummary.svelte';
 	import Header from '#lib/components/layout/Header.svelte';
@@ -80,7 +81,7 @@
 		<h2 class="mb-4 font-heading text-base font-bold text-on-surface">Recommended Doctors</h2>
 		<div class="flex flex-col gap-3">
 			{#each data.doctors as doctor (doctor.id)}
-				<DoctorSummary doctor={{ ...doctor, rating: doctor.rating ?? '4.5' }} variant="compact" />
+				<DoctorSummary doctor={{ ...doctor, rating: doctor.rating ?? DEFAULT_RATING }} variant="compact" />
 			{/each}
 		</div>
 	</section>

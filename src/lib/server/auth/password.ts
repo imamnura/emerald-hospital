@@ -1,4 +1,4 @@
-import { hash } from '@node-rs/argon2';
+import { hash, verify } from '@node-rs/argon2';
 
 /**
  * Argon2 hashing with the app's cost settings. Kept free of db/env imports so that
@@ -11,4 +11,8 @@ export async function hashPassword(password: string): Promise<string> {
 		outputLen: 32,
 		parallelism: 1
 	});
+}
+
+export async function verifyPassword(hashValue: string, password: string): Promise<boolean> {
+	return verify(hashValue, password);
 }

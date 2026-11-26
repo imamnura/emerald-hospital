@@ -1,6 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { setSessionCookie, verifyPassword } from '#lib/server/auth/session.ts';
+import { setSessionCookie } from '#lib/server/auth/session.ts';
+import { verifyPassword } from '#lib/server/auth/password.ts';
 import { homeFor, sanitizeRedirect } from '#lib/server/auth/redirect.ts';
 import { formOpt, formStr } from '#lib/server/http/forms.ts';
 import { isConfigured as isGoogleConfigured } from '#lib/server/auth/oauth-google.ts';

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { makeUser } from '#test/factories.ts';
 import { reset } from '#test/helpers/route.ts';
-import { verifyPassword } from '../auth/session.ts';
+import { verifyPassword } from '#lib/server/auth/password.ts';
 import { getUserByEmail, getUserById, parseProfileForm, setPassword, updateProfile } from './users.ts';
 
 beforeEach(() => reset());
@@ -87,6 +87,14 @@ describe('parseProfileForm', () => {
 		expect(parseProfileForm(fd({ name: 'A', gender: 'male', dateOfBirth: 'nope' }))).toEqual({
 			error: 'Enter a valid date of birth (MM/DD/YYYY).'
 		});
+	});
+
+	it('rejects an impossible calendar date of birth', () => {
+		for (const dateOfBirth of ['02/31/1990', '1990-02-31']) {
+			expect(parseProfileForm(fd({ name: 'A', gender: 'male', dateOfBirth }))).toEqual({
+				error: 'Enter a valid date of birth (MM/DD/YYYY).'
+			});
+		}
 	});
 
 	it('accepts a MM/DD/YYYY date of birth and normalises it to ISO', () => {

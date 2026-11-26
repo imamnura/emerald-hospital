@@ -7,10 +7,11 @@ afterEach(() => vi.restoreAllMocks());
 
 describe('DeleteConfirm', () => {
 	it('submits the target id', async () => {
+		let submittedId: FormDataEntryValue | null = null;
 		const submit = vi
 			.spyOn(HTMLFormElement.prototype, 'requestSubmit')
 			.mockImplementation(function (this: HTMLFormElement) {
-				expect(new FormData(this).get('id')).toBe('abc');
+				submittedId = new FormData(this).get('id');
 			});
 		// `target` is also a Svelte mount option, so props go under `props`.
 		render(DeleteConfirm, {
@@ -18,6 +19,7 @@ describe('DeleteConfirm', () => {
 		});
 		await userEvent.click(screen.getByRole('button', { name: /delete/i }));
 		expect(submit).toHaveBeenCalledOnce();
+		expect(submittedId).toBe('abc');
 	});
 
 	it('posts to the given action', () => {

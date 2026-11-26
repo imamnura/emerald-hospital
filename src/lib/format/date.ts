@@ -27,10 +27,13 @@ const PRESETS: Record<DatePreset, { locale: string; opts: Intl.DateTimeFormatOpt
 	weekdayShort: { locale: 'en-US', opts: { weekday: 'short' } }
 };
 
+/** Matches a `YYYY-MM-DD` date string. */
+export const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
 /** `YYYY-MM-DD` is anchored at local noon so the calendar day survives any timezone. */
 export function parseIsoDate(value: string | Date): Date {
 	if (typeof value !== 'string') return value;
-	return /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(value + 'T12:00:00') : new Date(value);
+	return ISO_DATE_RE.test(value) ? new Date(value + 'T12:00:00') : new Date(value);
 }
 
 export function formatDate(value: string | Date, preset: DatePreset): string {

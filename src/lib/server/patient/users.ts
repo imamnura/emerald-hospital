@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm';
-import { hashPassword } from '#lib/server/auth/session.ts';
+import { hashPassword } from '#lib/server/auth/password.ts';
 import { db, type DbExecutor } from '#lib/server/db/index.ts';
-import { parseIsoDate } from '#lib/format/date.ts';
-import { formOpt, formStr, ISO_DATE_RE } from '#lib/server/http/forms.ts';
+import { ISO_DATE_RE, parseIsoDate, toLocalDateString } from '#lib/format/date.ts';
+import { formOpt, formStr } from '#lib/server/http/forms.ts';
 import { BLOOD_TYPES, GENDERS, users, type User } from '#lib/server/db/schema.ts';
 
 type ProfileUpdate = {
@@ -22,13 +22,16 @@ const ALLOWED_GENDER: ReadonlySet<string> = new Set(GENDERS);
 function parseDobInput(value: string): string | null {
 	const trimmed = value.trim();
 	if (!trimmed) return null;
-	if (ISO_DATE_RE.test(trimmed)) return trimmed;
-	const m = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-	if (!m) return null;
-	const [, mm, dd, yyyy] = m;
-	const iso = `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`;
+	let iso = trimmed;
+	if (!ISO_DATE_RE.test(trimmed)) {
+		const m = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+		if (!m) return null;
+		const [, mm, dd, yyyy] = m;
+		iso = `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`;
+	}
 	const test = parseIsoDate(iso);
-	return Number.isNaN(test.getTime()) ? null : iso;
+	// Impossible dates (02/31/1990) roll over in Date; require a round-trip.
+	return Number.isNaN(test.getTime()) || toLocalDateString(test) !== iso ? null : iso;
 }
 
 export function parseProfileForm(fd: FormData): ProfileUpdate | { error: string } {

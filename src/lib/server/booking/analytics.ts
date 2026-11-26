@@ -1,6 +1,8 @@
 import { and, count, desc, eq, gte, lte, sql, type SQL } from 'drizzle-orm';
 import type { SelectedFields } from 'drizzle-orm/pg-core';
 import { db } from '#lib/server/db/index.ts';
+import { uuidOrUndefined } from '#lib/server/http/list-query.ts';
+import type { BookingStatus } from '#lib/domain/booking-status.ts';
 import { bookings, doctors, hospitals, specialists, users } from '#lib/server/db/schema.ts';
 
 /** @internal exported for tests */
@@ -20,8 +22,8 @@ export function parseFilters(searchParams: URLSearchParams): AnalyticsFilters {
 	) as DateRangePreset;
 	return {
 		range,
-		hospitalId: searchParams.get('hospitalId') || null,
-		specialistId: searchParams.get('specialistId') || null
+		hospitalId: uuidOrUndefined(searchParams.get('hospitalId')) ?? null,
+		specialistId: uuidOrUndefined(searchParams.get('specialistId')) ?? null
 	};
 }
 
@@ -142,7 +144,7 @@ export async function bookingsOverTime(filters: AnalyticsFilters): Promise<TimeS
 }
 
 type StatusSegment = {
-	status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+	status: BookingStatus;
 	count: number;
 };
 
@@ -213,7 +215,7 @@ type RecentBookingRow = {
 	hospital: string;
 	date: string;
 	time: string;
-	status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+	status: BookingStatus;
 };
 
 const bookingRowSelect = {

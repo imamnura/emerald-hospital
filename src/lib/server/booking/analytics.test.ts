@@ -98,10 +98,19 @@ describe('parseFilters', () => {
 		expect(parseFilters(new URLSearchParams({ range: 'bogus' })).range).toBe('30d');
 	});
 
+	it('treats non-UUID hospital and specialist ids as null', () => {
+		expect(parseFilters(new URLSearchParams('hospitalId=abc&specialistId=1'))).toMatchObject({
+			hospitalId: null,
+			specialistId: null
+		});
+	});
+
 	it('reads hospital and specialist ids, treating empty as null', () => {
-		expect(parseFilters(new URLSearchParams('hospitalId=h&specialistId=s'))).toMatchObject({
-			hospitalId: 'h',
-			specialistId: 's'
+		const h = '00000000-0000-4000-8000-000000000001';
+		const s = '00000000-0000-4000-8000-000000000002';
+		expect(parseFilters(new URLSearchParams(`hospitalId=${h}&specialistId=${s}`))).toMatchObject({
+			hospitalId: h,
+			specialistId: s
 		});
 		expect(parseFilters(new URLSearchParams('hospitalId=&specialistId='))).toMatchObject({
 			hospitalId: null,

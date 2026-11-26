@@ -1,6 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { deleteSessionsByUserId, hashPassword } from '#lib/server/auth/session.ts';
+import { deleteSessionsByUserId } from '#lib/server/auth/session.ts';
+import { hashPassword } from '#lib/server/auth/password.ts';
 import { db } from '#lib/server/db/index.ts';
 import { consumePasswordResetToken, findValidPasswordResetToken } from '#lib/server/auth/password-reset.ts';
 import { setPasswordHash } from '#lib/server/patient/users.ts';

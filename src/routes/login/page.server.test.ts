@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { hashPassword } from '#lib/server/auth/session.ts';
+import { hashPassword } from '#lib/server/auth/password.ts';
 import { db } from '#lib/server/db/index.ts';
 import { sessions } from '#lib/server/db/schema.ts';
 import { makeUser } from '#test/factories.ts';

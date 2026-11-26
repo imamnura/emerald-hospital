@@ -11,12 +11,11 @@ import {
 	deleteSession,
 	deleteSessionsByUserId,
 	endSession,
-	hashPassword,
 	setSessionCookie,
 	toPublicUser,
-	validateSession,
-	verifyPassword
+	validateSession
 } from './session.ts';
+import { hashPassword, verifyPassword } from './password.ts';
 
 beforeEach(() => reset());
 

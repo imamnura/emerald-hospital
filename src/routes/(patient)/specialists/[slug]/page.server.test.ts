@@ -19,13 +19,10 @@ describe('specialist detail load', () => {
 		await makeDoctor({ name: 'Inactive', rating: '5.0', specialistId: spec.id, isActive: false });
 		await makeDoctor({ name: 'Elsewhere', specialistId: other.id });
 
-		const user = { id: 'u' } as never;
-		const data = (await load(ev({ user, params: { slug: 'cardiology' } }))) as {
+		const data = (await load(ev({ params: { slug: 'cardiology' } }))) as {
 			specialist: { id: string };
 			doctors: Record<string, unknown>[];
-			user: unknown;
 		};
-		expect(data.user).toEqual(user);
 		expect(data.specialist.id).toBe(spec.id);
 		expect(data.doctors.map((d) => d.name)).toEqual(['High', 'Mid', 'Low']);
 		expect(Object.keys(data.doctors[0]).sort()).toEqual(

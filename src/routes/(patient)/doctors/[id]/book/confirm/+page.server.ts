@@ -3,14 +3,13 @@ import { and, eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { db } from '#lib/server/db/index.ts';
 import { doctorSchedules } from '#lib/server/db/schema.ts';
-import { publicUserOrNull } from '#lib/server/auth/session.ts';
 import { createBookingAtomic, getDayOfWeek, getSlotAvailabilityForSchedule } from '#lib/server/booking/booking.ts';
 import { isUuid } from '#lib/server/db/errors.ts';
 import { getDoctorDetail } from '#lib/server/catalog/doctors.ts';
 import { formatTime12h } from '#lib/format/date.ts';
 import { doctorRoleLabel } from '#lib/domain/specialist.ts';
 
-export const load: PageServerLoad = async ({ params, url, locals }) => {
+export const load: PageServerLoad = async ({ params, url }) => {
 	const appointmentDate = url.searchParams.get('date') ?? '';
 	const appointmentTime = url.searchParams.get('time') ?? '';
 	const scheduleId = url.searchParams.get('scheduleId') ?? '';
@@ -39,7 +38,6 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 	}
 
 	return {
-		user: publicUserOrNull(locals.user),
 		appointment: {
 			date: appointmentDate,
 			time: appointmentTime,

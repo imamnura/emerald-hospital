@@ -1,6 +1,5 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { publicUserOrNull } from '#lib/server/auth/session.ts';
 import { listSchedulesForDoctor } from '#lib/server/catalog/catalog.ts';
 import { getDoctorDetail } from '#lib/server/catalog/doctors.ts';
 import { getAllSlotsForDoctorDate } from '#lib/server/booking/booking.ts';
@@ -12,7 +11,7 @@ import {
 } from '#lib/utils/booking-ui.ts';
 import { doctorRoleLabel } from '#lib/domain/specialist.ts';
 
-export const load: PageServerLoad = async ({ params, url, locals }) => {
+export const load: PageServerLoad = async ({ params, url }) => {
 	const [doctor, schedules] = await Promise.all([
 		getDoctorDetail(params.id),
 		listSchedulesForDoctor(params.id)
@@ -41,7 +40,6 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 	}
 
 	return {
-		user: publicUserOrNull(locals.user),
 		doctor: {
 			...doctor,
 			role: doctorRoleLabel(doctor.specialty, doctor.rating)

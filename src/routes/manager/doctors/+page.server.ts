@@ -9,6 +9,7 @@ import { listHospitals, listSpecialists } from '#lib/server/catalog/catalog.ts';
 import { isUuid } from '#lib/server/db/errors.ts';
 import { formOpt, formStr, readEntityId, withFkGuard } from '#lib/server/http/forms.ts';
 import { paginate, searchWhere, uuidOrUndefined } from '#lib/server/http/list-query.ts';
+import { DEFAULT_RATING } from '#lib/domain/doctor.ts';
 
 const REF_ERROR = 'Selected hospital or specialty no longer exists.' as const;
 
@@ -17,7 +18,7 @@ function parseDoctorForm(fd: FormData) {
 	const hospitalId = formStr(fd, 'hospitalId');
 	const specialistId = formStr(fd, 'specialistId');
 	const imageUrl = formOpt(fd, 'imageUrl');
-	const ratingRaw = fd.get('rating') === null ? '4.5' : formStr(fd, 'rating');
+	const ratingRaw = fd.get('rating') === null ? DEFAULT_RATING : formStr(fd, 'rating');
 	const ratingNum = Number(ratingRaw);
 	if (!name || !hospitalId || !specialistId) {
 		return { error: 'Name, hospital, and specialty are required.' as const };

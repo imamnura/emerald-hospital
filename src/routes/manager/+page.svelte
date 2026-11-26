@@ -1,9 +1,5 @@
 ﻿<script lang="ts">
-	import {
-		STATUS_HEX,
-		getStatusLabel,
-		type BookingStatus
-	} from '#lib/domain/booking-status.ts';
+	import { STATUS_HEX, getStatusLabel } from '#lib/domain/booking-status.ts';
 	import { page } from '$app/state';
 	import { Building2, CalendarDays, Clock, Download, FileSpreadsheet, Stethoscope } from '@lucide/svelte';
 	import AreaChart from '#lib/components/manager/charts/AreaChart.svelte';
@@ -21,7 +17,7 @@
 			key: s.status,
 			label: getStatusLabel(s.status),
 			value: s.count,
-			color: STATUS_HEX[s.status as BookingStatus]
+			color: STATUS_HEX[s.status]
 		}))
 	);
 

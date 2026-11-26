@@ -1,6 +1,6 @@
 import { createStore } from 'zustand/vanilla';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import type { DoctorListItem } from '#lib/server/catalog/doctors.ts';
+import type { DoctorListItem } from '#lib/domain/doctor.ts';
 
 /** @internal exported for tests */
 export type DoctorSearchResult = Omit<DoctorListItem, 'consultationFee'>;

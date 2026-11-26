@@ -14,6 +14,7 @@
 </script>
 
 <script lang="ts">
+import { DEFAULT_RATING } from '#lib/domain/doctor.ts';
 	import type { Snippet } from 'svelte';
 	import { MapPin, Star } from '@lucide/svelte';
 	import Avatar from '#lib/components/ui/Avatar.svelte';
@@ -35,7 +36,7 @@
 	let { doctor, variant, href, actions, trailing }: Props = $props();
 
 	const { id, name, imageUrl = null, specialty, role, hospital, isOnline = false } = $derived(doctor);
-	const { rating = '4.5', reviewCount = 120 } = $derived(doctor);
+	const { rating = DEFAULT_RATING, reviewCount = 120 } = $derived(doctor);
 	const profileHref = $derived(href ?? `/doctors/${id ?? ""}`);
 	const FALLBACK = 'bg-surface-container text-lg font-semibold text-primary';
 </script>

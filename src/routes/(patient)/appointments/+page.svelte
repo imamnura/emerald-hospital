@@ -1,4 +1,5 @@
 <script lang="ts">
+import { DEFAULT_RATING } from '#lib/domain/doctor.ts';
 	import { goto } from '$app/navigation';
 	import { fade, fly } from 'svelte/transition';
 	import { Calendar } from '@lucide/svelte';
@@ -145,7 +146,7 @@
 						doctorName={apt.doctorName}
 						doctorImage={apt.doctorImage}
 						specialty={apt.specialty}
-						rating={apt.doctorRating ?? '4.5'}
+						rating={apt.doctorRating ?? DEFAULT_RATING}
 						hospital={apt.hospital}
 						appointmentDate={String(apt.appointmentDate)}
 						appointmentTime={apt.appointmentTime}

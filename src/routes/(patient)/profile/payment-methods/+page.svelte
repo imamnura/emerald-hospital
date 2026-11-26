@@ -42,18 +42,14 @@
 	use:enhance={withPendingCard}
 	bind:this={setDefaultFormEl}
 	class="hidden"
->
-	<input type="hidden" name="cardId" value={pendingCardId} />
-</form>
+></form>
 <form
 	method="POST"
 	action="?/delete"
 	use:enhance={withPendingCard}
 	bind:this={deleteFormEl}
 	class="hidden"
->
-	<input type="hidden" name="cardId" value={pendingCardId} />
-</form>
+></form>
 
 <MotionReveal delay={50}>
 	<SettingsSection title="Saved Cards">

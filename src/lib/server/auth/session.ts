@@ -1,12 +1,8 @@
-import { verify } from '@node-rs/argon2';
 import type { Cookies } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import { db, type DbExecutor } from '#lib/server/db/index.ts';
 import { sessions, users, type User } from '#lib/server/db/schema.ts';
-import { hashPassword } from '#lib/server/auth/password.ts';
-
-export { hashPassword };
 
 type PublicUser = Omit<User, 'passwordHash' | 'googleId'>;
 
@@ -23,10 +19,6 @@ export function publicUserOrNull(user: User | null): PublicUser | null {
 
 const SESSION_COOKIE = 'session_id';
 const SESSION_DAYS = 30;
-
-export async function verifyPassword(hashValue: string, password: string): Promise<boolean> {
-	return verify(hashValue, password);
-}
 
 /** @internal exported for tests */
 export async function createSession(userId: string): Promise<string> {

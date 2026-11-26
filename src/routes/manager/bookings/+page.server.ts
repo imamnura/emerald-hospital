@@ -1,5 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import { count, desc, eq } from 'drizzle-orm';
+import type { PgSelect, SelectedFields } from 'drizzle-orm/pg-core';
 import type { Actions, PageServerLoad } from './$types';
 import { db } from '#lib/server/db/index.ts';
 import { bookings, doctors, hospitals, specialists, users } from '#lib/server/db/schema.ts';
@@ -8,6 +9,21 @@ import { denyUnlessManager } from '#lib/server/auth/guards.ts';
 import { isBookingStatus, type BookingStatus } from '#lib/domain/booking-status.ts';
 import { formStr, readEntityId } from '#lib/server/http/forms.ts';
 import { paginate, searchWhere } from '#lib/server/http/list-query.ts';
+
+/**
+ * bookings joined to patient, doctor, specialty and hospital — what the search conditions run against.
+ * Inner joins do not change the selected shape, so the builder keeps the caller's type
+ * (the cast is needed because Drizzle cannot chain joins on a generic selection).
+ */
+function bookingsJoined<T extends SelectedFields>(fields: T) {
+	const base = db.select(fields).from(bookings).$dynamic();
+	const joined = (base as unknown as PgSelect)
+		.innerJoin(users, eq(bookings.userId, users.id))
+		.innerJoin(doctors, eq(bookings.doctorId, doctors.id))
+		.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
+		.innerJoin(hospitals, eq(doctors.hospitalId, hospitals.id));
+	return joined as unknown as typeof base;
+}
 
 export const load: PageServerLoad = async ({ url }) => {
 	const { page, pageSize, offset } = parsePagination(url.searchParams);
@@ -23,42 +39,24 @@ export const load: PageServerLoad = async ({ url }) => {
 
 	const [{ rows, total }, statusRows] = await Promise.all([
 		paginate(
-			db
-				.select({
-					id: bookings.id,
-					appointmentDate: bookings.appointmentDate,
-					appointmentTime: bookings.appointmentTime,
-					status: bookings.status,
-					patientName: users.name,
-					doctorName: doctors.name,
-					specialty: specialists.name,
-					hospital: hospitals.name
-				})
-				.from(bookings)
-				.innerJoin(users, eq(bookings.userId, users.id))
-				.innerJoin(doctors, eq(bookings.doctorId, doctors.id))
-				.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
-				.innerJoin(hospitals, eq(doctors.hospitalId, hospitals.id))
+			bookingsJoined({
+				id: bookings.id,
+				appointmentDate: bookings.appointmentDate,
+				appointmentTime: bookings.appointmentTime,
+				status: bookings.status,
+				patientName: users.name,
+				doctorName: doctors.name,
+				specialty: specialists.name,
+				hospital: hospitals.name
+			})
 				.where(where)
 				.orderBy(desc(bookings.appointmentDate), desc(bookings.appointmentTime))
 				.limit(pageSize)
 				.offset(offset),
-			db
-				.select({ value: count() })
-				.from(bookings)
-				.innerJoin(users, eq(bookings.userId, users.id))
-				.innerJoin(doctors, eq(bookings.doctorId, doctors.id))
-				.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
-				.innerJoin(hospitals, eq(doctors.hospitalId, hospitals.id))
+			bookingsJoined({ value: count() })
 				.where(where)
 		),
-		db
-			.select({ status: bookings.status, value: count() })
-			.from(bookings)
-			.innerJoin(users, eq(bookings.userId, users.id))
-			.innerJoin(doctors, eq(bookings.doctorId, doctors.id))
-			.innerJoin(specialists, eq(doctors.specialistId, specialists.id))
-			.innerJoin(hospitals, eq(doctors.hospitalId, hospitals.id))
+		bookingsJoined({ status: bookings.status, value: count() })
 			.where(searchOnly)
 			.groupBy(bookings.status)
 	]);

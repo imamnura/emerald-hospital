@@ -1,20 +1,8 @@
 import { and, eq } from 'drizzle-orm';
 import { db } from '#lib/server/db/index.ts';
 import { isUuid } from '#lib/server/db/errors.ts';
+import { DEFAULT_RATING, type DoctorListItem } from '#lib/domain/doctor.ts';
 import { doctors, hospitals, specialists } from '#lib/server/db/schema.ts';
-
-export type DoctorListItem = {
-	id: string;
-	name: string;
-	imageUrl: string | null;
-	rating: string;
-	reviewCount: number;
-	consultationFee: string;
-	isOnline: boolean;
-	specialty: string;
-	specialistSlug: string;
-	hospital: string;
-};
 
 const doctorListSelect = {
 	id: doctors.id,
@@ -28,8 +16,6 @@ const doctorListSelect = {
 	specialistSlug: specialists.slug,
 	hospital: hospitals.name
 };
-
-const DEFAULT_RATING = '4.5';
 
 function doctorBaseQuery() {
 	return db

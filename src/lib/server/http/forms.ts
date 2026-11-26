@@ -1,9 +1,6 @@
 import { fail, type ActionFailure } from '@sveltejs/kit';
 import { isForeignKeyViolation, isUuid } from '#lib/server/db/errors.ts';
 
-/** Matches a `YYYY-MM-DD` date string. */
-export const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-
 /** Trimmed string value of a form field; empty when absent. */
 export function formStr(fd: FormData, key: string): string {
 	return String(fd.get(key) ?? '').trim();

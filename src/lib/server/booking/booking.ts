@@ -1,7 +1,8 @@
 import { and, count, desc, eq, inArray, ne } from 'drizzle-orm';
 import { db } from '#lib/server/db/index.ts';
 import { isUuid } from '#lib/server/db/errors.ts';
-import { parseIsoDate } from '#lib/format/date.ts';
+import { ISO_DATE_RE, parseIsoDate, toLocalDateString } from '#lib/format/date.ts';
+import type { BookingStatus } from '#lib/domain/booking-status.ts';
 import { bookings, doctorSchedules, doctors, hospitals, specialists } from '#lib/server/db/schema.ts';
 
 function parseTime(time: string): number {
@@ -27,8 +28,10 @@ export function generateTimeSlots(startTime: string, endTime: string, intervalMi
 }
 
 export function getDayOfWeek(dateStr: string): number {
-	if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return NaN;
-	return parseIsoDate(dateStr).getDay();
+	if (!ISO_DATE_RE.test(dateStr)) return NaN;
+	const d = parseIsoDate(dateStr);
+	// Impossible dates (2030-02-31) roll over in Date; reject them.
+	return toLocalDateString(d) === dateStr ? d.getDay() : NaN;
 }
 
 type ScheduleSlim = {
@@ -233,7 +236,7 @@ type AppointmentRow = {
 	doctorId: string;
 	appointmentDate: string;
 	appointmentTime: string;
-	status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+	status: BookingStatus;
 	createdAt: Date;
 	doctorName: string;
 	doctorImage: string | null;

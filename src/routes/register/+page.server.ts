@@ -1,6 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { hashPassword, setSessionCookie } from '#lib/server/auth/session.ts';
+import { setSessionCookie } from '#lib/server/auth/session.ts';
+import { hashPassword } from '#lib/server/auth/password.ts';
 import { db } from '#lib/server/db/index.ts';
 import { users } from '#lib/server/db/schema.ts';
 import { formOpt, formStr } from '#lib/server/http/forms.ts';

@@ -12,7 +12,6 @@ import { makeEvent, makeUser } from '../factories.ts';
 export const UNKNOWN_ID = '00000000-0000-4000-8000-000000000000';
 
 /** Builds a fake RequestEvent cast to whatever handler type the caller needs (defaults to `any`). */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function ev<T = any>(opts: Parameters<typeof makeEvent>[0] = {}): T {
 	return makeEvent(opts) as unknown as T;
 }

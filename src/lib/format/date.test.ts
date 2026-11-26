@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
 	DAY_NAMES,
+	ISO_DATE_RE,
 	formatDate,
 	formatTime12h,
 	parseIsoDate,
@@ -103,5 +104,12 @@ describe('formatDate', () => {
 			if (prev === undefined) delete process.env.TZ;
 			else process.env.TZ = prev;
 		}
+	});
+});
+
+describe('ISO_DATE_RE', () => {
+	it('matches only YYYY-MM-DD', () => {
+		expect(ISO_DATE_RE.test('2024-01-31')).toBe(true);
+		expect(ISO_DATE_RE.test('2024-1-31')).toBe(false);
 	});
 });

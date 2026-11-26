@@ -1,11 +1,8 @@
 import type { PageServerLoad } from './$types';
 import { filterDoctorsByQuery, listActiveDoctors } from '#lib/server/catalog/doctors.ts';
 import { listHospitals } from '#lib/server/catalog/catalog.ts';
-import { publicUserOrNull } from '#lib/server/auth/session.ts';
 
-export const load: PageServerLoad = async ({ url, locals }) => {
-	const user = publicUserOrNull(locals.user);
-
+export const load: PageServerLoad = async ({ url }) => {
 	const q = url.searchParams.get('q')?.trim() ?? '';
 	const hospitalParam = url.searchParams.get('hospital')?.trim() ?? '';
 
@@ -23,7 +20,6 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 	}
 
 	return {
-		user,
 		query: q,
 		hospital: hospitalParam || 'all',
 		doctors,

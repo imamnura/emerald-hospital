@@ -16,9 +16,7 @@ describe('specialists load', () => {
 		]) {
 			await makeSpecialist({ name, slug });
 		}
-		const user = { id: 'u' } as never;
-		const data = (await load(ev({ user }))) as { specialists: { slug: string }[]; user: unknown };
-		expect(data.user).toEqual(user);
+		const data = (await load(ev())) as { specialists: { slug: string }[] };
 		expect(data.specialists.map((s) => s.slug)).toEqual([
 			'cardiology',
 			'dental',

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { formOpt, formStr, ISO_DATE_RE, readEntityId, withFkGuard } from './forms.ts';
+import { UNKNOWN_ID } from '#test/helpers/route.ts';
+import { formOpt, formStr, readEntityId, withFkGuard } from './forms.ts';
 
-const UNKNOWN_ID = '00000000-0000-4000-8000-000000000000';
 const fd = (o: Record<string, string>) => {
 	const f = new FormData();
 	for (const [k, v] of Object.entries(o)) f.set(k, v);
@@ -41,12 +41,5 @@ describe('withFkGuard', () => {
 	});
 	it('passes through the result on success', async () => {
 		expect(await withFkGuard(() => Promise.resolve(7), 400, 'e')).toBe(7);
-	});
-});
-
-describe('ISO_DATE_RE', () => {
-	it('matches only YYYY-MM-DD', () => {
-		expect(ISO_DATE_RE.test('2024-01-31')).toBe(true);
-		expect(ISO_DATE_RE.test('2024-1-31')).toBe(false);
 	});
 });

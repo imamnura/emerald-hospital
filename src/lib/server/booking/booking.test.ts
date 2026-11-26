@@ -10,7 +10,7 @@ import {
 	makeSpecialist,
 	makeUser
 } from '#test/factories.ts';
-import { reset } from '#test/helpers/route.ts';
+import { MONDAY, reset, TUESDAY } from '#test/helpers/route.ts';
 import {
 	cancelBookingForUser,
 	createBookingAtomic,
@@ -24,8 +24,6 @@ import {
 beforeEach(() => reset());
 
 // 2030-01-07 is a Monday (dayOfWeek 1); 2030-01-08 is a Tuesday.
-const MONDAY = '2030-01-07';
-const TUESDAY = '2030-01-08';
 
 async function setup(scheduleOverrides: Parameters<typeof makeSchedule>[1] = {}) {
 	const user = await makeUser();
@@ -54,6 +52,8 @@ describe('time helpers', () => {
 		expect(getDayOfWeek(MONDAY)).toBe(1);
 		expect(getDayOfWeek(TUESDAY)).toBe(2);
 		expect(getDayOfWeek('2030-01-06')).toBe(0);
+		expect(getDayOfWeek('2030-02-31')).toBeNaN();
+		expect(getDayOfWeek('2030-02-28')).toBe(4);
 		expect(getDayOfWeek('2026-10-17')).toBe(6);
 	});
 

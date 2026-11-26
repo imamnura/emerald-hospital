@@ -1,20 +1,25 @@
 import { fail } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import { verifyPassword } from '#lib/server/auth/session.ts';
+import { verifyPassword } from '#lib/server/auth/password.ts';
 import { db } from '#lib/server/db/index.ts';
 import { users } from '#lib/server/db/schema.ts';
 import { requireUser } from '#lib/server/auth/guards.ts';
 import { setPassword } from '#lib/server/patient/users.ts';
 
-export const load: PageServerLoad = async ({ locals }) => {
-	const current = requireUser(locals, '/profile/settings/password');
-
+async function findPasswordHash(userId: string) {
 	const [user] = await db
 		.select({ passwordHash: users.passwordHash })
 		.from(users)
-		.where(eq(users.id, current.id))
+		.where(eq(users.id, userId))
 		.limit(1);
+	return user;
+}
+
+export const load: PageServerLoad = async ({ locals }) => {
+	const current = requireUser(locals, '/profile/settings/password');
+
+	const user = await findPasswordHash(current.id);
 
 	return { hasPassword: Boolean(user?.passwordHash) };
 };
