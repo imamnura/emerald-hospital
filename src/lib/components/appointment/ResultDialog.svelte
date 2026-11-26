@@ -56,8 +56,7 @@
 	)}
 	panelClass={cn(
 		'w-full max-w-sm rounded-3xl bg-surface-container-lowest text-center shadow-xl',
-		large ? 'p-8' : 'p-6',
-		showClose && 'relative'
+		large ? 'p-8' : 'p-6'
 	)}
 	bodyClass="contents"
 	motion={{

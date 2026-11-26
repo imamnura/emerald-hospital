@@ -19,7 +19,7 @@
 		class?: string;
 		/** Replace (not extend) the default overlay classes. */
 		overlayClass?: string;
-		/** Replace the default panel classes (`class` is still appended). */
+		/** Replace the default panel classes (`relative` is always kept; `class` is still appended). */
 		panelClass?: string;
 		/** Replace the default content wrapper classes. */
 		bodyClass?: string;
@@ -56,7 +56,8 @@
 			)
 	);
 	const panelClass = $derived(
-		panelOverride ??
+		// Always `relative`: the backdrop button is absolutely positioned and must stay below the panel.
+		(panelOverride && cn('relative', panelOverride)) ||
 			cn(
 				'relative flex max-h-[92vh] w-full flex-col overflow-hidden bg-surface-container-lowest shadow-2xl',
 				variant === 'sheet' ? 'rounded-t-3xl sm:rounded-2xl' : 'rounded-2xl'

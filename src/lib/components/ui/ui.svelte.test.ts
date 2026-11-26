@@ -138,6 +138,14 @@ describe('Dialog', () => {
 	});
 });
 
+describe('Dialog stacking', () => {
+	it('keeps the panel positioned above the backdrop with a custom panelClass', () => {
+		render(Dialog, { open: true, panelClass: 'w-full p-6', children: snip('<p>body</p>') });
+		expect(screen.getByRole('dialog')).toHaveClass('relative', 'w-full', 'p-6');
+		expect(screen.getByRole('button', { name: 'Close modal' })).toHaveClass('absolute');
+	});
+});
+
 describe('Dialog labelledby', () => {
 	it('names an untitled dialog by an element inside it', () => {
 		render(Dialog, {

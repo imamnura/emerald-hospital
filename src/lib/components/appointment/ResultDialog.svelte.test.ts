@@ -76,7 +76,8 @@ describe('ResultDialog', () => {
 		render(ResultDialog, props({ blur: false, motion: 'fly' }));
 		const panel = screen.getByRole('dialog');
 		expect(panel).toHaveClass('p-6', 'shadow-xl');
-		expect(panel).not.toHaveClass('relative', 'shadow-2xl');
+		expect(panel).toHaveClass('relative');
+		expect(panel).not.toHaveClass('shadow-2xl');
 		expect(panel.parentElement).toHaveClass('bg-on-surface/50');
 		expect(panel.parentElement).not.toHaveClass('backdrop-blur-md', 'backdrop-blur-sm');
 	});
