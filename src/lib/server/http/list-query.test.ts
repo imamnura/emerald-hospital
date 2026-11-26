@@ -2,11 +2,11 @@ import { count, eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { hospitals } from '#lib/server/db/schema.ts';
-import { resetDb, type TestDb } from '../../../test/db.ts';
-import { makeHospital } from '../../../test/factories.ts';
+import { makeHospital } from '#test/factories.ts';
+import { reset } from '#test/helpers/route.ts';
 import { paginate, searchWhere, uuidOrUndefined } from './list-query.ts';
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 
 describe('searchWhere', () => {
 	it('is undefined without a query or extras', () => {

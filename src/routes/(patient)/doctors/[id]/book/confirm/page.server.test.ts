@@ -3,12 +3,11 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { toPublicUser } from '#lib/server/auth/session.ts';
 import { db } from '#lib/server/db/index.ts';
 import { bookings } from '#lib/server/db/schema.ts';
-import { resetDb, type TestDb } from '../../../../../../test/db.ts';
-import { makeBooking, makeDoctor, makeHospital, makeSchedule, makeUser } from '../../../../../../test/factories.ts';
-import { MONDAY, TUESDAY, ev, randomId, thrown } from '../../../../../../test/helpers-routes-public.ts';
+import { makeBooking, makeDoctor, makeHospital, makeSchedule, makeUser } from '#test/factories.ts';
+import { MONDAY, TUESDAY, ev, randomId, thrown, reset } from '#test/helpers/route.ts';
 import { actions, load } from './+page.server.ts';
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 
 async function seed(maxQuota = 2) {
 	const user = await makeUser();

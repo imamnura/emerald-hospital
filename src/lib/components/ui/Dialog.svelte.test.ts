@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { snip } from '../../../test/helpers-components.ts';
+import { snip } from '#test/helpers/component.ts';
 import Dialog from './Dialog.svelte';
 
 describe('Dialog', () => {

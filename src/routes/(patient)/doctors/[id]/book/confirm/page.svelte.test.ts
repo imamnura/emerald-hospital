@@ -1,8 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import Page from './+page.svelte';
-import { submissions } from '../../../../../../test/mocks/app-forms.ts';
-import { testUser } from '../../../../../../test/helpers-pages-public.ts';
+import { submissions } from '#test/mocks/app-forms.ts';
+import { testUser } from '#test/helpers/component.ts';
 
 function data(over: Record<string, unknown> = {}) {
 	return {

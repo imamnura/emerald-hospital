@@ -1,9 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { beforeEach, describe, expect, it } from 'vitest';
 import Page from './+page.svelte';
-import { goto } from '../../../test/mocks/app-navigation.ts';
+import { goto } from '#test/mocks/app-navigation.ts';
 import { useSearchStore } from '#lib/stores/search.ts';
-import { resetStores, testUser } from '../../../test/helpers-pages-public.ts';
+import { resetStores, testUser } from '#test/helpers/component.ts';
 
 const specialists = [
 	{ id: 's1', name: 'Cardiology', slug: 'cardiology', icon: 'heart' },

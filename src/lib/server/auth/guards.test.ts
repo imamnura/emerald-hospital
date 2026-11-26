@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { makeManager, makeUser } from '../../../test/factories.ts';
+import { makeManager, makeUser } from '#test/factories.ts';
 import { denyUnlessManager, isManager, requireManager, requirePatient, requireUser } from './guards.ts';
 
 const locals = (role: 'manager' | 'patient' | null) =>

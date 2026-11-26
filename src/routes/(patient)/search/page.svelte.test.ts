@@ -1,9 +1,9 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Page from './+page.svelte';
-import { goto } from '../../../test/mocks/app-navigation.ts';
+import { goto } from '#test/mocks/app-navigation.ts';
 import { defaultSearchFilters, useSearchStore } from '#lib/stores/search.ts';
-import { resetStores, testUser } from '../../../test/helpers-pages-public.ts';
+import { resetStores, testUser } from '#test/helpers/component.ts';
 
 /*
  * `seed()` presets the store (e.g. a wide price range) for some tests; the page also

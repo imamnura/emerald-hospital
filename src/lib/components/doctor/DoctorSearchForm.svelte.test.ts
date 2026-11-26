@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { stubSpecialistsFetch } from '../../../test/helpers-pages-public.ts';
+import { stubSpecialistsFetch } from '#test/helpers/component.ts';
 import DoctorSearchForm from './DoctorSearchForm.svelte';
 
 beforeEach(() => {

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import { getInitials } from '#lib/format/text.ts';
-import { snip } from '../../../test/helpers-components.ts';
+import { snip } from '#test/helpers/component.ts';
 import Avatar from './Avatar.svelte';
 
 describe('Avatar', () => {

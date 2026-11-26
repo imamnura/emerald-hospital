@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { PREF_KEYS } from '#lib/server/patient/preferences.ts';
-import { ev, thrown } from '../../../../../test/helpers-routes-public.ts';
+import { ev, thrown } from '#test/helpers/route.ts';
 import { actions, load } from './+page.server.ts';
 
 const user = { id: 'u' } as never;

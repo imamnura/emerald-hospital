@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import Page from './+page.svelte';
-import { submissions, update } from '../../../../test/mocks/app-forms.ts';
+import { submissions, update } from '#test/mocks/app-forms.ts';
 
 const cards = [
 	{ id: 'c1', brand: 'visa', last4: '1111', expires: '12/30', isDefault: true },

@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { snip } from '../../../test/helpers-components.ts';
+import { snip } from '#test/helpers/component.ts';
 import ManagerSearchForm from './ManagerSearchForm.svelte';
 
 afterEach(() => vi.restoreAllMocks());

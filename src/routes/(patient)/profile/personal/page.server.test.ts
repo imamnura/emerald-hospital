@@ -2,12 +2,12 @@ import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { users } from '#lib/server/db/schema.ts';
-import { resetDb, type TestDb } from '../../../../test/db.ts';
-import { makeUser } from '../../../../test/factories.ts';
-import { ev, randomId, thrown } from '../../../../test/helpers-routes-public.ts';
+import { resetDb, type TestDb } from '#test/db.ts';
+import { makeUser } from '#test/factories.ts';
+import { ev, randomId, thrown, reset } from '#test/helpers/route.ts';
 import { actions, load } from './+page.server.ts';
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 
 const fresh = async (id: string) => (await db.select().from(users).where(eq(users.id, id)))[0];
 

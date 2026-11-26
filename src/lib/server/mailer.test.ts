@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { setEnv } from '../../test/mocks/env-private.ts';
+import { setEnv } from '#test/mocks/env-private.ts';
 import * as m from './mailer.ts';
 
 const { sendMailMock, createTransport } = vi.hoisted(() => {

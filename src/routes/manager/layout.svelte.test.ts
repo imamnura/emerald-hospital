@@ -2,8 +2,8 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/sve
 import userEvent from '@testing-library/user-event';
 import { createRawSnippet } from 'svelte';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { submissions } from '../../test/mocks/app-forms.ts';
-import { setPage } from '../../test/mocks/app-state.svelte.ts';
+import { submissions } from '#test/mocks/app-forms.ts';
+import { setPage } from '#test/mocks/app-state.svelte.ts';
 import Layout from './+layout.svelte';
 
 const children = createRawSnippet(() => ({ render: () => '<p>Child content</p>' }));

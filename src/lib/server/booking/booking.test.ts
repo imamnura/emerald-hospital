@@ -2,7 +2,6 @@ import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { bookings } from '#lib/server/db/schema.ts';
-import { resetDb, type TestDb } from '../../../test/db.ts';
 import {
 	makeBooking,
 	makeDoctor,
@@ -10,7 +9,8 @@ import {
 	makeSchedule,
 	makeSpecialist,
 	makeUser
-} from '../../../test/factories.ts';
+} from '#test/factories.ts';
+import { reset } from '#test/helpers/route.ts';
 import {
 	cancelBookingForUser,
 	createBookingAtomic,
@@ -21,7 +21,7 @@ import {
 	listAppointmentsForUser
 } from './booking.ts';
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 
 // 2030-01-07 is a Monday (dayOfWeek 1); 2030-01-08 is a Tuesday.
 const MONDAY = '2030-01-07';

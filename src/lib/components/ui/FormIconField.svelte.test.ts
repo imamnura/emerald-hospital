@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
-import { snip } from '../../../test/helpers-components.ts';
+import { snip } from '#test/helpers/component.ts';
 import FormIconField from './FormIconField.svelte';
 
 const icon = snip('<i data-testid="icon"></i>');

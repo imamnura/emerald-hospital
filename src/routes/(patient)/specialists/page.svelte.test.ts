@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import Page from './+page.svelte';
-import { testUser } from '../../../test/helpers-pages-public.ts';
+import { testUser } from '#test/helpers/component.ts';
 
 describe('specialists page', () => {
 	it('renders grid', () => {

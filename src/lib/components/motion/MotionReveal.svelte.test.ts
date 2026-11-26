@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
-import { snip } from '../../../test/helpers-components.ts';
+import { snip } from '#test/helpers/component.ts';
 import MotionReveal from './MotionReveal.svelte';
 
 describe('MotionReveal', () => {

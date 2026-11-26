@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { Bell, Globe } from '@lucide/svelte';
 import { describe, expect, it, vi } from 'vitest';
-import { snip } from '../../../../test/helpers-components.ts';
+import { snip } from '#test/helpers/component.ts';
 import SettingsRow from './SettingsRow.svelte';
 
 describe('SettingsRow link', () => {

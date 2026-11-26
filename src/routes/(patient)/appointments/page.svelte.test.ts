@@ -1,9 +1,9 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import Page from './+page.svelte';
-import { goto } from '../../../test/mocks/app-navigation.ts';
-import { setEnhanceResult } from '../../../test/mocks/app-forms.ts';
-import { testUser } from '../../../test/helpers-pages-public.ts';
+import { goto } from '#test/mocks/app-navigation.ts';
+import { setEnhanceResult } from '#test/mocks/app-forms.ts';
+import { testUser } from '#test/helpers/component.ts';
 
 const FUTURE = '2999-01-15';
 const PAST = '2000-01-15';

@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Landing from './+page.svelte';
 import FindDoctor from './find-doctor/+page.svelte';
-import { mockLocationHref, stubSpecialistsFetch } from '../test/helpers-pages-public.ts';
+import { mockLocationHref, stubSpecialistsFetch } from '#test/helpers/component.ts';
 
 /*
  * The compiled template emits `value ?? ''` for every `{expr}` interpolation.

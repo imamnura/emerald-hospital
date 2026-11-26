@@ -2,13 +2,13 @@ import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { sessions, users } from '#lib/server/db/schema.ts';
-import { resetDb, type TestDb } from '../../test/db.ts';
-import { makeUser } from '../../test/factories.ts';
-import { ev, thrown } from '../../test/helpers-routes-public.ts';
-import { setEnv } from '../../test/mocks/env-private.ts';
+import { resetDb, type TestDb } from '#test/db.ts';
+import { makeUser } from '#test/factories.ts';
+import { ev, thrown, reset } from '#test/helpers/route.ts';
+import { setEnv } from '#test/mocks/env-private.ts';
 import { actions, load } from './+page.server.ts';
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 
 describe('register load', () => {
 	it('redirects signed-in users and reports Google availability', async () => {

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
-import { setPage } from '../../../test/mocks/app-state.svelte.ts';
+import { setPage } from '#test/mocks/app-state.svelte.ts';
 import BottomNav from './BottomNav.svelte';
 
 describe('BottomNav', () => {

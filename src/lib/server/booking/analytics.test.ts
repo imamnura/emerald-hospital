@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
-import { resetDb, type TestDb } from '../../../test/db.ts';
+import { resetDb, type TestDb } from '#test/db.ts';
 import {
 	makeBooking,
 	makeDoctor,
@@ -8,7 +8,8 @@ import {
 	makeSchedule,
 	makeSpecialist,
 	makeUser
-} from '../../../test/factories.ts';
+} from '#test/factories.ts';
+import { reset } from '#test/helpers/route.ts';
 import {
 	bookingsBySpecialty,
 	bookingsOverTime,
@@ -41,7 +42,7 @@ afterAll(() => {
 	vi.useRealTimers();
 });
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 
 async function seed() {
 	const h1 = await makeHospital({ name: 'North Hospital' });

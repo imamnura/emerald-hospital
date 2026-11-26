@@ -1,8 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import Page from './+page.svelte';
-import { goto } from '../../../../../test/mocks/app-navigation.ts';
-import { testUser } from '../../../../../test/helpers-pages-public.ts';
+import { goto } from '#test/mocks/app-navigation.ts';
+import { testUser } from '#test/helpers/component.ts';
 
 const calendarDays = [
 	{ date: '2999-01-01', dayLabel: 'MON', dayNum: 1, available: true, isPast: false },

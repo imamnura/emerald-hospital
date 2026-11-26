@@ -6,8 +6,8 @@ import {
 	makeSchedule,
 	makeSpecialist,
 	makeUser
-} from '../../test/factories.ts';
-import { ev, reset } from '../../test/helpers-routes-manager.ts';
+} from '#test/factories.ts';
+import { ev, reset } from '#test/helpers/route.ts';
 import { load } from './+page.server.ts';
 
 type Event = Parameters<typeof load>[0];

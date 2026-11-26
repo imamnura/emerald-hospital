@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
-import { resetDb, type TestDb } from '../../../../test/db.ts';
-import { makeMedicalRecord, makeUser } from '../../../../test/factories.ts';
-import { ev, thrown } from '../../../../test/helpers-routes-public.ts';
+import { resetDb, type TestDb } from '#test/db.ts';
+import { makeMedicalRecord, makeUser } from '#test/factories.ts';
+import { ev, thrown, reset } from '#test/helpers/route.ts';
 import { load } from './+page.server.ts';
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 
 describe('profile/medical-records load', () => {
 	it('redirects anonymous users', async () => {

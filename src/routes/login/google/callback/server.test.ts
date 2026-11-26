@@ -3,14 +3,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { sessions, users } from '#lib/server/db/schema.ts';
 import { GOOGLE_TOKEN_URL, OAUTH_COOKIES } from '#lib/server/auth/oauth-google.ts';
-import { resetDb, type TestDb } from '../../../../test/db.ts';
-import { makeUser } from '../../../../test/factories.ts';
-import { ev, thrown } from '../../../../test/helpers-routes-public.ts';
-import { setEnv } from '../../../../test/mocks/env-private.ts';
+import { resetDb, type TestDb } from '#test/db.ts';
+import { makeUser } from '#test/factories.ts';
+import { ev, thrown, reset } from '#test/helpers/route.ts';
+import { setEnv } from '#test/mocks/env-private.ts';
 import { GET } from './+server.ts';
 
 beforeEach(async () => {
-	await resetDb(db as unknown as TestDb);
+	await reset();
 	setEnv({ GOOGLE_CLIENT_ID: 'cid', GOOGLE_CLIENT_SECRET: 'csecret' });
 });
 afterEach(() => vi.restoreAllMocks());

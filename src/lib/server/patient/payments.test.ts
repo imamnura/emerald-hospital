@@ -2,8 +2,8 @@ import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { paymentCards } from '#lib/server/db/schema.ts';
-import { resetDb, type TestDb } from '../../../test/db.ts';
-import { makeCard, makeTransaction, makeUser } from '../../../test/factories.ts';
+import { makeCard, makeTransaction, makeUser } from '#test/factories.ts';
+import { reset } from '#test/helpers/route.ts';
 import {
 	addCardForUser,
 	deleteCard,
@@ -12,7 +12,7 @@ import {
 	setDefaultCard
 } from './payments.ts';
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 
 const at = (iso: string) => new Date(iso);
 

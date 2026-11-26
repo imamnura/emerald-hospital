@@ -2,8 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { handle } from './hooks.server.ts';
 import { SESSION_COOKIE_NAME } from '#lib/server/auth/session.ts';
 import { db } from '#lib/server/db/index.ts';
-import { resetDb, type TestDb } from './test/db.ts';
-import { makeEvent, makeManager, makeSession, makeUser } from './test/factories.ts';
+import { resetDb, type TestDb } from '#test/db.ts';
+import { makeEvent, makeManager, makeSession, makeUser } from '#test/factories.ts';
+import { reset } from '#test/helpers/route.ts';
 
 type HandleInput = Parameters<typeof handle>[0];
 
@@ -15,7 +16,7 @@ function run(event: ReturnType<typeof makeEvent>) {
 
 describe('hooks.server handle', () => {
 	beforeEach(async () => {
-		await resetDb(db as unknown as TestDb);
+		await reset();
 	});
 
 	it('sets locals.user to null without a session cookie and resolves', async () => {

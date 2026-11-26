@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { makeUser } from '../test/factories.ts';
-import { ev } from '../test/helpers-routes-public.ts';
+import { makeUser } from '#test/factories.ts';
+import { ev } from '#test/helpers/route.ts';
 import { load } from './+layout.server.ts';
 
 describe('root layout load', () => {

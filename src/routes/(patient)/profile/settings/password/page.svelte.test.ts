@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import Page from './+page.svelte';
-import { submissions } from '../../../../../test/mocks/app-forms.ts';
+import { submissions } from '#test/mocks/app-forms.ts';
 
 describe('change password page', () => {
 	it('renders form and submits', async () => {

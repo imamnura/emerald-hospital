@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
-import { submissions } from '../../../test/mocks/app-forms.ts';
+import { submissions } from '#test/mocks/app-forms.ts';
 import LogoutButton from './LogoutButton.svelte';
 
 describe('LogoutButton', () => {

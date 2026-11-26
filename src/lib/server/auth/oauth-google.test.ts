@@ -3,9 +3,10 @@ import { eq } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { users } from '#lib/server/db/schema.ts';
-import { resetDb, type TestDb } from '../../../test/db.ts';
-import { makeUser } from '../../../test/factories.ts';
-import { setEnv } from '../../../test/mocks/env-private.ts';
+import { resetDb, type TestDb } from '#test/db.ts';
+import { makeUser } from '#test/factories.ts';
+import { reset } from '#test/helpers/route.ts';
+import { setEnv } from '#test/mocks/env-private.ts';
 import {
 	GOOGLE_AUTHORIZE_URL,
 	GOOGLE_TOKEN_URL,
@@ -23,7 +24,7 @@ import {
 	type GoogleUserInfo
 } from './oauth-google.ts';
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 afterEach(() => {
 	vi.unstubAllEnvs();
 });

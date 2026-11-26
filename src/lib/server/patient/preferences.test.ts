@@ -1,6 +1,6 @@
 import type { Cookies } from '@sveltejs/kit';
 import { describe, expect, it, vi } from 'vitest';
-import { makeEvent } from '../../../test/factories.ts';
+import { makeEvent } from '#test/factories.ts';
 import { PREF_KEYS, languageLabel, readPreferences, writePreference, type AppLanguage } from './preferences.ts';
 
 const jar = (cookies: Record<string, string> = {}) => {

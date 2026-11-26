@@ -2,8 +2,8 @@ import { fireEvent, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Page from './+page.svelte';
-import { goto } from '../test/mocks/app-navigation.ts';
-import { stubSpecialistsFetch } from '../test/helpers-pages-public.ts';
+import { goto } from '#test/mocks/app-navigation.ts';
+import { stubSpecialistsFetch } from '#test/helpers/component.ts';
 import { LANDING_TESTIMONIALS } from '#lib/data/landing.ts';
 
 beforeEach(() => {

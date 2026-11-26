@@ -2,7 +2,7 @@ import { sql } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { passwordResetTokens } from '#lib/server/db/schema.ts';
-import { resetDb, type TestDb } from '../../../test/db.ts';
+import { resetDb, type TestDb } from '#test/db.ts';
 import {
 	makeBooking,
 	makeCard,
@@ -15,7 +15,7 @@ import {
 	makeSpecialist,
 	makeTransaction,
 	makeUser
-} from '../../../test/factories.ts';
+} from '#test/factories.ts';
 
 const tdb = db as unknown as TestDb;
 

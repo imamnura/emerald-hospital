@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { describe, expect, it, vi } from 'vitest';
-import BindHarness from '../../../test/harness/BindHarness.svelte';
+import BindHarness from '#test/harness/BindHarness.svelte';
 import SearchBar from './SearchBar.svelte';
 
 describe('SearchBar', () => {

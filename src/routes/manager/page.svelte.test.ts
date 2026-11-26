@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, within } from '@testing-library/svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { setPage } from '../../test/mocks/app-state.svelte.ts';
+import { setPage } from '#test/mocks/app-state.svelte.ts';
 import Page from './+page.svelte';
 
 function makeData(overrides: Record<string, unknown> = {}) {

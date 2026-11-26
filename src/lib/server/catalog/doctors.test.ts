@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
-import { resetDb, type TestDb } from '../../../test/db.ts';
-import { makeDoctor, makeHospital, makeSpecialist } from '../../../test/factories.ts';
+import { resetDb, type TestDb } from '#test/db.ts';
+import { makeDoctor, makeHospital, makeSpecialist } from '#test/factories.ts';
+import { reset } from '#test/helpers/route.ts';
 import {
 	filterDoctorsByQuery,
 	getDoctorDetail,
@@ -9,7 +10,7 @@ import {
 	listActiveDoctorsBySpecialistId
 } from './doctors.ts';
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 
 async function seed() {
 	const hospital = await makeHospital({ name: 'Emerald General', address: 'Jl. A', city: 'Bandung' });

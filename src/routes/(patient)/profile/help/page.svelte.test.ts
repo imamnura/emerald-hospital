@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Page from './+page.svelte';
-import { mockLocationHref } from '../../../../test/helpers-pages-public.ts';
+import { mockLocationHref } from '#test/helpers/component.ts';
 import { SUPPORT_EMAIL, SUPPORT_PHONE } from '#lib/data/help-support.ts';
 import { toast } from '#lib/stores/toast.svelte.ts';
 
