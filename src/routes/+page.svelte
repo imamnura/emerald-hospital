@@ -84,7 +84,7 @@
 			<DoctorSearchForm bind:specialty bind:hospital onsubmit={handleHeroSearch} class="mt-8" />
 
 			<ul class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-6">
-				{#each LANDING_TRUST_BADGES as badge}
+				{#each LANDING_TRUST_BADGES as badge (badge.id)}
 					<li class="flex items-center gap-2 text-sm text-on-surface-variant">
 						<ShieldCheck size={18} class="shrink-0 text-primary" />
 						{badge.label}
@@ -103,7 +103,7 @@
 			<p class="mt-2 text-on-surface-variant">{LANDING_FEATURES.subtitle}</p>
 		</div>
 		<ul class="mx-auto mt-8 grid max-w-5xl gap-4 md:grid-cols-3">
-			{#each LANDING_FEATURES.items as feature, i}
+			{#each LANDING_FEATURES.items as feature, i (feature.id)}
 				{@const icons = [Search, Star, CalendarClock]}
 				{@const Icon = icons[i]}
 				<li
@@ -140,7 +140,7 @@
 				</a>
 			</div>
 			<ul class="mt-8 flex flex-col gap-4">
-				{#each LANDING_POPULAR_DOCTORS.doctors as doctor}
+				{#each LANDING_POPULAR_DOCTORS.doctors as doctor (doctor.id)}
 					<DoctorSummary
 						doctor={{ ...doctor, specialty: doctor.specialtyBadge, role: doctor.title }}
 						variant="list"
@@ -166,7 +166,7 @@
 				{LANDING_TESTIMONIALS.title}
 			</h2>
 			<div class="mt-6 flex justify-center gap-2">
-				{#each LANDING_TESTIMONIALS.tabs as tab}
+				{#each LANDING_TESTIMONIALS.tabs as tab (tab.id)}
 					<button
 						type="button"
 						onclick={() => (testimonialTab = tab.id)}
@@ -180,7 +180,7 @@
 				{/each}
 			</div>
 			<ul class="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-				{#each activeTestimonials as review}
+				{#each activeTestimonials as review (review.id)}
 					<li
 						class="rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-5 shadow-[var(--shadow-card)]"
 					>
@@ -206,7 +206,7 @@
 				<BrandMark size="sm" />
 				<p class="mt-4 text-sm leading-relaxed text-on-surface-variant">{LANDING_FOOTER.tagline}</p>
 				<div class="mt-4 flex gap-2">
-					{#each LANDING_FOOTER.socialLinks as social}
+					{#each LANDING_FOOTER.socialLinks as social (social.id)}
 						<a
 							href={social.href}
 							aria-label={social.label}

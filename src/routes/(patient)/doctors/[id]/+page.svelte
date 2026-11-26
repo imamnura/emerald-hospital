@@ -49,7 +49,7 @@
 		<p class="mt-2 text-sm text-outline">No schedule available.</p>
 	{:else}
 		<ul class="mt-3 space-y-2">
-			{#each data.schedules as schedule}
+			{#each data.schedules as schedule (schedule.id)}
 				<li class="flex justify-between text-sm">
 					<span class="font-medium">{DAY_NAMES[schedule.dayOfWeek]}</span>
 					<span class="text-on-surface-variant">

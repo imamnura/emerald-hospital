@@ -14,18 +14,17 @@
 	let { data } = $props();
 
 	const search = useZustand(useSearchStore);
-	let localQuery = $state('');
+	let localQuery = $derived(data.query);
 
+	let lastOpenFilter = false;
+	// Store sync from load data (pre-render so first paint is consistent).
 	$effect.pre(() => {
-		useSearchStore.getState().setQuery(data.query);
-		useSearchStore.getState().setResults(data.allDoctors);
-		localQuery = data.query;
-	});
-
-	$effect(() => {
-		if (data.openFilter) {
-			useSearchStore.getState().openFilter();
-		}
+		const store = useSearchStore.getState();
+		store.setQuery(data.query);
+		store.setResults(data.allDoctors);
+		const open = Boolean(data.openFilter);
+		if (open && !lastOpenFilter) store.openFilter();
+		lastOpenFilter = open;
 	});
 
 	const displayed = $derived(

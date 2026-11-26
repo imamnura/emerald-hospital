@@ -210,6 +210,24 @@ describe('manager/hospitals page – delete edge cases', () => {
 		await waitFor(() => expect(messages()).toContain('Hospital "" deleted.'));
 	});
 
+	it('updates the search input when navigation brings a new query', async () => {
+		const { rerender } = render(Page, { props: { data: makeData({ query: 'a' }) } as never });
+		expect(screen.getByRole('searchbox')).toHaveValue('a');
+		await rerender({ data: makeData({ query: 'b' }) } as never);
+		expect(screen.getByRole('searchbox')).toHaveValue('b');
+	});
+
+	it('keeps a locally edited search input until navigation changes the query', async () => {
+		const user = userEvent.setup();
+		const { rerender } = render(Page, { props: { data: makeData({ query: 'a' }) } as never });
+		const box = screen.getByRole('searchbox');
+		await user.clear(box);
+		await user.type(box, 'typed');
+		expect(box).toHaveValue('typed');
+		await rerender({ data: makeData({ query: 'c' }) } as never);
+		expect(screen.getByRole('searchbox')).toHaveValue('c');
+	});
+
 	it('renders a row and dialog for a hospital with a null name', async () => {
 		const user = userEvent.setup();
 		renderPage(makeData({ hospitals: [{ ...hospitals[1], id: 'hx', name: null }] }));

@@ -58,6 +58,21 @@ function searchbox() {
 }
 
 describe('search page', () => {
+	it('updates the search input and store when navigation brings a new query', async () => {
+		const { rerender } = render(Page, { props: { data: data({ query: 'a' }) } as never });
+		expect(searchbox()).toHaveValue('a');
+		await rerender({ data: data({ query: 'b' }) } as never);
+		expect(searchbox()).toHaveValue('b');
+		expect(useSearchStore.getState().query).toBe('b');
+	});
+
+	it('opens the filter once when openFilter turns on after mount', async () => {
+		const { rerender } = render(Page, { props: { data: data() } as never });
+		expect(useSearchStore.getState().isFilterOpen).toBeFalsy();
+		await rerender({ data: data({ openFilter: true }) } as never);
+		expect(useSearchStore.getState().isFilterOpen).toBe(true);
+	});
+
 	it('renders seeded results and bookmark toggles the store', async () => {
 		seed({ bookmarkedIds: ['d2'] });
 		render(Page, { props: { data: data() } as never });

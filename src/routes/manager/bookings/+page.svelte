@@ -3,12 +3,12 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { ClipboardList, FileSpreadsheet, Pencil } from '@lucide/svelte';
+	import BookingStatusFields from '#lib/components/manager/BookingStatusFields.svelte';
 	import EmptyState from '#lib/components/manager/EmptyState.svelte';
 	import Modal from '#lib/components/manager/Modal.svelte';
 	import ManagerSearchForm from '#lib/components/manager/ManagerSearchForm.svelte';
 	import PageHeader from '#lib/components/manager/PageHeader.svelte';
 	import Pagination from '#lib/components/manager/Pagination.svelte';
-	import { MANAGER_INPUT_CLASS } from '#lib/components/manager/styles.ts';
 	import StatusBadge from '#lib/components/manager/StatusBadge.svelte';
 	import { createCrudState } from '#lib/utils/crud.svelte.ts';
 	import { toastForm } from '#lib/utils/enhance.ts';
@@ -23,10 +23,7 @@
 	const crud = createCrudState<Booking>();
 	let pendingStatus = $state<Status>('pending');
 
-	let searchInput = $state('');
-	$effect.pre(() => {
-		searchInput = data.query;
-	});
+	let searchInput = $derived(data.query);
 
 	function openEdit(b: Booking) {
 		pendingStatus = b.status as Status;
@@ -80,7 +77,7 @@
 	/>
 
 	<div class="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-		{#each tabs as t}
+		{#each tabs as t (t.key)}
 			{@const active = data.statusFilter === t.value}
 			<button
 				type="button"
@@ -230,39 +227,7 @@
 			class="space-y-4"
 		>
 			<input type="hidden" name="id" value={crud.editing.id} />
-			<dl class="grid grid-cols-2 gap-3 rounded-xl bg-surface-container-low px-4 py-3 text-xs">
-				<div>
-					<dt class="font-semibold text-outline">Date</dt>
-					<dd class="mt-0.5 font-medium text-on-surface">
-						{formatDate(String(crud.editing.appointmentDate), 'longId')}
-					</dd>
-				</div>
-				<div>
-					<dt class="font-semibold text-outline">Time</dt>
-					<dd class="mt-0.5 font-medium text-on-surface">{crud.editing.appointmentTime}</dd>
-				</div>
-				<div>
-					<dt class="font-semibold text-outline">Specialty</dt>
-					<dd class="mt-0.5 font-medium text-on-surface">{crud.editing.specialty}</dd>
-				</div>
-				<div>
-					<dt class="font-semibold text-outline">Hospital</dt>
-					<dd class="mt-0.5 font-medium text-on-surface">{crud.editing.hospital}</dd>
-				</div>
-			</dl>
-			<label class="block text-xs font-semibold text-on-surface-variant">
-				Status
-				<select
-					name="status"
-					bind:value={pendingStatus}
-					class={MANAGER_INPUT_CLASS}
-				>
-					<option value="pending">Pending</option>
-					<option value="confirmed">Confirmed</option>
-					<option value="completed">Completed</option>
-					<option value="cancelled">Cancelled</option>
-				</select>
-			</label>
+			<BookingStatusFields booking={crud.editing} bind:status={pendingStatus} />
 		</form>
 	{/if}
 </Modal>

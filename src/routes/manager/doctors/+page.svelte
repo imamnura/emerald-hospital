@@ -6,13 +6,13 @@
 	import { page } from '$app/state';
 	import { Star, Stethoscope } from '@lucide/svelte';
 	import DeleteConfirm from '#lib/components/manager/DeleteConfirm.svelte';
+	import DoctorFormFields from '#lib/components/manager/DoctorFormFields.svelte';
 	import EmptyState from '#lib/components/manager/EmptyState.svelte';
 	import Modal from '#lib/components/manager/Modal.svelte';
 	import ManagerSearchForm from '#lib/components/manager/ManagerSearchForm.svelte';
 	import PageHeader from '#lib/components/manager/PageHeader.svelte';
 	import Pagination from '#lib/components/manager/Pagination.svelte';
 	import RowActions from '#lib/components/manager/RowActions.svelte';
-	import { MANAGER_INPUT_CLASS } from '#lib/components/manager/styles.ts';
 	import { createCrudState } from '#lib/utils/crud.svelte.ts';
 	import { toastForm } from '#lib/utils/enhance.ts';
 	import { withParams } from '#lib/utils/url.ts';
@@ -22,14 +22,9 @@
 
 	const crud = createCrudState<Doctor>();
 
-	let searchInput = $state('');
-	let hospitalFilter = $state('');
-	let specialistFilter = $state('');
-	$effect.pre(() => {
-		searchInput = data.query;
-		hospitalFilter = data.hospitalFilter;
-		specialistFilter = data.specialistFilter;
-	});
+	let searchInput = $derived(data.query);
+	let hospitalFilter = $derived(data.hospitalFilter);
+	let specialistFilter = $derived(data.specialistFilter);
 
 	function applyFilters() {
 		const updates = { q: searchInput.trim(), hospitalId: hospitalFilter, specialistId: specialistFilter };
@@ -61,7 +56,7 @@
 				aria-label="Filter by hospital"
 			>
 				<option value="">All hospitals</option>
-				{#each data.hospitals as h}
+				{#each data.hospitals as h (h.id)}
 					<option value={h.id}>{h.name}</option>
 				{/each}
 			</select>
@@ -72,7 +67,7 @@
 				aria-label="Filter by specialty"
 			>
 				<option value="">All specialties</option>
-				{#each data.specialists as s}
+				{#each data.specialists as s (s.id)}
 					<option value={s.id}>{s.name}</option>
 				{/each}
 			</select>
@@ -200,100 +195,7 @@
 		{#if crud.editing}
 			<input type="hidden" name="id" value={crud.editing.id} />
 		{/if}
-		<label class="block text-xs font-semibold text-on-surface-variant">
-			Full name *
-			<input
-				name="name"
-				required
-				value={crud.editing?.name ?? ''}
-				placeholder="Dr. Jane Doe"
-				class={MANAGER_INPUT_CLASS}
-			/>
-		</label>
-		<div class="grid gap-3 sm:grid-cols-2">
-			<label class="text-xs font-semibold text-on-surface-variant">
-				Hospital *
-				<select
-					name="hospitalId"
-					required
-					value={crud.editing?.hospitalId ?? ''}
-					class={MANAGER_INPUT_CLASS}
-				>
-					<option value="">Select hospital</option>
-					{#each data.hospitals as h}
-						<option value={h.id}>{h.name}</option>
-					{/each}
-				</select>
-			</label>
-			<label class="text-xs font-semibold text-on-surface-variant">
-				Specialty *
-				<select
-					name="specialistId"
-					required
-					value={crud.editing?.specialistId ?? ''}
-					class={MANAGER_INPUT_CLASS}
-				>
-					<option value="">Select specialty</option>
-					{#each data.specialists as s}
-						<option value={s.id}>{s.name}</option>
-					{/each}
-				</select>
-			</label>
-		</div>
-		<div class="grid gap-3 sm:grid-cols-3">
-			<label class="text-xs font-semibold text-on-surface-variant">
-				Rating
-				<input
-					name="rating"
-					type="number"
-					step="0.1"
-					min="0"
-					max="5"
-					value={crud.editing?.rating ?? '4.5'}
-					class={MANAGER_INPUT_CLASS}
-				/>
-			</label>
-			<label class="text-xs font-semibold text-on-surface-variant">
-				Consultation fee
-				<input
-					name="consultationFee"
-					type="number"
-					step="0.01"
-					min="0"
-					value={crud.editing?.consultationFee ?? ''}
-					placeholder="150.00"
-					class={MANAGER_INPUT_CLASS}
-				/>
-			</label>
-			<label class="flex items-center gap-2 text-xs font-semibold text-on-surface-variant pt-5">
-				<input
-					type="checkbox"
-					name="isActive"
-					checked={crud.editing ? crud.editing.isActive : true}
-					class="h-4 w-4 rounded border-outline-variant accent-primary"
-				/>
-				Active
-			</label>
-		</div>
-		<label class="block text-xs font-semibold text-on-surface-variant">
-			Image URL
-			<input
-				name="imageUrl"
-				value={crud.editing?.imageUrl ?? ''}
-				placeholder="https://…"
-				class={MANAGER_INPUT_CLASS}
-			/>
-		</label>
-		<label class="block text-xs font-semibold text-on-surface-variant">
-			Bio
-			<textarea
-				name="bio"
-				rows="3"
-				value={crud.editing?.bio ?? ''}
-				placeholder="Short professional bio shown to patients."
-				class="{MANAGER_INPUT_CLASS} resize-y"
-			></textarea>
-		</label>
+		<DoctorFormFields editing={crud.editing} hospitals={data.hospitals} specialists={data.specialists} />
 	</form>
 
 </Modal>

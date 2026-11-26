@@ -43,20 +43,26 @@
 		return padTop + (height - padTop - padBottom) * (1 - v / ticksMax);
 	}
 
-	const linePath = $derived.by(() => {
-		if (data.length === 0) return '';
-		return data
-			.map((p, i) => `${i === 0 ? 'M' : 'L'} ${xPos(i, data.length).toFixed(2)} ${yPos(p.total).toFixed(2)}`)
-			.join(' ');
-	});
+	// Screen coordinates computed once per data/height change.
+	const points = $derived(
+		data.map((p, i) => ({
+			x: xPos(i, data.length),
+			y: yPos(p.total),
+			xs: xPos(i, data.length).toFixed(2),
+			ys: yPos(p.total).toFixed(2)
+		}))
+	);
+	const baseY = $derived(yPos(0).toFixed(2));
+
+	const linePath = $derived(
+		points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.xs} ${p.ys}`).join(' ')
+	);
 
 	const areaPath = $derived.by(() => {
-		if (data.length === 0) return '';
-		const first = `M ${xPos(0, data.length).toFixed(2)} ${yPos(0).toFixed(2)}`;
-		const top = data
-			.map((p, i) => `L ${xPos(i, data.length).toFixed(2)} ${yPos(p.total).toFixed(2)}`)
-			.join(' ');
-		const last = `L ${xPos(data.length - 1, data.length).toFixed(2)} ${yPos(0).toFixed(2)} Z`;
+		if (points.length === 0) return '';
+		const first = `M ${points[0].xs} ${baseY}`;
+		const top = points.map((p) => `L ${p.xs} ${p.ys}`).join(' ');
+		const last = `L ${points[points.length - 1].xs} ${baseY} Z`;
 		return `${first} ${top} ${last}`;
 	});
 
@@ -72,7 +78,7 @@
 					);
 		return idxs.map((i) => {
 			return {
-				x: xPos(i, data.length),
+				x: points[i].x,
 				label: formatDate(data[i].date, 'dayMonth')
 			};
 		});
@@ -90,7 +96,7 @@
 		let best = 0;
 		let bestDist = Infinity;
 		for (let i = 0; i < data.length; i++) {
-			const d = Math.abs(xPos(i, data.length) - xLocal);
+			const d = Math.abs(points[i].x - xLocal);
 			if (d < bestDist) {
 				bestDist = d;
 				best = i;
@@ -107,8 +113,8 @@
 		if (hoverIdx == null || !data[hoverIdx]) return null;
 		const p = data[hoverIdx];
 		return {
-			x: xPos(hoverIdx, data.length),
-			y: yPos(p.total),
+			x: points[hoverIdx].x,
+			y: points[hoverIdx].y,
 			label: formatDate(p.date, 'short'),
 			value: p.total
 		};

@@ -20,10 +20,7 @@
 
 	const crud = createCrudState<Specialist>();
 
-	let searchInput = $state('');
-	$effect.pre(() => {
-		searchInput = data.query;
-	});
+	let searchInput = $derived(data.query);
 
 	function applyFilters() {
 		goto(withParams(page.url, { q: searchInput.trim() }, { relative: true }), { reset: false });

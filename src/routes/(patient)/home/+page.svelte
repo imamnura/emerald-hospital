@@ -62,7 +62,7 @@
 			<a href="/specialists" class="text-sm font-semibold text-primary">See all</a>
 		</div>
 		<div class="scrollbar-hide -mx-5 flex gap-4 overflow-x-auto px-5 pb-2">
-			{#each data.specialists as spec}
+			{#each data.specialists as spec (spec.id)}
 				<SpecialistTile
 					name={spec.name}
 					icon={spec.icon}
@@ -79,7 +79,7 @@
 	<section class="mt-8">
 		<h2 class="mb-4 font-heading text-base font-bold text-on-surface">Recommended Doctors</h2>
 		<div class="flex flex-col gap-3">
-			{#each data.doctors as doctor}
+			{#each data.doctors as doctor (doctor.id)}
 				<DoctorSummary doctor={{ ...doctor, rating: doctor.rating ?? '4.5' }} variant="compact" />
 			{/each}
 		</div>

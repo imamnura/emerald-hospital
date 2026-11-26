@@ -20,23 +20,13 @@
 
 	let { data, form } = $props();
 
-	let name = $state('');
-	let phone = $state('');
-	let imageUrl = $state('');
-	let address = $state('');
-	let dateOfBirth = $state('');
-	let gender = $state<'female' | 'male' | 'other' | 'prefer_not'>('prefer_not');
-	let bloodType = $state('');
-
-	$effect.pre(() => {
-		name = data.profile.name;
-		phone = data.profile.phone ?? '';
-		imageUrl = data.profile.imageUrl ?? '';
-		address = data.profile.address ?? '';
-		dateOfBirth = data.dateOfBirth;
-		gender = data.gender;
-		bloodType = data.profile.bloodType ?? '';
-	});
+	let name = $derived(data.profile.name);
+	let phone = $derived(data.profile.phone ?? '');
+	let imageUrl = $derived(data.profile.imageUrl ?? '');
+	let address = $derived(data.profile.address ?? '');
+	let dateOfBirth = $derived(data.dateOfBirth);
+	let gender = $derived<'female' | 'male' | 'other' | 'prefer_not'>(data.gender);
+	let bloodType = $derived(data.profile.bloodType ?? '');
 
 </script>
 

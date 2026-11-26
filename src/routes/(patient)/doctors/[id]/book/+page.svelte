@@ -15,15 +15,10 @@
 
 	let { data } = $props();
 
-	let selectedDate = $state('');
-	let selectedTime = $state('');
-	let selectedScheduleId = $state('');
-
-	$effect.pre(() => {
-		selectedDate = data.selectedDate;
-		selectedTime = '';
-		selectedScheduleId = '';
-	});
+	let selectedDate = $derived(data.selectedDate);
+	// Reset whenever navigation brings a new date; editable locally in between.
+	let selectedTime = $derived.by(() => (data.selectedDate, ''));
+	let selectedScheduleId = $derived.by(() => (data.selectedDate, ''));
 
 	const slotGroups = $derived(groupSlotsByPeriod(data.slots));
 	const backHref = $derived(`/specialists/${data.doctor.specialistSlug}`);

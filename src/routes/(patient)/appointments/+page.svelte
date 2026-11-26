@@ -31,16 +31,16 @@
 	let cancelledSuccess = $state<{ doctorName: string; appointmentDate: string } | null>(null);
 	let cancelledOpen = $state(false);
 
-	const upcoming = $derived(
-		data.appointments.filter((a) =>
-			isUpcomingAppointment(String(a.appointmentDate), a.status)
-		)
-	);
-	const past = $derived(
-		data.appointments.filter(
-			(a) => !isUpcomingAppointment(String(a.appointmentDate), a.status)
-		)
-	);
+	const partitioned = $derived.by(() => {
+		const upcoming: typeof data.appointments = [];
+		const past: typeof data.appointments = [];
+		for (const a of data.appointments) {
+			(isUpcomingAppointment(String(a.appointmentDate), a.status) ? upcoming : past).push(a);
+		}
+		return { upcoming, past };
+	});
+	const upcoming = $derived(partitioned.upcoming);
+	const past = $derived(partitioned.past);
 	const visibleList = $derived(activeTab === 'upcoming' ? upcoming : past);
 
 	function closeConfirmedModal() {

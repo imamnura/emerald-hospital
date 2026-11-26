@@ -21,12 +21,8 @@
 
 	const crud = createCrudState<Schedule>();
 
-	let searchInput = $state('');
-	let doctorFilter = $state('');
-	$effect.pre(() => {
-		searchInput = data.query;
-		doctorFilter = data.doctorFilter;
-	});
+	let searchInput = $derived(data.query);
+	let doctorFilter = $derived(data.doctorFilter);
 
 	function applyFilters() {
 		const updates = { q: searchInput.trim(), doctorId: doctorFilter };
@@ -58,7 +54,7 @@
 				aria-label="Filter by doctor"
 			>
 				<option value="">All doctors</option>
-				{#each data.doctors as d}
+				{#each data.doctors as d (d.id)}
 					<option value={d.id}>{d.name}</option>
 				{/each}
 			</select>
@@ -178,7 +174,7 @@
 				class={MANAGER_INPUT_CLASS}
 			>
 				<option value="">Select doctor</option>
-				{#each data.doctors as d}
+				{#each data.doctors as d (d.id)}
 					<option value={d.id}>{d.name}</option>
 				{/each}
 			</select>

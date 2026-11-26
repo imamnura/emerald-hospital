@@ -11,13 +11,8 @@
 
 	let { data } = $props();
 
-	let specialty = $state('');
-	let hospital = $state('all');
-
-	$effect.pre(() => {
-		specialty = data.query;
-		hospital = data.hospital || 'all';
-	});
+	let specialty = $derived(data.query);
+	let hospital = $derived(data.hospital || 'all');
 
 	const isLoggedIn = $derived(Boolean(data.user));
 
