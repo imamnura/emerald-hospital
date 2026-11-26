@@ -5,7 +5,7 @@ import { sessions } from '#lib/server/db/schema.ts';
 import { resetDb, type TestDb } from '../../../test/db.ts';
 import { makeBooking, makeDoctor, makeSchedule, makeSession, makeUser } from '../../../test/factories.ts';
 import { ev, thrown } from '../../../test/helpers-routes-public.ts';
-import { toPublicUser } from '#lib/server/auth.ts';
+import { toPublicUser } from '#lib/server/auth/session.ts';
 import { actions, load } from './+page.server.ts';
 
 beforeEach(() => resetDb(db as unknown as TestDb));

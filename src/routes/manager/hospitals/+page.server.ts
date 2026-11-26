@@ -3,8 +3,8 @@ import { asc, count, eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { db } from '#lib/server/db/index.ts';
 import { hospitals } from '#lib/server/db/schema.ts';
-import { parsePagination } from '#lib/server/pagination.ts';
-import { denyUnlessManager } from '#lib/server/guards.ts';
+import { parsePagination } from '#lib/server/http/pagination.ts';
+import { denyUnlessManager } from '#lib/server/auth/guards.ts';
 import { formOpt, formStr, readEntityId, withFkGuard } from '#lib/server/http/forms.ts';
 import { paginate, searchWhere } from '#lib/server/http/list-query.ts';
 

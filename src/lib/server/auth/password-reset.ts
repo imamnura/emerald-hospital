@@ -1,8 +1,8 @@
 import crypto from 'node:crypto';
 import { and, eq, isNull } from 'drizzle-orm';
-import { db, type DbExecutor } from './db';
-import { passwordResetTokens, type User } from './db/schema';
-import { sendMail } from './mailer';
+import { db, type DbExecutor } from '#lib/server/db/index.ts';
+import { passwordResetTokens, type User } from '#lib/server/db/schema.ts';
+import { sendMail } from '#lib/server/mailer.ts';
 
 const TOKEN_TTL_MINUTES = 60;
 

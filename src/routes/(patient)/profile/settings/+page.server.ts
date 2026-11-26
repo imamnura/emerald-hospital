@@ -1,8 +1,8 @@
 import { redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { endSession } from '#lib/server/auth.ts';
-import { requireUser } from '#lib/server/guards.ts';
-import { languageLabel, readPreferences, writePreference } from '#lib/server/preferences.ts';
+import { endSession } from '#lib/server/auth/session.ts';
+import { requireUser } from '#lib/server/auth/guards.ts';
+import { languageLabel, readPreferences, writePreference } from '#lib/server/patient/preferences.ts';
 
 export const load: PageServerLoad = async ({ locals, cookies }) => {
 	requireUser(locals, '/profile/settings');

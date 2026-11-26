@@ -1,6 +1,6 @@
 import { desc, eq } from 'drizzle-orm';
-import { db } from './db';
-import { medicalRecords, type MedicalRecord } from './db/schema';
+import { db } from '#lib/server/db/index.ts';
+import { medicalRecords, type MedicalRecord } from '#lib/server/db/schema.ts';
 import { formatDate, parseIsoDate } from '#lib/format/date.ts';
 import type { MedicalRecordType, MedicalRecordView } from '#lib/utils/medical-records.ts';
 

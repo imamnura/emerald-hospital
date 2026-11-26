@@ -5,8 +5,8 @@ import {
 	readPreferences,
 	writePreference,
 	type AppLanguage
-} from '#lib/server/preferences.ts';
-import { requireUser } from '#lib/server/guards.ts';
+} from '#lib/server/patient/preferences.ts';
+import { requireUser } from '#lib/server/auth/guards.ts';
 
 const LANGUAGES: AppLanguage[] = ['en', 'id'];
 

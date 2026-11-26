@@ -3,10 +3,10 @@ import { and, eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { db } from '#lib/server/db/index.ts';
 import { doctorSchedules } from '#lib/server/db/schema.ts';
-import { publicUserOrNull } from '#lib/server/auth.ts';
-import { createBookingAtomic, getDayOfWeek, getSlotAvailabilityForSchedule } from '#lib/server/booking.ts';
-import { isUuid } from '#lib/server/db-errors.ts';
-import { getDoctorDetail } from '#lib/server/doctors.ts';
+import { publicUserOrNull } from '#lib/server/auth/session.ts';
+import { createBookingAtomic, getDayOfWeek, getSlotAvailabilityForSchedule } from '#lib/server/booking/booking.ts';
+import { isUuid } from '#lib/server/db/errors.ts';
+import { getDoctorDetail } from '#lib/server/catalog/doctors.ts';
 import { formatTime12h } from '#lib/format/date.ts';
 import { doctorRoleLabel } from '#lib/domain/specialist.ts';
 

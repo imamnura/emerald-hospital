@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { makeManager, makeUser } from '../../test/factories.ts';
 import { ev } from '../../test/helpers-routes-manager.ts';
-import { toPublicUser } from '#lib/server/auth.ts';
+import { toPublicUser } from '#lib/server/auth/session.ts';
 import { load } from './+layout.server.ts';
 
 type Event = Parameters<typeof load>[0];

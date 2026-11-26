@@ -1,7 +1,7 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { requirePatient } from '#lib/server/guards.ts';
-import { cancelBookingForUser, listAppointmentsForUser } from '#lib/server/booking.ts';
+import { requirePatient } from '#lib/server/auth/guards.ts';
+import { cancelBookingForUser, listAppointmentsForUser } from '#lib/server/booking/booking.ts';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const user = requirePatient(locals, '/appointments');

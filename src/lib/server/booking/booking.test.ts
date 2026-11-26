@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { bookings } from '#lib/server/db/schema.ts';
-import { resetDb, type TestDb } from '../../test/db.ts';
+import { resetDb, type TestDb } from '../../../test/db.ts';
 import {
 	makeBooking,
 	makeDoctor,
@@ -10,7 +10,7 @@ import {
 	makeSchedule,
 	makeSpecialist,
 	makeUser
-} from '../../test/factories.ts';
+} from '../../../test/factories.ts';
 import {
 	cancelBookingForUser,
 	createBookingAtomic,

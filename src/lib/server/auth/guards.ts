@@ -1,5 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
-import type { User } from './db/schema';
+import type { User } from '#lib/server/db/schema.ts';
 
 export function isManager(locals: App.Locals): boolean {
 	return locals.user?.role === 'manager';

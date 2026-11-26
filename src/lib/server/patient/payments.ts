@@ -1,7 +1,7 @@
 import { and, desc, eq, sql } from 'drizzle-orm';
-import { db } from './db';
-import { isUuid } from './db-errors';
-import { CARD_BRANDS, paymentCards, paymentTransactions } from './db/schema';
+import { db } from '#lib/server/db/index.ts';
+import { isUuid } from '#lib/server/db/errors.ts';
+import { CARD_BRANDS, paymentCards, paymentTransactions } from '#lib/server/db/schema.ts';
 
 export type CardBrand = (typeof CARD_BRANDS)[number];
 

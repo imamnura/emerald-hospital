@@ -1,8 +1,8 @@
 import { redirect } from '@sveltejs/kit';
 import { and, asc, count, eq, gte, inArray } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import { endSession, toPublicUser } from '#lib/server/auth.ts';
-import { requireUser } from '#lib/server/guards.ts';
+import { endSession, toPublicUser } from '#lib/server/auth/session.ts';
+import { requireUser } from '#lib/server/auth/guards.ts';
 import { db } from '#lib/server/db/index.ts';
 import { bookings } from '#lib/server/db/schema.ts';
 import { formatDate, toLocalDateString } from '#lib/format/date.ts';

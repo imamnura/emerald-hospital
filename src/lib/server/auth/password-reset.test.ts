@@ -3,9 +3,9 @@ import { eq } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { passwordResetTokens } from '#lib/server/db/schema.ts';
-import { resetDb, type TestDb } from '../../test/db.ts';
-import { makeUser } from '../../test/factories.ts';
-import { sendMail } from './mailer.ts';
+import { resetDb, type TestDb } from '../../../test/db.ts';
+import { makeUser } from '../../../test/factories.ts';
+import { sendMail } from '../mailer.ts';
 import {
 	consumePasswordResetToken,
 	createPasswordResetToken,
@@ -13,7 +13,7 @@ import {
 	sendPasswordResetEmail
 } from './password-reset.ts';
 
-vi.mock('./mailer.ts', () => ({ sendMail: vi.fn(async () => {}) }));
+vi.mock('../mailer.ts', () => ({ sendMail: vi.fn(async () => {}) }));
 
 const sha256 = (s: string) => crypto.createHash('sha256').update(s).digest('hex');
 

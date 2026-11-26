@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { sessions } from '#lib/server/db/schema.ts';
-import { PREF_KEYS } from '#lib/server/preferences.ts';
+import { PREF_KEYS } from '#lib/server/patient/preferences.ts';
 import { resetDb, type TestDb } from '../../../../test/db.ts';
 import { makeSession, makeUser } from '../../../../test/factories.ts';
 import { ev, thrown } from '../../../../test/helpers-routes-public.ts';

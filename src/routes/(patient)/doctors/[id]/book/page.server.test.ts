@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { toPublicUser } from '#lib/server/auth.ts';
+import { toPublicUser } from '#lib/server/auth/session.ts';
 import { db } from '#lib/server/db/index.ts';
 import { resetDb, type TestDb } from '../../../../../test/db.ts';
 import { makeBooking, makeDoctor, makeSchedule, makeUser } from '../../../../../test/factories.ts';

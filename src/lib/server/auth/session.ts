@@ -2,9 +2,9 @@ import { verify } from '@node-rs/argon2';
 import type { Cookies } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
-import { db, type DbExecutor } from './db';
-import { sessions, users, type User } from './db/schema';
-import { hashPassword } from './password.ts';
+import { db, type DbExecutor } from '#lib/server/db/index.ts';
+import { sessions, users, type User } from '#lib/server/db/schema.ts';
+import { hashPassword } from '#lib/server/auth/password.ts';
 
 export { hashPassword };
 

@@ -1,8 +1,8 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { publicUserOrNull } from '#lib/server/auth.ts';
-import { getSpecialistBySlug } from '#lib/server/catalog.ts';
-import { listActiveDoctorsBySpecialistId } from '#lib/server/doctors.ts';
+import { publicUserOrNull } from '#lib/server/auth/session.ts';
+import { getSpecialistBySlug } from '#lib/server/catalog/catalog.ts';
+import { listActiveDoctorsBySpecialistId } from '#lib/server/catalog/doctors.ts';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
 	const user = publicUserOrNull(locals.user);

@@ -3,10 +3,10 @@ import { asc, count, eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { db } from '#lib/server/db/index.ts';
 import { doctorSchedules, doctors } from '#lib/server/db/schema.ts';
-import { parsePagination } from '#lib/server/pagination.ts';
-import { denyUnlessManager } from '#lib/server/guards.ts';
-import { listDoctorOptions } from '#lib/server/catalog.ts';
-import { isUuid } from '#lib/server/db-errors.ts';
+import { parsePagination } from '#lib/server/http/pagination.ts';
+import { denyUnlessManager } from '#lib/server/auth/guards.ts';
+import { listDoctorOptions } from '#lib/server/catalog/catalog.ts';
+import { isUuid } from '#lib/server/db/errors.ts';
 import { formStr, readEntityId, withFkGuard } from '#lib/server/http/forms.ts';
 import { paginate, searchWhere, uuidOrUndefined } from '#lib/server/http/list-query.ts';
 

@@ -1,8 +1,8 @@
 import { and, count, desc, eq, inArray, ne } from 'drizzle-orm';
-import { db } from './db';
-import { isUuid } from './db-errors';
+import { db } from '#lib/server/db/index.ts';
+import { isUuid } from '#lib/server/db/errors.ts';
 import { parseIsoDate } from '#lib/format/date.ts';
-import { bookings, doctorSchedules, doctors, hospitals, specialists } from './db/schema';
+import { bookings, doctorSchedules, doctors, hospitals, specialists } from '#lib/server/db/schema.ts';
 
 function parseTime(time: string): number {
 	const [h, m] = time.split(':').map(Number);

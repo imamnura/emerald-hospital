@@ -1,8 +1,8 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { requireUser } from '#lib/server/guards.ts';
+import { requireUser } from '#lib/server/auth/guards.ts';
 import { formOpt, formStr, ISO_DATE_RE } from '#lib/server/http/forms.ts';
-import { getInsuranceForUser, upsertInsurance } from '#lib/server/insurance.ts';
+import { getInsuranceForUser, upsertInsurance } from '#lib/server/patient/insurance.ts';
 
 function isoDate(value: FormDataEntryValue | null): string | null {
 	const s = String(value ?? '').trim();

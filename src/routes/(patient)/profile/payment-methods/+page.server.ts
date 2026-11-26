@@ -1,13 +1,13 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { requireUser } from '#lib/server/guards.ts';
+import { requireUser } from '#lib/server/auth/guards.ts';
 import {
 	addCardForUser,
 	deleteCard,
 	listCardsForUser,
 	listTransactionsForUser,
 	setDefaultCard
-} from '#lib/server/payments.ts';
+} from '#lib/server/patient/payments.ts';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const user = requireUser(locals, '/profile/payment-methods');

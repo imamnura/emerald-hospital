@@ -1,6 +1,6 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { setSessionCookie } from '#lib/server/auth.ts';
+import { setSessionCookie } from '#lib/server/auth/session.ts';
 import {
 	OAUTH_COOKIES,
 	exchangeCodeForTokens,
@@ -8,7 +8,7 @@ import {
 	findOrCreateGoogleUser,
 	getConfig,
 	oauthCookieOptions
-} from '#lib/server/oauth-google.ts';
+} from '#lib/server/auth/oauth-google.ts';
 
 function clearOAuthCookies(cookies: Parameters<RequestHandler>[0]['cookies']) {
 	const path = oauthCookieOptions().path;

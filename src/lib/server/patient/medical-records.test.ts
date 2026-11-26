@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
-import { resetDb, type TestDb } from '../../test/db.ts';
-import { makeMedicalRecord, makeUser } from '../../test/factories.ts';
+import { resetDb, type TestDb } from '../../../test/db.ts';
+import { makeMedicalRecord, makeUser } from '../../../test/factories.ts';
 import { listMedicalRecordsForUser } from './medical-records.ts';
 
 beforeEach(() => resetDb(db as unknown as TestDb));

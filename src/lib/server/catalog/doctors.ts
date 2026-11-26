@@ -1,7 +1,7 @@
 import { and, eq } from 'drizzle-orm';
-import { db } from './db';
-import { isUuid } from './db-errors';
-import { doctors, hospitals, specialists } from './db/schema';
+import { db } from '#lib/server/db/index.ts';
+import { isUuid } from '#lib/server/db/errors.ts';
+import { doctors, hospitals, specialists } from '#lib/server/db/schema.ts';
 
 export type DoctorListItem = {
 	id: string;

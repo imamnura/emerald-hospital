@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { toPublicUser } from '#lib/server/auth.ts';
+import { toPublicUser } from '#lib/server/auth/session.ts';
 import { db } from '#lib/server/db/index.ts';
 import { bookings } from '#lib/server/db/schema.ts';
 import { resetDb, type TestDb } from '../../../../../../test/db.ts';

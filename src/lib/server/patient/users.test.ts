@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
-import { resetDb, type TestDb } from '../../test/db.ts';
-import { makeUser } from '../../test/factories.ts';
-import { verifyPassword } from './auth.ts';
+import { resetDb, type TestDb } from '../../../test/db.ts';
+import { makeUser } from '../../../test/factories.ts';
+import { verifyPassword } from '../auth/session.ts';
 import { getUserByEmail, getUserById, parseProfileForm, setPassword, updateProfile } from './users.ts';
 
 beforeEach(() => resetDb(db as unknown as TestDb));

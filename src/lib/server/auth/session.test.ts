@@ -3,8 +3,8 @@ import { eq } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { sessions } from '#lib/server/db/schema.ts';
-import { resetDb, type TestDb } from '../../test/db.ts';
-import { makeSession, makeUser } from '../../test/factories.ts';
+import { resetDb, type TestDb } from '../../../test/db.ts';
+import { makeSession, makeUser } from '../../../test/factories.ts';
 import {
 	SESSION_COOKIE_NAME,
 	createSession,
@@ -16,7 +16,7 @@ import {
 	toPublicUser,
 	validateSession,
 	verifyPassword
-} from './auth.ts';
+} from './session.ts';
 
 beforeEach(() => resetDb(db as unknown as TestDb));
 

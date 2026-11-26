@@ -1,6 +1,6 @@
 import type { PageServerLoad } from './$types';
-import { publicUserOrNull } from '#lib/server/auth.ts';
-import { listSpecialists } from '#lib/server/catalog.ts';
+import { publicUserOrNull } from '#lib/server/auth/session.ts';
+import { listSpecialists } from '#lib/server/catalog/catalog.ts';
 
 const DISPLAY_ORDER = [
 	'cardiology',

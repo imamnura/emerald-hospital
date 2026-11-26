@@ -1,9 +1,9 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { publicUserOrNull } from '#lib/server/auth.ts';
-import { listSchedulesForDoctor } from '#lib/server/catalog.ts';
-import { getDoctorDetail } from '#lib/server/doctors.ts';
-import { getAllSlotsForDoctorDate } from '#lib/server/booking.ts';
+import { publicUserOrNull } from '#lib/server/auth/session.ts';
+import { listSchedulesForDoctor } from '#lib/server/catalog/catalog.ts';
+import { getDoctorDetail } from '#lib/server/catalog/doctors.ts';
+import { getAllSlotsForDoctorDate } from '#lib/server/booking/booking.ts';
 import { formatDate, formatTime12h } from '#lib/format/date.ts';
 import {
 	generateCalendarDays,

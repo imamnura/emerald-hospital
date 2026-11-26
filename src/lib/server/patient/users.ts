@@ -1,9 +1,9 @@
 import { eq } from 'drizzle-orm';
-import { hashPassword } from './auth';
-import { db, type DbExecutor } from './db';
+import { hashPassword } from '#lib/server/auth/session.ts';
+import { db, type DbExecutor } from '#lib/server/db/index.ts';
 import { parseIsoDate } from '#lib/format/date.ts';
-import { formOpt, formStr, ISO_DATE_RE } from './http/forms.ts';
-import { BLOOD_TYPES, GENDERS, users, type User } from './db/schema';
+import { formOpt, formStr, ISO_DATE_RE } from '#lib/server/http/forms.ts';
+import { BLOOD_TYPES, GENDERS, users, type User } from '#lib/server/db/schema.ts';
 
 type ProfileUpdate = {
 	name?: string;

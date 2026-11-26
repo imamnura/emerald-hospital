@@ -1,6 +1,6 @@
 import type { Handle } from '@sveltejs/kit/hooks';
-import { SESSION_COOKIE_NAME, validateSession } from '#lib/server/auth.ts';
-import { isManager } from '#lib/server/guards.ts';
+import { SESSION_COOKIE_NAME, validateSession } from '#lib/server/auth/session.ts';
+import { isManager } from '#lib/server/auth/guards.ts';
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 

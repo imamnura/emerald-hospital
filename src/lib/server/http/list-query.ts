@@ -1,5 +1,5 @@
 import { and, ilike, or, type AnyColumn, type SQL } from 'drizzle-orm';
-import { isUuid } from '../db-errors.ts';
+import { isUuid } from '#lib/server/db/errors.ts';
 
 /**
  * `ILIKE %q%` across `cols` (OR-ed), AND-ed with `extra`. Returns `undefined`

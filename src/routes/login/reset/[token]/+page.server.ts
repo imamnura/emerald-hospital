@@ -1,9 +1,9 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { deleteSessionsByUserId, hashPassword } from '#lib/server/auth.ts';
+import { deleteSessionsByUserId, hashPassword } from '#lib/server/auth/session.ts';
 import { db } from '#lib/server/db/index.ts';
-import { consumePasswordResetToken, findValidPasswordResetToken } from '#lib/server/password-reset.ts';
-import { setPasswordHash } from '#lib/server/users.ts';
+import { consumePasswordResetToken, findValidPasswordResetToken } from '#lib/server/auth/password-reset.ts';
+import { setPasswordHash } from '#lib/server/patient/users.ts';
 
 const INVALID_TOKEN = { error: 'This reset link is invalid or has expired.', expired: true };
 

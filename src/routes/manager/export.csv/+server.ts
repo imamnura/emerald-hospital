@@ -1,8 +1,8 @@
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { STATUS_LABEL } from '#lib/domain/booking-status.ts';
-import { exportRows, parseFilters, rangeLabel } from '#lib/server/analytics.ts';
-import { isManager } from '#lib/server/guards.ts';
+import { exportRows, parseFilters, rangeLabel } from '#lib/server/booking/analytics.ts';
+import { isManager } from '#lib/server/auth/guards.ts';
 
 function escapeCell(value: string | number): string {
 	const s = String(value ?? '');

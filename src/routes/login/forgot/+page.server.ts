@@ -1,8 +1,8 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { createPasswordResetToken, sendPasswordResetEmail } from '#lib/server/password-reset.ts';
+import { createPasswordResetToken, sendPasswordResetEmail } from '#lib/server/auth/password-reset.ts';
 import { formStr } from '#lib/server/http/forms.ts';
-import { getUserByEmail } from '#lib/server/users.ts';
+import { getUserByEmail } from '#lib/server/patient/users.ts';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	if (locals.user) throw redirect(303, '/home');

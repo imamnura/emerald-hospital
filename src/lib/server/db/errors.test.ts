@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isForeignKeyViolation, isUniqueViolation, isUuid } from './db-errors.ts';
+import { isForeignKeyViolation, isUniqueViolation, isUuid } from './errors.ts';
 
 describe('isUuid', () => {
 	it.each([

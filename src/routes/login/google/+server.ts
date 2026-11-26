@@ -8,7 +8,7 @@ import {
 	generateState,
 	getConfig,
 	oauthCookieOptions
-} from '#lib/server/oauth-google.ts';
+} from '#lib/server/auth/oauth-google.ts';
 
 export const GET: RequestHandler = async ({ url, cookies }) => {
 	const config = getConfig();

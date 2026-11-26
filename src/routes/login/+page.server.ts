@@ -1,10 +1,10 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { setSessionCookie, verifyPassword } from '#lib/server/auth.ts';
+import { setSessionCookie, verifyPassword } from '#lib/server/auth/session.ts';
 import { homeFor, sanitizeRedirect } from '#lib/server/auth/redirect.ts';
 import { formOpt, formStr } from '#lib/server/http/forms.ts';
-import { isConfigured as isGoogleConfigured } from '#lib/server/oauth-google.ts';
-import { getUserByEmail } from '#lib/server/users.ts';
+import { isConfigured as isGoogleConfigured } from '#lib/server/auth/oauth-google.ts';
+import { getUserByEmail } from '#lib/server/patient/users.ts';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const redirectTo = url.searchParams.get('redirect');

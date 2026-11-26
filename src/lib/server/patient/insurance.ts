@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
-import { db } from './db';
-import { insuranceProfiles, type InsuranceProfile } from './db/schema';
+import { db } from '#lib/server/db/index.ts';
+import { insuranceProfiles, type InsuranceProfile } from '#lib/server/db/schema.ts';
 import { formatDate } from '#lib/format/date.ts';
 import type { InsuranceProfileView } from '#lib/utils/insurance.ts';
 

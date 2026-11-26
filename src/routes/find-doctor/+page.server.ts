@@ -1,7 +1,7 @@
 import type { PageServerLoad } from './$types';
-import { filterDoctorsByQuery, listActiveDoctors } from '#lib/server/doctors.ts';
-import { listHospitals } from '#lib/server/catalog.ts';
-import { publicUserOrNull } from '#lib/server/auth.ts';
+import { filterDoctorsByQuery, listActiveDoctors } from '#lib/server/catalog/doctors.ts';
+import { listHospitals } from '#lib/server/catalog/catalog.ts';
+import { publicUserOrNull } from '#lib/server/auth/session.ts';
 
 export const load: PageServerLoad = async ({ url, locals }) => {
 	const user = publicUserOrNull(locals.user);

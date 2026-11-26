@@ -4,9 +4,9 @@
  * across multiple route loaders.
  */
 import { asc, eq } from 'drizzle-orm';
-import { db } from './db';
-import { isUuid } from './db-errors';
-import { doctorSchedules, doctors, hospitals, specialists } from './db/schema';
+import { db } from '#lib/server/db/index.ts';
+import { isUuid } from '#lib/server/db/errors.ts';
+import { doctorSchedules, doctors, hospitals, specialists } from '#lib/server/db/schema.ts';
 
 export async function listHospitals() {
 	return db.select().from(hospitals).orderBy(asc(hospitals.name));

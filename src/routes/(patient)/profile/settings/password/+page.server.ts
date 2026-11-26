@@ -1,11 +1,11 @@
 import { fail } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import { verifyPassword } from '#lib/server/auth.ts';
+import { verifyPassword } from '#lib/server/auth/session.ts';
 import { db } from '#lib/server/db/index.ts';
 import { users } from '#lib/server/db/schema.ts';
-import { requireUser } from '#lib/server/guards.ts';
-import { setPassword } from '#lib/server/users.ts';
+import { requireUser } from '#lib/server/auth/guards.ts';
+import { setPassword } from '#lib/server/patient/users.ts';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const current = requireUser(locals, '/profile/settings/password');

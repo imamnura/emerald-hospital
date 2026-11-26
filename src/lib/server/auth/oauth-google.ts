@@ -1,8 +1,8 @@
 import crypto from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import * as env from '$app/env/private';
-import { db } from './db';
-import { users, type User } from './db/schema';
+import { db } from '#lib/server/db/index.ts';
+import { users, type User } from '#lib/server/db/schema.ts';
 
 /** @internal exported for tests */
 export const GOOGLE_AUTHORIZE_URL = 'https://accounts.google.com/o/oauth2/v2/auth';

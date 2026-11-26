@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { sessions, users } from '#lib/server/db/schema.ts';
-import { GOOGLE_TOKEN_URL, OAUTH_COOKIES } from '#lib/server/oauth-google.ts';
+import { GOOGLE_TOKEN_URL, OAUTH_COOKIES } from '#lib/server/auth/oauth-google.ts';
 import { resetDb, type TestDb } from '../../../../test/db.ts';
 import { makeUser } from '../../../../test/factories.ts';
 import { ev, thrown } from '../../../../test/helpers-routes-public.ts';

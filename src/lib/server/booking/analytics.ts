@@ -1,7 +1,7 @@
 import { and, count, desc, eq, gte, lte, sql, type SQL } from 'drizzle-orm';
 import type { SelectedFields } from 'drizzle-orm/pg-core';
-import { db } from './db';
-import { bookings, doctors, hospitals, specialists, users } from './db/schema';
+import { db } from '#lib/server/db/index.ts';
+import { bookings, doctors, hospitals, specialists, users } from '#lib/server/db/schema.ts';
 
 /** @internal exported for tests */
 export type DateRangePreset = '7d' | '30d' | '90d' | '365d' | 'all';

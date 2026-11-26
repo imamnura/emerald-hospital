@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from '../src/lib/server/db/schema';
-import { hashPassword } from '../src/lib/server/password.ts';
+import { hashPassword } from '../src/lib/server/auth/password.ts';
 import { toLocalDateString } from '../src/lib/format/date.ts';
 
 const {

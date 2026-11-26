@@ -1,6 +1,6 @@
 import type { LayoutServerLoad } from './$types';
-import { toPublicUser } from '#lib/server/auth.ts';
-import { requireManager } from '#lib/server/guards.ts';
+import { toPublicUser } from '#lib/server/auth/session.ts';
+import { requireManager } from '#lib/server/auth/guards.ts';
 
 export const load: LayoutServerLoad = async ({ locals }) => {
 	// Literal (not url.pathname): this layout wraps every /manager/* page.

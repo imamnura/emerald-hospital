@@ -2,8 +2,8 @@ import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { paymentCards } from '#lib/server/db/schema.ts';
-import { resetDb, type TestDb } from '../../test/db.ts';
-import { makeCard, makeTransaction, makeUser } from '../../test/factories.ts';
+import { resetDb, type TestDb } from '../../../test/db.ts';
+import { makeCard, makeTransaction, makeUser } from '../../../test/factories.ts';
 import {
 	addCardForUser,
 	deleteCard,
