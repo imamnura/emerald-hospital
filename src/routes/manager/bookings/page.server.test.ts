@@ -15,8 +15,6 @@ import {
 import { ev, nonManagers, reset, UNKNOWN_ID, type ActionResult } from '#test/helpers/route.ts';
 import { actions, load } from './+page.server.ts';
 
-type Event = Parameters<typeof load>[0];
-type ActionEvent = Parameters<(typeof actions)['updateStatus']>[0];
 type Row = { id: string; patientName: string; doctorName: string; status: string; appointmentDate: string };
 type LoadData = {
 	bookings: Row[];

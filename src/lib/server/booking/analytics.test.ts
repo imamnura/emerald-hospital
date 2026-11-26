@@ -1,6 +1,5 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
-import { resetDb, type TestDb } from '#test/db.ts';
 import {
 	makeBooking,
 	makeDoctor,

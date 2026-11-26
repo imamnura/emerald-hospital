@@ -1,8 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { handle } from './hooks.server.ts';
 import { SESSION_COOKIE_NAME } from '#lib/server/auth/session.ts';
-import { db } from '#lib/server/db/index.ts';
-import { resetDb, type TestDb } from '#test/db.ts';
 import { makeEvent, makeManager, makeSession, makeUser } from '#test/factories.ts';
 import { reset } from '#test/helpers/route.ts';
 

@@ -1,6 +1,4 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { db } from '#lib/server/db/index.ts';
-import { resetDb, type TestDb } from '#test/db.ts';
 import { makeDoctor, makeHospital, makeSpecialist } from '#test/factories.ts';
 import { reset } from '#test/helpers/route.ts';
 import {

@@ -2,7 +2,6 @@ import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { insuranceProfiles } from '#lib/server/db/schema.ts';
-import { resetDb, type TestDb } from '#test/db.ts';
 import { makeInsurance, makeUser } from '#test/factories.ts';
 import { reset } from '#test/helpers/route.ts';
 import { getInsuranceForUser, upsertInsurance } from './insurance.ts';

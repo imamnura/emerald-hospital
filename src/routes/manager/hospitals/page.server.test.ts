@@ -6,8 +6,6 @@ import { makeDoctor, makeEvent, makeHospital, makeManager } from '#test/factorie
 import { ev, nonManagers, reset, UNKNOWN_ID, type ActionResult } from '#test/helpers/route.ts';
 import { actions, load } from './+page.server.ts';
 
-type Event = Parameters<typeof load>[0];
-type ActionEvent = Parameters<(typeof actions)['create']>[0];
 type LoadData = { hospitals: { name: string }[]; total: number; page: number; pageSize: number; query: string };
 const run = async (url: string) => (await load(ev({ url }))) as unknown as LoadData;
 const act = async (name: 'create' | 'update' | 'delete', o: Parameters<typeof makeEvent>[0]) =>

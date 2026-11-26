@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { hashPassword } from '#lib/server/auth/session.ts';
 import { db } from '#lib/server/db/index.ts';
 import { sessions } from '#lib/server/db/schema.ts';
-import { resetDb, type TestDb } from '#test/db.ts';
 import { makeUser } from '#test/factories.ts';
 import { ev, thrown, reset } from '#test/helpers/route.ts';
 import { setEnv } from '#test/mocks/env-private.ts';
