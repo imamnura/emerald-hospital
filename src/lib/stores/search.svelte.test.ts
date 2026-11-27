@@ -4,9 +4,10 @@ import {
 	doctorPrice,
 	filterAndSortDoctors,
 	useSearchStore,
-	type DoctorSearchResult,
-	type SearchFilters
+	type DoctorSearchResult
 } from '#lib/stores/search.ts';
+
+type SearchFilters = typeof defaultSearchFilters;
 
 const KEY = 'emerald-search';
 const s = () => useSearchStore.getState();
@@ -142,6 +143,29 @@ describe('useSearchStore', () => {
 		await useSearchStore.persist.rehydrate();
 		expect(s().bookmarkedIds).toEqual(['x', 'y']);
 		expect(s().filters.sortBy).toBe('rating');
+	});
+
+	it('hydrates bookmarks persisted by the previous version', async () => {
+		// Exact shape real users have in localStorage today: partialize -> bookmarkedIds + filters, version 0.
+		localStorage.setItem(
+			KEY,
+			JSON.stringify({
+				state: {
+					bookmarkedIds: ['d1'],
+					filters: {
+						sortBy: 'recommended',
+						specialties: ['dental'],
+						availability: null,
+						priceRange: [50, 250]
+					}
+				},
+				version: 0
+			})
+		);
+		await useSearchStore.persist.rehydrate();
+		expect(s().bookmarkedIds).toEqual(['d1']);
+		expect(s().filters.specialties).toEqual(['dental']);
+		expect(s().filters.priceRange).toEqual([50, 250]);
 	});
 
 	it('hydrates on module load from existing storage', async () => {

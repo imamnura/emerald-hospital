@@ -1,55 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
-	formatAppointmentDateLong,
-	formatAppointmentDateShort,
-	formatMonthYear,
-	formatTime12h,
 	generateCalendarDays,
 	groupSlotsByPeriod,
 	pickDefaultDate,
-	toLocalDateString,
-	type CalendarDay,
 	type TimeSlotUi
 } from '#lib/utils/booking-ui.ts';
 
-describe('formatTime12h', () => {
-	it.each([
-		['00:00', '12:00 AM'],
-		['09:05', '09:05 AM'],
-		['11:59', '11:59 AM'],
-		['12:00', '12:00 PM'],
-		['13:30', '01:30 PM'],
-		['23:45', '11:45 PM']
-	])('%s -> %s', (input, expected) => {
-		expect(formatTime12h(input)).toBe(expected);
-	});
-});
-
-describe('date formatters', () => {
-	it('formats month + year', () => {
-		expect(formatMonthYear('2026-10-22')).toBe('October 2026');
-	});
-
-	it('formats short appointment date', () => {
-		expect(formatAppointmentDateShort('2023-10-17')).toBe('Oct 17, 2023');
-	});
-
-	it('formats long appointment date with weekday', () => {
-		expect(formatAppointmentDateLong('2023-10-17')).toBe('Tuesday, Oct 17, 2023');
-	});
-});
-
-describe('toLocalDateString', () => {
-	it('formats the local calendar date as YYYY-MM-DD with zero padding', () => {
-		expect(toLocalDateString(new Date(2030, 0, 5))).toBe('2030-01-05');
-		expect(toLocalDateString(new Date(2030, 11, 31))).toBe('2030-12-31');
-	});
-
-	it('uses the local day at both ends of the day (no UTC shift)', () => {
-		expect(toLocalDateString(new Date(2030, 0, 5, 0, 0, 0))).toBe('2030-01-05');
-		expect(toLocalDateString(new Date(2030, 0, 5, 23, 59, 59))).toBe('2030-01-05');
-	});
-});
+type CalendarDay = ReturnType<typeof generateCalendarDays>[number];
 
 describe('generateCalendarDays', () => {
 	afterEach(() => {

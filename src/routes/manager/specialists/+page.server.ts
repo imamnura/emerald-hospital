@@ -1,11 +1,13 @@
 import { fail } from '@sveltejs/kit';
-import { and, asc, count, eq, ilike, ne, or, type SQL } from 'drizzle-orm';
+import { asc, count, eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { db } from '#lib/server/db/index.ts';
 import { specialists } from '#lib/server/db/schema.ts';
-import { parsePagination } from '#lib/server/pagination.ts';
-import { denyUnlessManager } from '#lib/server/guards.ts';
-import { isForeignKeyViolation, isUuid } from '#lib/server/db-errors.ts';
+import { parsePagination } from '#lib/server/http/pagination.ts';
+import { denyUnlessManager } from '#lib/server/auth/guards.ts';
+import { isUniqueViolation } from '#lib/server/db/errors.ts';
+import { formOpt, formStr, readEntityId, withFkGuard } from '#lib/server/http/forms.ts';
+import { paginate, searchWhere } from '#lib/server/http/list-query.ts';
 
 function slugify(value: string): string {
 	return value
@@ -17,10 +19,10 @@ function slugify(value: string): string {
 }
 
 function parseSpecialistForm(fd: FormData) {
-	const name = String(fd.get('name') ?? '').trim();
-	const slugRaw = String(fd.get('slug') ?? '').trim().toLowerCase();
+	const name = formStr(fd, 'name');
+	const slugRaw = formStr(fd, 'slug').toLowerCase();
 	const slug = slugRaw ? slugify(slugRaw) : '';
-	const icon = String(fd.get('icon') ?? '').trim() || null;
+	const icon = formOpt(fd, 'icon');
 	if (!name) return { error: 'Name is required.' as const };
 	if (!slug) return { error: 'Slug is required.' as const };
 	if (!/^[a-z0-9-]+$/.test(slug)) {
@@ -32,46 +34,15 @@ function parseSpecialistForm(fd: FormData) {
 export const load: PageServerLoad = async ({ url }) => {
 	const { page, pageSize, offset } = parsePagination(url.searchParams);
 	const q = url.searchParams.get('q')?.trim() ?? '';
+	const where = searchWhere(q, [specialists.name, specialists.slug]);
 
-	const conditions: SQL[] = [];
-	if (q) {
-		const like = `%${q}%`;
-		conditions.push(or(ilike(specialists.name, like), ilike(specialists.slug, like))!);
-	}
-	const where = conditions.length > 0 ? and(...conditions) : undefined;
+	const { rows, total } = await paginate(
+		db.select().from(specialists).where(where).orderBy(asc(specialists.name)).limit(pageSize).offset(offset),
+		db.select({ value: count() }).from(specialists).where(where)
+	);
 
-	const totalQ = db.select({ value: count() }).from(specialists);
-	if (where) totalQ.where(where);
-	const [{ value: total }] = await totalQ;
-
-	const listQ = db
-		.select()
-		.from(specialists)
-		.orderBy(asc(specialists.name))
-		.limit(pageSize)
-		.offset(offset);
-	if (where) listQ.where(where);
-	const list = await listQ;
-
-	return {
-		specialists: list,
-		total: Number(total),
-		page,
-		pageSize,
-		query: q
-	};
+	return { specialists: rows, total, page, pageSize, query: q };
 };
-
-async function slugTaken(slug: string, excludeId?: string): Promise<boolean> {
-	const conditions: SQL[] = [eq(specialists.slug, slug)];
-	if (excludeId) conditions.push(ne(specialists.id, excludeId));
-	const [row] = await db
-		.select({ id: specialists.id })
-		.from(specialists)
-		.where(and(...conditions))
-		.limit(1);
-	return Boolean(row);
-}
 
 export const actions: Actions = {
 	create: async ({ request, locals }) => {
@@ -80,8 +51,12 @@ export const actions: Actions = {
 		const fd = await request.formData();
 		const parsed = parseSpecialistForm(fd);
 		if ('error' in parsed) return fail(400, { error: parsed.error });
-		if (await slugTaken(parsed.slug)) return fail(400, { error: 'Slug is already in use.' });
-		await db.insert(specialists).values(parsed);
+		try {
+			await db.insert(specialists).values(parsed);
+		} catch (e) {
+			if (isUniqueViolation(e)) return fail(400, { error: 'Slug is already in use.' });
+			throw e;
+		}
 		return { success: true, message: 'Specialty created.' };
 	},
 
@@ -89,18 +64,17 @@ export const actions: Actions = {
 		const denied = denyUnlessManager(locals);
 		if (denied) return denied;
 		const fd = await request.formData();
-		const id = String(fd.get('id') ?? '');
-		if (!id) return fail(400, { error: 'Missing specialty ID.' });
-		if (!isUuid(id)) return fail(404, { error: 'Specialty not found.' });
+		const entity = readEntityId(fd, 'specialty');
+		if ('status' in entity) return entity;
 		const parsed = parseSpecialistForm(fd);
 		if ('error' in parsed) return fail(400, { error: parsed.error });
-		if (await slugTaken(parsed.slug, id))
-			return fail(400, { error: 'Slug is already in use by another specialty.' });
-		const result = await db
-			.update(specialists)
-			.set(parsed)
-			.where(eq(specialists.id, id))
-			.returning();
+		let result;
+		try {
+			result = await db.update(specialists).set(parsed).where(eq(specialists.id, entity.id)).returning();
+		} catch (e) {
+			if (isUniqueViolation(e)) return fail(400, { error: 'Slug is already in use by another specialty.' });
+			throw e;
+		}
 		if (result.length === 0) return fail(404, { error: 'Specialty not found.' });
 		return { success: true, message: 'Specialty updated.' };
 	},
@@ -108,16 +82,14 @@ export const actions: Actions = {
 	delete: async ({ request, locals }) => {
 		const denied = denyUnlessManager(locals);
 		if (denied) return denied;
-		const id = String((await request.formData()).get('id') ?? '');
-		if (!id) return fail(400, { error: 'Missing specialty ID.' });
-		if (!isUuid(id)) return fail(404, { error: 'Specialty not found.' });
-		let result;
-		try {
-			result = await db.delete(specialists).where(eq(specialists.id, id)).returning();
-		} catch (e) {
-			if (isForeignKeyViolation(e)) return fail(409, { error: 'Specialty still has doctors. Remove or reassign them first.' });
-			throw e;
-		}
+		const entity = readEntityId(await request.formData(), 'specialty');
+		if ('status' in entity) return entity;
+		const result = await withFkGuard(
+			() => db.delete(specialists).where(eq(specialists.id, entity.id)).returning(),
+			409,
+			'Specialty still has doctors. Remove or reassign them first.'
+		);
+		if ('status' in result) return result;
 		if (result.length === 0) return fail(404, { error: 'Specialty not found.' });
 		return { success: true, message: 'Specialty deleted.' };
 	}

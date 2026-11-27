@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BrandMark from '#lib/components/ui/BrandMark.svelte';
 	import {
 		LANDING_BRAND,
 		LANDING_FEATURES,
@@ -11,11 +12,8 @@
 	} from '#lib/data/landing.ts';
 	import {
 		ArrowRight,
-		Building2,
 		Calendar,
 		CalendarClock,
-		ChevronDown,
-		HeartPulse,
 		Mail,
 		MapPin,
 		MessageCircle,
@@ -24,7 +22,10 @@
 		ShieldCheck,
 		Star
 	} from '@lucide/svelte';
-	import SpecialtyAutocomplete from '#lib/components/SpecialtyAutocomplete.svelte';
+	import DoctorSummary from '#lib/components/doctor/DoctorSummary.svelte';
+	import { goto } from '$app/navigation';
+	import DoctorSearchForm from '#lib/components/doctor/DoctorSearchForm.svelte';
+	import { findDoctorHref } from '#lib/utils/url.ts';
 
 	let specialty = $state('');
 	let hospital = $state(LANDING_HOSPITALS[0].value);
@@ -36,13 +37,8 @@
 			: LANDING_TESTIMONIALS.appReviews
 	);
 
-	function handleHeroSearch(e: SubmitEvent) {
-		e.preventDefault();
-		const params = new URLSearchParams();
-		if (specialty.trim()) params.set('q', specialty.trim());
-		if (hospital !== 'all') params.set('hospital', hospital);
-		const qs = params.toString();
-		window.location.href = qs ? `/find-doctor?${qs}` : '/find-doctor';
+	function handleHeroSearch() {
+		goto(findDoctorHref(specialty, hospital));
 	}
 </script>
 
@@ -54,14 +50,7 @@
 	<!-- Hero -->
 	<header class="relative overflow-hidden bg-gradient-to-b from-surface-container-low to-surface px-5 pb-10 pt-6 md:px-8 lg:px-12">
 		<div class="mx-auto max-w-5xl">
-			<div class="flex items-center gap-2">
-				<div
-					class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-on-primary"
-				>
-					<HeartPulse size={20} strokeWidth={2.5} />
-				</div>
-				<span class="font-heading text-lg font-bold text-primary">{LANDING_BRAND.name}</span>
-			</div>
+			<BrandMark />
 
 			<div
 				class="mt-4 flex items-center gap-2 rounded-xl border border-outline-variant/50 bg-surface-container-lowest px-3 py-2.5 text-sm text-on-surface-variant shadow-[var(--shadow-card)]"
@@ -92,47 +81,10 @@
 				</a>
 			</div>
 
-			<form
-				onsubmit={handleHeroSearch}
-				class="mt-8 rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-4 shadow-[var(--shadow-card)] md:p-5"
-			>
-				<div class="flex flex-col gap-3 md:flex-row md:items-stretch">
-					<SpecialtyAutocomplete
-						bind:value={specialty}
-						placeholder={LANDING_HERO.searchSpecialtyPlaceholder}
-						class="flex-1"
-					/>
-					<label class="relative flex-1">
-						<span class="sr-only">Hospital</span>
-						<Building2
-							size={18}
-							class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-outline"
-						/>
-						<select
-							bind:value={hospital}
-							class="w-full appearance-none rounded-xl border border-outline-variant/50 bg-surface py-3 pl-10 pr-10 text-sm text-on-surface focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-						>
-							{#each LANDING_HOSPITALS as opt}
-								<option value={opt.value}>{opt.label}</option>
-							{/each}
-						</select>
-						<ChevronDown
-							size={16}
-							class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-outline"
-						/>
-					</label>
-					<button
-						type="submit"
-						class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-on-primary shadow-[var(--shadow-primary)] md:shrink-0"
-					>
-						<Search size={18} />
-						{LANDING_HERO.searchButtonLabel}
-					</button>
-				</div>
-			</form>
+			<DoctorSearchForm bind:specialty bind:hospital onsubmit={handleHeroSearch} class="mt-8" />
 
 			<ul class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-6">
-				{#each LANDING_TRUST_BADGES as badge}
+				{#each LANDING_TRUST_BADGES as badge (badge.id)}
 					<li class="flex items-center gap-2 text-sm text-on-surface-variant">
 						<ShieldCheck size={18} class="shrink-0 text-primary" />
 						{badge.label}
@@ -151,7 +103,7 @@
 			<p class="mt-2 text-on-surface-variant">{LANDING_FEATURES.subtitle}</p>
 		</div>
 		<ul class="mx-auto mt-8 grid max-w-5xl gap-4 md:grid-cols-3">
-			{#each LANDING_FEATURES.items as feature, i}
+			{#each LANDING_FEATURES.items as feature, i (feature.id)}
 				{@const icons = [Search, Star, CalendarClock]}
 				{@const Icon = icons[i]}
 				<li
@@ -188,40 +140,20 @@
 				</a>
 			</div>
 			<ul class="mt-8 flex flex-col gap-4">
-				{#each LANDING_POPULAR_DOCTORS.doctors as doctor}
-					<li
-						class="flex flex-col gap-4 rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-4 shadow-[var(--shadow-card)] sm:flex-row sm:items-center"
+				{#each LANDING_POPULAR_DOCTORS.doctors as doctor (doctor.id)}
+					<DoctorSummary
+						doctor={{ ...doctor, specialty: doctor.specialtyBadge, role: doctor.title }}
+						variant="list"
 					>
-						<div class="flex min-w-0 flex-1 items-center gap-4">
-							<img
-								src={doctor.imageUrl}
-								alt={doctor.name}
-								class="h-16 w-16 shrink-0 rounded-full object-cover"
-								width="64"
-								height="64"
-							/>
-							<div class="min-w-0">
-								<span
-									class="inline-block rounded-full bg-surface-container px-2.5 py-0.5 text-xs font-semibold text-primary"
-								>
-									{doctor.specialtyBadge}
-								</span>
-								<p class="mt-1 font-heading font-semibold text-on-surface">{doctor.name}</p>
-								<p class="text-sm text-on-surface-variant">{doctor.title}</p>
-								<p class="mt-1 flex items-center gap-1 text-sm text-on-surface-variant">
-									<Star size={14} class="fill-amber-400 text-amber-400" />
-									<span class="font-semibold text-on-surface">{doctor.rating}</span>
-									<span class="text-outline">({doctor.reviewCount} reviews)</span>
-								</p>
-							</div>
-						</div>
-						<a
-							href="/login"
-							class="inline-flex shrink-0 items-center justify-center rounded-xl border-2 border-primary bg-surface-container-lowest px-6 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-surface-container-low sm:ml-auto"
-						>
-							Book Now
-						</a>
-					</li>
+						{#snippet actions()}
+							<a
+								href="/login"
+								class="inline-flex shrink-0 items-center justify-center rounded-xl border-2 border-primary bg-surface-container-lowest px-6 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-surface-container-low sm:ml-auto"
+							>
+								Book Now
+							</a>
+						{/snippet}
+					</DoctorSummary>
 				{/each}
 			</ul>
 		</div>
@@ -234,7 +166,7 @@
 				{LANDING_TESTIMONIALS.title}
 			</h2>
 			<div class="mt-6 flex justify-center gap-2">
-				{#each LANDING_TESTIMONIALS.tabs as tab}
+				{#each LANDING_TESTIMONIALS.tabs as tab (tab.id)}
 					<button
 						type="button"
 						onclick={() => (testimonialTab = tab.id)}
@@ -248,7 +180,7 @@
 				{/each}
 			</div>
 			<ul class="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-				{#each activeTestimonials as review}
+				{#each activeTestimonials as review (review.id)}
 					<li
 						class="rounded-2xl border border-outline-variant/30 bg-surface-container-lowest p-5 shadow-[var(--shadow-card)]"
 					>
@@ -271,17 +203,10 @@
 	<footer class="bg-surface-container px-5 py-12 md:px-8 lg:px-12">
 		<div class="mx-auto grid max-w-5xl gap-10 md:grid-cols-2 lg:grid-cols-3">
 			<div>
-				<div class="flex items-center gap-2">
-					<div
-						class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-on-primary"
-					>
-						<HeartPulse size={20} />
-					</div>
-					<span class="font-heading text-lg font-bold text-primary">{LANDING_BRAND.name}</span>
-				</div>
+				<BrandMark size="sm" />
 				<p class="mt-4 text-sm leading-relaxed text-on-surface-variant">{LANDING_FOOTER.tagline}</p>
 				<div class="mt-4 flex gap-2">
-					{#each LANDING_FOOTER.socialLinks as social}
+					{#each LANDING_FOOTER.socialLinks as social (social.id)}
 						<a
 							href={social.href}
 							aria-label={social.label}

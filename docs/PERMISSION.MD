@@ -1,6 +1,6 @@
 # Permissions & Access Control
 
-> Part of the [Purwakarta Health docs](./DEVELOPMENT_STATUS.md). Last verified against code: 2026-10-22.
+> Part of the [Purwakarta Health docs](./DEVELOPMENT_STATUS.md). Last verified against code: 2026-11-26.
 
 ## 1. Roles
 
@@ -20,9 +20,9 @@ The role lives in `users.role` (enum `user_role`). There are no finer-grained pe
 | --------- | ----- | ------ |
 | Layout guard | `src/routes/manager/+layout.server.ts` | Page **loads** under `/manager/**`. Anonymous → `/login?redirect=/manager`; patient → `/home`. |
 | Hook backstop | `src/hooks.server.ts` | Any non-GET/HEAD/OPTIONS request to `/manager` or `/manager/**` from a non-manager → plain-text `403 Manager access required.` |
-| Action guard | `denyUnlessManager(locals)` in `src/lib/server/guards.ts` | Called at the top of every manager form action → `fail(403, { error })`. |
-| Inline checks | Individual `+page.server.ts` / `+server.ts` | `if (!locals.user) redirect(303, '/login?redirect=…')`, sometimes plus a role check. |
-| Helpers | `requirePatient()` / `requireManager()` in `src/lib/server/guards.ts` | Redirect-style helpers for loads. Not used yet; routes do inline checks so they can set a per-route `?redirect=`. |
+| Action guard | `denyUnlessManager(locals)` in `src/lib/server/auth/guards.ts` | Called at the top of every manager form action → `fail(403, { error })`. |
+| Load helpers | `requireUser()` / `requirePatient()` / `requireManager()` in `src/lib/server/auth/guards.ts` | Redirect-style helpers used by patient and manager loads; each takes an optional `returnTo` for the `?redirect=` target. |
+| Inline checks | A few `+server.ts` endpoints | `if (!locals.user) redirect(303, '/login?redirect=…')` where a helper does not fit. |
 
 > **Important SvelteKit behaviour:** a `+layout.server.ts` guard does **not** run before a form action. `POST /manager/doctors?/delete` executes the action even if the layout load would redirect. That is why manager actions check the role themselves, with the hook as a second layer.
 
@@ -72,7 +72,7 @@ A patient cannot read or change another patient's records through these paths.
 1. **Every new manager form action** starts with:
 
    ```ts
-   import { denyUnlessManager } from '#lib/server/guards.ts';
+   import { denyUnlessManager } from '#lib/server/auth/guards.ts';
 
    export const actions: Actions = {
      create: async ({ request, locals }) => {

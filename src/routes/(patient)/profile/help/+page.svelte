@@ -3,16 +3,16 @@
 	import {
 		ChevronDown,
 		ChevronRight,
-		Info,
 		Mail,
 		MessageCircle,
 		MessageCircleQuestion,
 		Phone
 	} from '@lucide/svelte';
-	import HelpContactCard from '#lib/components/HelpContactCard.svelte';
+	import HelpContactCard from '#lib/components/profile/HelpContactCard.svelte';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
-	import SearchBar from '#lib/components/SearchBar.svelte';
-	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
+	import { toast } from '#lib/stores/toast.svelte.ts';
+	import SearchBar from '#lib/components/layout/SearchBar.svelte';
+	import BackHeader from '#lib/components/layout/BackHeader.svelte';
 	import {
 		APP_VERSION,
 		contactOptions,
@@ -22,15 +22,8 @@
 	} from '#lib/data/help-support.ts';
 
 	let searchQuery = $state('');
-	let notice = $state<string | null>(null);
 	let openFaq = $state<string | null>(null);
-
-	let noticeTimer: ReturnType<typeof setTimeout> | undefined;
-	function showNotice(text: string) {
-		notice = text;
-		clearTimeout(noticeTimer);
-		noticeTimer = setTimeout(() => (notice = null), 5000);
-	}
+	let noticeId: number | undefined;
 
 	const filteredFaqs = $derived(
 		searchQuery.trim()
@@ -48,7 +41,11 @@
 				scrollToFaqs();
 				break;
 			case 'chat':
-				showNotice('Live chat is not available yet. Try Call Center or Email Us in the meantime.');
+				if (noticeId !== undefined) toast.dismiss(noticeId);
+				noticeId = toast.info(
+					'Live chat is not available yet. Try Call Center or Email Us in the meantime.',
+					5000
+				);
 				break;
 			case 'call':
 				window.location.href = `tel:${SUPPORT_PHONE}`;
@@ -64,9 +61,7 @@
 	}
 </script>
 
-<SearchPageHeader title="Help & Support" backHref="/profile" showProfile={false} />
-
-<div class="-mt-1 mb-5 border-b border-outline-variant/30" aria-hidden="true"></div>
+<BackHeader title="Help & Support" backHref="/profile" divider dividerClass="mb-5" />
 
 <MotionReveal delay={50}>
 	<SearchBar
@@ -76,16 +71,6 @@
 		rounded="2xl"
 	/>
 </MotionReveal>
-
-{#if notice}
-	<div
-		class="mt-4 flex items-start gap-2 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-xs text-on-surface-variant"
-		transition:slide={{ duration: 200 }}
-	>
-		<Info size={14} class="mt-0.5 shrink-0 text-primary" />
-		<p>{notice}</p>
-	</div>
-{/if}
 
 <MotionReveal delay={100}>
 	<p class="mt-6 text-xs font-semibold uppercase tracking-wide text-primary/80">Contact Options</p>

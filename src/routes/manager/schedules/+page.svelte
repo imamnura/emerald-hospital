@@ -1,148 +1,71 @@
 <script lang="ts">
-	import { tick } from 'svelte';
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { CalendarClock, Clock, Pencil, Plus, Search, Trash2, Users } from '@lucide/svelte';
-	import ConfirmDialog from '#lib/components/manager/ConfirmDialog.svelte';
-	import EmptyState from '#lib/components/manager/EmptyState.svelte';
-	import Modal from '#lib/components/manager/Modal.svelte';
+	import { CalendarClock, Clock, Users } from '@lucide/svelte';
+	import DeleteConfirm from '#lib/components/manager/DeleteConfirm.svelte';
+	import EmptyState from '#lib/components/ui/EmptyState.svelte';
+	import Modal from '#lib/components/ui/Modal.svelte';
+	import ManagerSearchForm from '#lib/components/manager/ManagerSearchForm.svelte';
 	import PageHeader from '#lib/components/manager/PageHeader.svelte';
-	import Pagination from '#lib/components/manager/Pagination.svelte';
-	import { toast } from '#lib/stores/toast.svelte.ts';
+	import Pagination from '#lib/components/ui/Pagination.svelte';
+	import RowActions from '#lib/components/manager/RowActions.svelte';
+	import { MANAGER_INPUT_CLASS } from '#lib/components/manager/styles.ts';
+	import { createCrudState } from '#lib/utils/crud.svelte.ts';
 	import { toastForm } from '#lib/utils/enhance.ts';
-	import { DAY_NAMES } from '#lib/utils.ts';
+	import { withParams } from '#lib/utils/url.ts';
+	import { DAY_NAMES } from '#lib/format/date.ts';
 
 	let { data } = $props();
 	type Schedule = (typeof data.schedules)[number];
 
-	let modalOpen = $state(false);
-	let editing = $state<Schedule | null>(null);
+	const crud = createCrudState<Schedule>();
 
-	let searchInput = $state('');
-	let doctorFilter = $state('');
-	$effect.pre(() => {
-		searchInput = data.query;
-		doctorFilter = data.doctorFilter;
-	});
-
-	let confirmOpen = $state(false);
-	let confirmTarget = $state<Schedule | null>(null);
-	let deleteFormEl: HTMLFormElement;
-	let deletingId = $state('');
-	let deleting = $state(false);
-
-	function openAdd() {
-		editing = null;
-		modalOpen = true;
-	}
-
-	function openEdit(s: Schedule) {
-		editing = s;
-		modalOpen = true;
-	}
-
-	function askDelete(s: Schedule) {
-		confirmTarget = s;
-		confirmOpen = true;
-	}
-
-	async function confirmDelete() {
-		if (!confirmTarget) return;
-		deletingId = confirmTarget.id;
-		deleting = true;
-		// Let bind:value write the id into the hidden input before submitting.
-		await tick();
-		deleteFormEl.requestSubmit();
-	}
+	let searchInput = $derived(data.query);
+	let doctorFilter = $derived(data.doctorFilter);
 
 	function applyFilters() {
-		const params = new URLSearchParams(page.url.searchParams.toString());
-		const q = searchInput.trim();
-		if (q) params.set('q', q);
-		else params.delete('q');
-		if (doctorFilter) params.set('doctorId', doctorFilter);
-		else params.delete('doctorId');
-		params.delete('page');
-		const qs = params.toString();
-		goto(qs ? `?${qs}` : page.url.pathname, { reset: false });
-	}
-
-	function submitSearch(e: SubmitEvent) {
-		e.preventDefault();
-		applyFilters();
+		const updates = { q: searchInput.trim(), doctorId: doctorFilter };
+		goto(withParams(page.url, updates, { relative: true }), { reset: false });
 	}
 </script>
-
-<form
-	method="POST"
-	action="?/delete"
-	bind:this={deleteFormEl}
-	class="hidden"
-	use:enhance={() => async ({ result, update }) => {
-		await update({ refreshAll: true });
-		deleting = false;
-		confirmOpen = false;
-		confirmTarget = null;
-		if (result.type === 'success') toast.success('Schedule deleted.');
-		else if (result.type === 'failure')
-			toast.error((result.data?.error as string) ?? 'Failed to delete schedule.');
-	}}
->
-	<input type="hidden" name="id" bind:value={deletingId} />
-</form>
 
 <PageHeader
 	title="Doctor Schedules"
 	subtitle="Define when each doctor accepts appointments."
 	count={data.total}
 	countLabel="slots"
->
-	{#snippet actions()}
-		<button
-			type="button"
-			onclick={openAdd}
-			class="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-on-primary shadow-primary transition-transform active:scale-[0.98]"
-		>
-			<Plus size={16} strokeWidth={2.25} />
-			Add Schedule
-		</button>
-	{/snippet}
-</PageHeader>
+	addLabel="Add Schedule"
+	onadd={() => crud.openAdd()}
+/>
 
 <div class="mt-6 flex flex-col gap-4">
-	<form onsubmit={submitSearch} class="grid gap-2 sm:grid-cols-[1fr,auto,auto]">
-		<div class="relative">
-			<Search
-				size={16}
-				class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-outline"
-			/>
-			<input
-				type="search"
-				name="q"
-				bind:value={searchInput}
-				placeholder="Search by doctor name"
-				class="w-full rounded-xl border border-outline-variant/40 bg-surface-container-lowest py-2.5 pl-10 pr-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
-			/>
-		</div>
-		<select
-			bind:value={doctorFilter}
-			onchange={applyFilters}
-			class="rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
-			aria-label="Filter by doctor"
-		>
-			<option value="">All doctors</option>
-			{#each data.doctors as d}
-				<option value={d.id}>{d.name}</option>
-			{/each}
-		</select>
-		<button
-			type="submit"
-			class="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-on-primary shadow-primary"
-		>
-			Apply
-		</button>
-	</form>
+	<ManagerSearchForm
+		bind:value={searchInput}
+		placeholder="Search by doctor name"
+		class="sm:grid-cols-[1fr,auto,auto]"
+		onsubmit={() => applyFilters()}
+	>
+		{#snippet filters()}
+			<select
+				bind:value={doctorFilter}
+				onchange={applyFilters}
+				class="rounded-xl border border-outline-variant/40 bg-surface-container-lowest px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
+				aria-label="Filter by doctor"
+			>
+				<option value="">All doctors</option>
+				{#each data.doctors as d (d.id)}
+					<option value={d.id}>{d.name}</option>
+				{/each}
+			</select>
+			<button
+				type="submit"
+				class="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-on-primary shadow-primary"
+			>
+				Apply
+			</button>
+		{/snippet}
+	</ManagerSearchForm>
 
 	{#if data.schedules.length === 0}
 		<EmptyState
@@ -200,24 +123,7 @@
 									</span>
 								</td>
 								<td class="px-4 py-3 align-middle">
-									<div class="flex justify-end gap-1">
-										<button
-											type="button"
-											class="flex h-8 w-8 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-surface-container hover:text-primary"
-											aria-label="Edit schedule"
-											onclick={() => openEdit(s)}
-										>
-											<Pencil size={14} />
-										</button>
-										<button
-											type="button"
-											class="flex h-8 w-8 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:bg-error-container hover:text-error"
-											aria-label="Delete schedule"
-											onclick={() => askDelete(s)}
-										>
-											<Trash2 size={14} />
-										</button>
-									</div>
+									<RowActions name='schedule' onedit={() => crud.openEdit(s)} ondelete={() => crud.askDelete(s)} />
 								</td>
 							</tr>
 						{/each}
@@ -235,38 +141,40 @@
 </div>
 
 <Modal
-	bind:open={modalOpen}
-	title={editing ? 'Edit schedule' : 'Add schedule'}
-	description={editing
-		? `${editing.doctorName} · ${DAY_NAMES[editing.dayOfWeek]}`
+	bind:open={crud.modalOpen}
+	formId="schedule-form"
+	submitLabel={crud.editing ? 'Save Changes' : 'Create'}
+	title={crud.editing ? 'Edit schedule' : 'Add schedule'}
+	description={crud.editing
+		? `${crud.editing.doctorName} · ${DAY_NAMES[crud.editing.dayOfWeek]}`
 		: 'Block of consulting hours for a doctor'}
 >
 	<form
 		id="schedule-form"
 		method="POST"
-		action={editing ? '?/update' : '?/create'}
+		action={crud.editing ? '?/update' : '?/create'}
 		use:enhance={toastForm({
-			successMessage: editing ? 'Schedule updated.' : 'Schedule created.',
+			successMessage: crud.editing ? 'Schedule updated.' : 'Schedule created.',
 			onSuccess: () => {
-				modalOpen = false;
-				editing = null;
+				crud.modalOpen = false;
+				crud.editing = null;
 			}
 		})}
 		class="space-y-3"
 	>
-		{#if editing}
-			<input type="hidden" name="id" value={editing.id} />
+		{#if crud.editing}
+			<input type="hidden" name="id" value={crud.editing.id} />
 		{/if}
 		<label class="block text-xs font-semibold text-on-surface-variant">
 			Doctor *
 			<select
 				name="doctorId"
 				required
-				value={editing?.doctorId ?? ''}
-				class="mt-1 w-full rounded-xl border border-outline-variant/50 bg-surface-container-lowest px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+				value={crud.editing?.doctorId ?? ''}
+				class={MANAGER_INPUT_CLASS}
 			>
 				<option value="">Select doctor</option>
-				{#each data.doctors as d}
+				{#each data.doctors as d (d.id)}
 					<option value={d.id}>{d.name}</option>
 				{/each}
 			</select>
@@ -277,8 +185,8 @@
 				<select
 					name="dayOfWeek"
 					required
-					value={String(editing?.dayOfWeek ?? 1)}
-					class="mt-1 w-full rounded-xl border border-outline-variant/50 bg-surface-container-lowest px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+					value={String(crud.editing?.dayOfWeek ?? 1)}
+					class={MANAGER_INPUT_CLASS}
 				>
 					{#each DAY_NAMES as day, i}
 						<option value={String(i)}>{day}</option>
@@ -291,9 +199,9 @@
 					name="maxQuota"
 					type="number"
 					min="1"
-					value={editing?.maxQuota ?? 5}
+					value={crud.editing?.maxQuota ?? 5}
 					required
-					class="mt-1 w-full rounded-xl border border-outline-variant/50 bg-surface-container-lowest px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+					class={MANAGER_INPUT_CLASS}
 				/>
 			</label>
 		</div>
@@ -304,8 +212,8 @@
 					name="startTime"
 					type="time"
 					required
-					value={editing?.startTime ?? '08:00'}
-					class="mt-1 w-full rounded-xl border border-outline-variant/50 bg-surface-container-lowest px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+					value={crud.editing?.startTime ?? '08:00'}
+					class={MANAGER_INPUT_CLASS}
 				/>
 			</label>
 			<label class="text-xs font-semibold text-on-surface-variant">
@@ -314,40 +222,23 @@
 					name="endTime"
 					type="time"
 					required
-					value={editing?.endTime ?? '12:00'}
-					class="mt-1 w-full rounded-xl border border-outline-variant/50 bg-surface-container-lowest px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+					value={crud.editing?.endTime ?? '12:00'}
+					class={MANAGER_INPUT_CLASS}
 				/>
 			</label>
 		</div>
 	</form>
 
-	{#snippet footer()}
-		<button
-			type="button"
-			class="rounded-xl border border-outline-variant px-4 py-2 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container"
-			onclick={() => (modalOpen = false)}
-		>
-			Cancel
-		</button>
-		<button
-			type="submit"
-			form="schedule-form"
-			class="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-on-primary shadow-primary transition-transform active:scale-[0.98]"
-		>
-			{editing ? 'Save Changes' : 'Create'}
-		</button>
-	{/snippet}
 </Modal>
 
-<ConfirmDialog
-	bind:open={confirmOpen}
+<DeleteConfirm
+	bind:open={crud.confirmOpen}
+	target={crud.confirmTarget}
 	title="Delete schedule?"
-	message={confirmTarget
-		? `Delete the ${DAY_NAMES[confirmTarget.dayOfWeek]} ${confirmTarget.startTime}–${confirmTarget.endTime} slot for ${confirmTarget.doctorName}? Existing bookings in this slot will lose their schedule reference.`
+	message={crud.confirmTarget
+		? `Delete the ${DAY_NAMES[crud.confirmTarget.dayOfWeek]} ${crud.confirmTarget.startTime}–${crud.confirmTarget.endTime} slot for ${crud.confirmTarget.doctorName}? Existing bookings in this slot will lose their schedule reference.`
 		: ''}
-	confirmLabel="Delete"
-	danger
-	loading={deleting}
-	onConfirm={confirmDelete}
-	onCancel={() => (confirmTarget = null)}
+	successMessage="Schedule deleted."
+	failureMessage="Failed to delete schedule."
+	onclose={() => (crud.confirmTarget = null)}
 />

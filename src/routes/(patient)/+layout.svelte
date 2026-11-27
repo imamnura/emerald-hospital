@@ -1,13 +1,12 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import BottomNav from '#lib/components/BottomNav.svelte';
+	import BottomNav from '#lib/components/layout/BottomNav.svelte';
 	import PageEnter from '#lib/components/motion/PageEnter.svelte';
 
 	let { children } = $props();
 
 	const hideNav = $derived(
-		['/login', '/register'].includes(page.url.pathname) ||
-			(page.url.pathname.includes('/doctors/') && page.url.pathname.includes('/book'))
+		page.url.pathname.includes('/doctors/') && page.url.pathname.includes('/book')
 	);
 </script>
 

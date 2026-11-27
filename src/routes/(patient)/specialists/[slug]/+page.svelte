@@ -1,11 +1,11 @@
 <script lang="ts">
-	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
-	import SpecialistDoctorCard from '#lib/components/SpecialistDoctorCard.svelte';
+	import BackHeader from '#lib/components/layout/BackHeader.svelte';
+	import DoctorSummary from '#lib/components/doctor/DoctorSummary.svelte';
 	import {
 		doctorRoleLabel,
 		specialistAvailabilityLabel,
 		specialistPluralTitle
-	} from '#lib/utils/specialist.ts';
+	} from '#lib/domain/specialist.ts';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 
 	let { data } = $props();
@@ -14,7 +14,7 @@
 	const availabilityText = $derived(specialistAvailabilityLabel(data.doctors.length));
 </script>
 
-<SearchPageHeader title={pageTitle} backHref="/specialists" showProfile={false} />
+<BackHeader title={pageTitle} backHref="/specialists" />
 
 <p class="mt-2 text-sm text-outline">{availabilityText}</p>
 
@@ -26,14 +26,9 @@
 		</p>
 	{:else}
 		{#each data.doctors as doctor (doctor.id)}
-			<SpecialistDoctorCard
-				id={doctor.id}
-				name={doctor.name}
-				role={doctorRoleLabel(data.specialist.name, doctor.rating)}
-				hospital={doctor.hospital}
-				imageUrl={doctor.imageUrl}
-				rating={doctor.rating}
-				reviewCount={doctor.reviewCount}
+			<DoctorSummary
+				doctor={{ ...doctor, role: doctorRoleLabel(data.specialist.name, doctor.rating) }}
+				variant="grid"
 			/>
 		{/each}
 	{/if}

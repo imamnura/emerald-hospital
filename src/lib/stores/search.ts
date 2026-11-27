@@ -1,22 +1,14 @@
 import { createStore } from 'zustand/vanilla';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import type { DoctorListItem } from '#lib/domain/doctor.ts';
 
-export type DoctorSearchResult = {
-	id: string;
-	name: string;
-	specialty: string;
-	hospital: string;
-	imageUrl: string | null;
-	rating: string;
-	reviewCount: number;
-	specialistSlug: string;
-	isOnline: boolean;
-};
+/** @internal exported for tests */
+export type DoctorSearchResult = Omit<DoctorListItem, 'consultationFee'>;
 
 export type SortBy = 'recommended' | 'rating' | 'distance';
 export type Availability = 'today' | 'week' | null;
 
-export type SearchFilters = {
+type SearchFilters = {
 	sortBy: SortBy;
 	specialties: string[];
 	availability: Availability;
@@ -138,7 +130,10 @@ export const useSearchStore = createStore<SearchState>()(
 	)
 );
 
-/** Mock consultation price from doctor id for price-range filter */
+/**
+ * Mock consultation price from doctor id for price-range filter.
+ * @internal exported for tests
+ */
 export function doctorPrice(id: string): number {
 	let hash = 0;
 	for (let i = 0; i < id.length; i++) {

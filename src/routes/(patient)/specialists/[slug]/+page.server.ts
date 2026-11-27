@@ -1,11 +1,9 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { getSpecialistBySlug } from '#lib/server/catalog.ts';
-import { listActiveDoctorsBySpecialistId } from '#lib/server/doctors.ts';
+import { getSpecialistBySlug } from '#lib/server/catalog/catalog.ts';
+import { listActiveDoctorsBySpecialistId } from '#lib/server/catalog/doctors.ts';
 
-export const load: PageServerLoad = async ({ params, parent }) => {
-	const { user } = await parent();
-
+export const load: PageServerLoad = async ({ params }) => {
 	const specialist = await getSpecialistBySlug(params.slug);
 	if (!specialist) error(404, 'Specialist not found');
 
@@ -21,5 +19,5 @@ export const load: PageServerLoad = async ({ params, parent }) => {
 		}))
 		.sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating));
 
-	return { specialist, doctors, user };
+	return { specialist, doctors };
 };

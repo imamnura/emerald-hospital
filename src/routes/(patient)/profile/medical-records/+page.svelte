@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
-	import Header from '#lib/components/Header.svelte';
-	import MedicalRecordCard from '#lib/components/medical-records/MedicalRecordCard.svelte';
+	import Header from '#lib/components/layout/Header.svelte';
+	import MedicalRecordCard from '#lib/components/profile/medical-records/MedicalRecordCard.svelte';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
-	import SearchBar from '#lib/components/SearchBar.svelte';
+	import SearchBar from '#lib/components/layout/SearchBar.svelte';
 	import {
 		filterMedicalRecords,
 		groupRecordsByMonth

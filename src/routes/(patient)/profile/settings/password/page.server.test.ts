@@ -1,14 +1,13 @@
 import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { hashPassword, verifyPassword } from '#lib/server/auth.ts';
+import { hashPassword, verifyPassword } from '#lib/server/auth/password.ts';
 import { db } from '#lib/server/db/index.ts';
 import { users } from '#lib/server/db/schema.ts';
-import { resetDb, type TestDb } from '../../../../../test/db.ts';
-import { makeUser } from '../../../../../test/factories.ts';
-import { ev, randomId, thrown } from '../../../../../test/helpers-routes-public.ts';
+import { makeUser } from '#test/factories.ts';
+import { ev, randomId, thrown, reset } from '#test/helpers/route.ts';
 import { actions, load } from './+page.server.ts';
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 
 const hashOf = async (id: string) =>
 	(await db.select().from(users).where(eq(users.id, id)))[0].passwordHash;
@@ -68,6 +67,15 @@ describe('profile/settings/password change action', () => {
 			success: true
 		});
 		expect(await verifyPassword((await hashOf(user.id))!, 'new-password')).toBe(true);
+	});
+
+	it('load after the action (no-JS submit, same stale locals) reports the new password', async () => {
+		const user = await makeUser({ passwordHash: null });
+		const event = ev({ user, form: pw });
+		expect(await actions.change(event)).toEqual({ success: true });
+		// SvelteKit reruns load in the same request: locals.user still has no hash.
+		expect(event.locals.user.passwordHash).toBeNull();
+		expect(await load(event)).toEqual({ hasPassword: true });
 	});
 
 	it('lets Google-only users set a password without a current one', async () => {

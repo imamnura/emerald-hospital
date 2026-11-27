@@ -1,11 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { db } from '#lib/server/db/index.ts';
-import { resetDb, type TestDb } from '../../../../test/db.ts';
-import { makeDoctor, makeSpecialist } from '../../../../test/factories.ts';
-import { ev, thrown } from '../../../../test/helpers-routes-public.ts';
+import { makeDoctor, makeSpecialist } from '#test/factories.ts';
+import { ev, thrown, reset } from '#test/helpers/route.ts';
 import { load } from './+page.server.ts';
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 
 describe('specialist detail load', () => {
 	it('404s for unknown slugs', async () => {
@@ -21,13 +19,10 @@ describe('specialist detail load', () => {
 		await makeDoctor({ name: 'Inactive', rating: '5.0', specialistId: spec.id, isActive: false });
 		await makeDoctor({ name: 'Elsewhere', specialistId: other.id });
 
-		const user = { id: 'u' } as never;
-		const data = (await load(ev({ user, params: { slug: 'cardiology' } }))) as {
+		const data = (await load(ev({ params: { slug: 'cardiology' } }))) as {
 			specialist: { id: string };
 			doctors: Record<string, unknown>[];
-			user: unknown;
 		};
-		expect(data.user).toBe(user);
 		expect(data.specialist.id).toBe(spec.id);
 		expect(data.doctors.map((d) => d.name)).toEqual(['High', 'Mid', 'Low']);
 		expect(Object.keys(data.doctors[0]).sort()).toEqual(

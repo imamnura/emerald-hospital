@@ -1,10 +1,13 @@
-import { fail, redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { getInsuranceForUser, upsertInsurance } from '#lib/server/insurance.ts';
+import { requireUser } from '#lib/server/auth/guards.ts';
+import { ISO_DATE_RE } from '#lib/format/date.ts';
+import { formOpt, formStr } from '#lib/server/http/forms.ts';
+import { getInsuranceForUser, upsertInsurance } from '#lib/server/patient/insurance.ts';
 
 function isoDate(value: FormDataEntryValue | null): string | null {
 	const s = String(value ?? '').trim();
-	return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : null;
+	return ISO_DATE_RE.test(s) ? s : null;
 }
 
 function numericString(value: FormDataEntryValue | null): string | null {
@@ -15,21 +18,21 @@ function numericString(value: FormDataEntryValue | null): string | null {
 }
 
 export const load: PageServerLoad = async ({ locals }) => {
-	if (!locals.user) throw redirect(303, '/login?redirect=/profile/insurance');
+	const user = requireUser(locals, '/profile/insurance');
 
 	return {
-		insurance: await getInsuranceForUser(locals.user.id, locals.user.name)
+		insurance: await getInsuranceForUser(user.id, user.name)
 	};
 };
 
 export const actions: Actions = {
 	save: async ({ request, locals }) => {
-		if (!locals.user) throw redirect(303, '/login');
+		const user = requireUser(locals);
 		const fd = await request.formData();
 
-		const providerName = String(fd.get('providerName') ?? '').trim();
-		const planName = String(fd.get('planName') ?? '').trim();
-		const memberId = String(fd.get('memberId') ?? '').trim();
+		const providerName = formStr(fd, 'providerName');
+		const planName = formStr(fd, 'planName');
+		const memberId = formStr(fd, 'memberId');
 		const coverageStart = isoDate(fd.get('coverageStart'));
 		const coverageEnd = isoDate(fd.get('coverageEnd'));
 
@@ -43,12 +46,12 @@ export const actions: Actions = {
 			return fail(400, { error: 'Coverage end must be after start.' });
 		}
 
-		await upsertInsurance(locals.user.id, {
+		await upsertInsurance(user.id, {
 			providerName,
 			planName,
 			memberId,
-			groupNo: String(fd.get('groupNo') ?? '').trim() || null,
-			planType: String(fd.get('planType') ?? '').trim() || null,
+			groupNo: formOpt(fd, 'groupNo'),
+			planType: formOpt(fd, 'planType'),
 			coverageStart,
 			coverageEnd,
 			status: fd.get('status') === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE',
@@ -56,7 +59,7 @@ export const actions: Actions = {
 			costSpecialist: numericString(fd.get('costSpecialist')),
 			costEmergency: numericString(fd.get('costEmergency')),
 			costRx: numericString(fd.get('costRx')),
-			providerPhone: String(fd.get('providerPhone') ?? '').trim() || null
+			providerPhone: formOpt(fd, 'providerPhone')
 		});
 
 		return { success: true };

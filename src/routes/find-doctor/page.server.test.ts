@@ -1,14 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { db } from '#lib/server/db/index.ts';
-import { resetDb, type TestDb } from '../../test/db.ts';
-import { makeDoctor, makeHospital } from '../../test/factories.ts';
-import { ev } from '../../test/helpers-routes-public.ts';
+import { makeDoctor, makeHospital } from '#test/factories.ts';
+import { ev, reset } from '#test/helpers/route.ts';
 import { load } from './+page.server.ts';
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 
-type Data = { doctors: { name: string }[]; hospital: string; query: string; hospitals: unknown[]; user: unknown };
-const run = async (url: string, user: unknown = null) => (await load(ev({ url, user: user as never }))) as Data;
+type Data = { doctors: { name: string }[]; hospital: string; query: string; hospitals: unknown[] };
+const run = async (url: string) => (await load(ev({ url }))) as Data;
 
 describe('find-doctor load', () => {
 	beforeEach(async () => {
@@ -19,11 +17,10 @@ describe('find-doctor load', () => {
 	});
 
 	it('returns everything by default', async () => {
-		const user = { id: 'u' };
-		const data = await run('/find-doctor', user);
+		const data = await run('/find-doctor');
 		expect(data.doctors).toHaveLength(2);
 		expect(data.hospitals).toHaveLength(2);
-		expect(data).toMatchObject({ query: '', hospital: 'all', user });
+		expect(data).toMatchObject({ query: '', hospital: 'all' });
 	});
 
 	it('filters by query and by hospital slug', async () => {

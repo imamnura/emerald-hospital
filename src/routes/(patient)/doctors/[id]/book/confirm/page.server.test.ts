@@ -2,12 +2,11 @@ import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { bookings } from '#lib/server/db/schema.ts';
-import { resetDb, type TestDb } from '../../../../../../test/db.ts';
-import { makeBooking, makeDoctor, makeHospital, makeSchedule, makeUser } from '../../../../../../test/factories.ts';
-import { MONDAY, TUESDAY, ev, randomId, thrown } from '../../../../../../test/helpers-routes-public.ts';
+import { makeBooking, makeDoctor, makeHospital, makeSchedule, makeUser } from '#test/factories.ts';
+import { MONDAY, TUESDAY, ev, randomId, thrown, reset } from '#test/helpers/route.ts';
 import { actions, load } from './+page.server.ts';
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 
 async function seed(maxQuota = 2) {
 	const user = await makeUser();
@@ -71,7 +70,6 @@ describe('booking confirm load', () => {
 		const data = (await load(
 			ev({ user, params: { id: doctor.id }, url: qs({ date: MONDAY, time: '10:30', scheduleId: schedule.id }) })
 		)) as Record<string, Record<string, unknown>>;
-		expect(data.user).toBe(user);
 		expect(data.appointment).toEqual({
 			date: MONDAY,
 			time: '10:30',

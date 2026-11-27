@@ -1,4 +1,5 @@
 ﻿<script lang="ts">
+	import Avatar from '#lib/components/ui/Avatar.svelte';
 	import { page } from '$app/state';
 	import { enhance } from '$app/forms';
 	import {
@@ -13,7 +14,7 @@
 		ClipboardList,
 		X
 	} from '@lucide/svelte';
-	import { cn } from '#lib/utils.ts';
+	import { cn } from '#lib/utils/cn.ts';
 
 	let { children, data } = $props();
 
@@ -42,14 +43,6 @@
 		return path === href || path.startsWith(href + '/');
 	}
 
-	const initials = $derived(
-		data.user.name
-			.split(' ')
-			.map((n) => n[0])
-			.join('')
-			.slice(0, 2)
-			.toUpperCase()
-	);
 </script>
 
 <div class="min-h-screen bg-surface">
@@ -127,11 +120,11 @@
 					Open patient app
 				</a>
 				<div class="flex items-center gap-3 rounded-xl bg-surface-container px-3 py-2.5">
-					<div
-						class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/15 font-heading text-sm font-bold text-primary"
-					>
-						{initials}
-					</div>
+					<Avatar
+						name={data.user.name}
+						class="h-9 w-9 shrink-0"
+						fallbackClass="bg-primary/15 font-heading text-sm font-bold text-primary"
+					/>
 					<div class="min-w-0 flex-1">
 						<p class="truncate text-sm font-semibold text-on-surface">{data.user.name}</p>
 						<p class="truncate text-[10px] text-outline">{data.user.email}</p>

@@ -1,10 +1,8 @@
 import type { PageServerLoad } from './$types';
-import { filterDoctorsByQuery, listActiveDoctors } from '#lib/server/doctors.ts';
-import { listHospitals } from '#lib/server/catalog.ts';
+import { filterDoctorsByQuery, listActiveDoctors } from '#lib/server/catalog/doctors.ts';
+import { listHospitals } from '#lib/server/catalog/catalog.ts';
 
-export const load: PageServerLoad = async ({ url, parent }) => {
-	const { user } = await parent();
-
+export const load: PageServerLoad = async ({ url }) => {
 	const q = url.searchParams.get('q')?.trim() ?? '';
 	const hospitalParam = url.searchParams.get('hospital')?.trim() ?? '';
 
@@ -22,7 +20,6 @@ export const load: PageServerLoad = async ({ url, parent }) => {
 	}
 
 	return {
-		user,
 		query: q,
 		hospital: hospitalParam || 'all',
 		doctors,

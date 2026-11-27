@@ -11,13 +11,10 @@ import {
 	makeSchedule,
 	makeSpecialist,
 	makeUser
-} from '../../../test/factories.ts';
-import { nonManagers, reset, UNKNOWN_ID, type ActionResult } from '../../../test/helpers-routes-manager.ts';
+} from '#test/factories.ts';
+import { ev, nonManagers, reset, UNKNOWN_ID, type ActionResult } from '#test/helpers/route.ts';
 import { actions, load } from './+page.server.ts';
 
-type Event = Parameters<typeof load>[0];
-type ActionEvent = Parameters<(typeof actions)['updateStatus']>[0];
-const ev = (o: Parameters<typeof makeEvent>[0]) => makeEvent(o) as unknown as Event & ActionEvent;
 type Row = { id: string; patientName: string; doctorName: string; status: string; appointmentDate: string };
 type LoadData = {
 	bookings: Row[];

@@ -1,12 +1,12 @@
 import { render, screen } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import Layout from './+layout.svelte';
-import { setPage } from '../../test/mocks/app-state.svelte.ts';
-import { childrenSnippet } from '../../test/helpers-pages-public.ts';
+import { setPage } from '#test/mocks/app-state.svelte.ts';
+import { snip } from '#test/helpers/component.ts';
 
 function renderAt(path: string) {
 	setPage({ url: path });
-	return render(Layout, { props: { data: {}, children: childrenSnippet() } as never });
+	return render(Layout, { props: { data: {}, children: snip('<p data-testid="children">child-content</p>') } as never });
 }
 
 describe('(patient) +layout', () => {
@@ -16,7 +16,7 @@ describe('(patient) +layout', () => {
 		expect(screen.getByRole('navigation')).toBeInTheDocument();
 	});
 
-	it.each(['/login', '/register', '/doctors/abc/book', '/doctors/abc/book/confirm'])(
+	it.each(['/doctors/abc/book', '/doctors/abc/book/confirm'])(
 		'hides bottom nav on %s',
 		(path) => {
 			renderAt(path);

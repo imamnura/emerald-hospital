@@ -13,16 +13,16 @@ import {
 	uuid,
 	varchar
 } from 'drizzle-orm/pg-core';
+import { BOOKING_STATUSES } from '#lib/domain/booking-status.ts';
 
 export const userRoleEnum = pgEnum('user_role', ['manager', 'patient']);
-export const bookingStatusEnum = pgEnum('booking_status', [
-	'pending',
-	'confirmed',
-	'cancelled',
-	'completed'
-]);
+export const bookingStatusEnum = pgEnum('booking_status', BOOKING_STATUSES);
 export const genderEnum = pgEnum('gender', ['male', 'female', 'other']);
 export const cardBrandEnum = pgEnum('card_brand', ['visa', 'mastercard']);
+export const CARD_BRANDS = cardBrandEnum.enumValues;
+export const GENDERS = genderEnum.enumValues;
+/** Not a DB enum (column is free text); single list shared by profile forms. */
+export const BLOOD_TYPES = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as const;
 export const insuranceStatusEnum = pgEnum('insurance_status', ['ACTIVE', 'INACTIVE']);
 export const medicalRecordTypeEnum = pgEnum('medical_record_type', ['lab', 'imaging', 'clinical']);
 
@@ -43,13 +43,17 @@ export const users = pgTable('users', {
 	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
 });
 
-export const sessions = pgTable('sessions', {
-	id: text('id').primaryKey(),
-	userId: uuid('user_id')
-		.notNull()
-		.references(() => users.id, { onDelete: 'cascade' }),
-	expiresAt: timestamp('expires_at', { withTimezone: true }).notNull()
-});
+export const sessions = pgTable(
+	'sessions',
+	{
+		id: text('id').primaryKey(),
+		userId: uuid('user_id')
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		expiresAt: timestamp('expires_at', { withTimezone: true }).notNull()
+	},
+	(t) => [index('sessions_user_id_idx').on(t.userId)]
+);
 
 export const passwordResetTokens = pgTable(
 	'password_reset_tokens',
@@ -84,34 +88,42 @@ export const specialists = pgTable('specialists', {
 	imageUrl: text('image_url')
 });
 
-export const doctors = pgTable('doctors', {
-	id: uuid('id').primaryKey().defaultRandom(),
-	name: varchar('name', { length: 255 }).notNull(),
-	hospitalId: uuid('hospital_id')
-		.notNull()
-		.references(() => hospitals.id),
-	specialistId: uuid('specialist_id')
-		.notNull()
-		.references(() => specialists.id),
-	imageUrl: text('image_url'),
-	rating: varchar('rating', { length: 10 }).default('4.5'),
-	reviewCount: integer('review_count').notNull().default(0),
-	consultationFee: numeric('consultation_fee', { precision: 10, scale: 2 }).notNull().default('150'),
-	bio: text('bio'),
-	isActive: boolean('is_active').default(true).notNull(),
-	isOnline: boolean('is_online').default(false).notNull()
-});
+export const doctors = pgTable(
+	'doctors',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		name: varchar('name', { length: 255 }).notNull(),
+		hospitalId: uuid('hospital_id')
+			.notNull()
+			.references(() => hospitals.id),
+		specialistId: uuid('specialist_id')
+			.notNull()
+			.references(() => specialists.id),
+		imageUrl: text('image_url'),
+		rating: varchar('rating', { length: 10 }).default('4.5'),
+		reviewCount: integer('review_count').notNull().default(0),
+		consultationFee: numeric('consultation_fee', { precision: 10, scale: 2 }).notNull().default('150'),
+		bio: text('bio'),
+		isActive: boolean('is_active').default(true).notNull(),
+		isOnline: boolean('is_online').default(false).notNull()
+	},
+	(t) => [index('doctors_hospital_id_idx').on(t.hospitalId), index('doctors_specialist_id_idx').on(t.specialistId)]
+);
 
-export const doctorSchedules = pgTable('doctor_schedules', {
-	id: uuid('id').primaryKey().defaultRandom(),
-	doctorId: uuid('doctor_id')
-		.notNull()
-		.references(() => doctors.id, { onDelete: 'cascade' }),
-	dayOfWeek: integer('day_of_week').notNull(),
-	startTime: varchar('start_time', { length: 5 }).notNull(),
-	endTime: varchar('end_time', { length: 5 }).notNull(),
-	maxQuota: integer('max_quota').notNull().default(5)
-});
+export const doctorSchedules = pgTable(
+	'doctor_schedules',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		doctorId: uuid('doctor_id')
+			.notNull()
+			.references(() => doctors.id, { onDelete: 'cascade' }),
+		dayOfWeek: integer('day_of_week').notNull(),
+		startTime: varchar('start_time', { length: 5 }).notNull(),
+		endTime: varchar('end_time', { length: 5 }).notNull(),
+		maxQuota: integer('max_quota').notNull().default(5)
+	},
+	(t) => [index('doctor_schedules_doctor_id_idx').on(t.doctorId)]
+);
 
 export const bookings = pgTable(
 	'bookings',
@@ -133,21 +145,27 @@ export const bookings = pgTable(
 	},
 	(t) => [
 		index('bookings_slot_idx').on(t.scheduleId, t.appointmentDate, t.appointmentTime, t.status),
-		index('bookings_user_date_idx').on(t.userId, t.appointmentDate)
+		index('bookings_user_date_idx').on(t.userId, t.appointmentDate),
+		index('bookings_doctor_id_idx').on(t.doctorId),
+		index('bookings_created_at_idx').on(t.createdAt)
 	]
 );
 
-export const paymentCards = pgTable('payment_cards', {
-	id: uuid('id').primaryKey().defaultRandom(),
-	userId: uuid('user_id')
-		.notNull()
-		.references(() => users.id, { onDelete: 'cascade' }),
-	brand: cardBrandEnum('brand').notNull(),
-	last4: varchar('last4', { length: 4 }).notNull(),
-	expires: varchar('expires', { length: 5 }).notNull(),
-	isDefault: boolean('is_default').notNull().default(false),
-	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
-});
+export const paymentCards = pgTable(
+	'payment_cards',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		userId: uuid('user_id')
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		brand: cardBrandEnum('brand').notNull(),
+		last4: varchar('last4', { length: 4 }).notNull(),
+		expires: varchar('expires', { length: 5 }).notNull(),
+		isDefault: boolean('is_default').notNull().default(false),
+		createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
+	},
+	(t) => [index('payment_cards_user_id_idx').on(t.userId)]
+);
 
 export const paymentTransactions = pgTable(
 	'payment_transactions',
@@ -163,7 +181,10 @@ export const paymentTransactions = pgTable(
 		currency: varchar('currency', { length: 3 }).notNull().default('USD'),
 		paidAt: timestamp('paid_at', { withTimezone: true }).defaultNow().notNull()
 	},
-	(t) => [index('payment_tx_user_date_idx').on(t.userId, t.paidAt)]
+	(t) => [
+		index('payment_tx_user_date_idx').on(t.userId, t.paidAt),
+		index('payment_transactions_card_id_idx').on(t.cardId)
+	]
 );
 
 export const insuranceProfiles = pgTable(
@@ -285,10 +306,6 @@ export type User = typeof users.$inferSelect;
 export type Hospital = typeof hospitals.$inferSelect;
 export type Specialist = typeof specialists.$inferSelect;
 export type Doctor = typeof doctors.$inferSelect;
-export type DoctorSchedule = typeof doctorSchedules.$inferSelect;
 export type Booking = typeof bookings.$inferSelect;
-export type PaymentCard = typeof paymentCards.$inferSelect;
-export type PaymentTransaction = typeof paymentTransactions.$inferSelect;
 export type InsuranceProfile = typeof insuranceProfiles.$inferSelect;
 export type MedicalRecord = typeof medicalRecords.$inferSelect;
-export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;

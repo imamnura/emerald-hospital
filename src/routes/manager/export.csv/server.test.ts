@@ -7,8 +7,8 @@ import {
 	makeSchedule,
 	makeSpecialist,
 	makeUser
-} from '../../../test/factories.ts';
-import { ev, reset } from '../../../test/helpers-routes-manager.ts';
+} from '#test/factories.ts';
+import { ev, reset } from '#test/helpers/route.ts';
 import { GET } from './+server.ts';
 
 type Event = Parameters<typeof GET>[0];

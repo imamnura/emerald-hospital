@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import * as env from '$app/env/private';
 
-export type MailConfig = {
+type MailConfig = {
 	host: string;
 	port: number;
 	secure: boolean;
@@ -10,6 +10,7 @@ export type MailConfig = {
 	from: string;
 };
 
+/** @internal exported for tests */
 export function getConfig(): MailConfig | null {
 	const host = env.SMTP_HOST;
 	const user = env.SMTP_USER;
@@ -26,10 +27,6 @@ export function getConfig(): MailConfig | null {
 	};
 }
 
-export function isConfigured(): boolean {
-	return getConfig() !== null;
-}
-
 let transporter: ReturnType<typeof nodemailer.createTransport> | null = null;
 
 function getTransporter(config: MailConfig) {
@@ -44,7 +41,7 @@ function getTransporter(config: MailConfig) {
 	return transporter;
 }
 
-export type SendMailArgs = {
+type SendMailArgs = {
 	to: string;
 	subject: string;
 	html: string;

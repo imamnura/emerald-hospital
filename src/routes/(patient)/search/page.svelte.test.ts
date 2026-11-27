@@ -1,9 +1,9 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Page from './+page.svelte';
-import { goto } from '../../../test/mocks/app-navigation.ts';
+import { goto } from '#test/mocks/app-navigation.ts';
 import { defaultSearchFilters, useSearchStore } from '#lib/stores/search.ts';
-import { resetStores, testUser } from '../../../test/helpers-pages-public.ts';
+import { resetStores, testUser } from '#test/helpers/component.ts';
 
 /*
  * `seed()` presets the store (e.g. a wide price range) for some tests; the page also
@@ -58,12 +58,31 @@ function searchbox() {
 }
 
 describe('search page', () => {
+	it('updates the search input and store when navigation brings a new query', async () => {
+		const { rerender } = render(Page, { props: { data: data({ query: 'a' }) } as never });
+		expect(searchbox()).toHaveValue('a');
+		await rerender({ data: data({ query: 'b' }) } as never);
+		expect(searchbox()).toHaveValue('b');
+		expect(useSearchStore.getState().query).toBe('b');
+	});
+
+	it('opens the filter once when openFilter turns on after mount', async () => {
+		const { rerender } = render(Page, { props: { data: data() } as never });
+		expect(useSearchStore.getState().isFilterOpen).toBeFalsy();
+		await rerender({ data: data({ openFilter: true }) } as never);
+		expect(useSearchStore.getState().isFilterOpen).toBe(true);
+	});
+
 	it('renders seeded results and bookmark toggles the store', async () => {
 		seed({ bookmarkedIds: ['d2'] });
 		render(Page, { props: { data: data() } as never });
 		expect(screen.getByText('Dr. Alice')).toBeInTheDocument();
 		expect(screen.getByText(/results found/)).toBeInTheDocument();
 		expect(screen.getByRole('button', { name: 'Remove bookmark' })).toBeInTheDocument();
+		const marked = screen.getByRole('button', { name: 'Remove bookmark' });
+		expect(marked.querySelector('.lucide-bookmark')).toHaveClass('fill-primary');
+		const unmarked = screen.getByRole('button', { name: 'Bookmark doctor' });
+		expect(unmarked.querySelector('.fill-primary.lucide-bookmark')).toBeNull();
 		await fireEvent.click(screen.getByRole('button', { name: 'Bookmark doctor' }));
 		expect(useSearchStore.getState().bookmarkedIds).toEqual(['d2', 'd1']);
 	});

@@ -1,15 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { db } from '#lib/server/db/index.ts';
-import { resetDb, type TestDb } from '../../../../../test/db.ts';
-import { makeBooking, makeDoctor, makeSchedule, makeUser } from '../../../../../test/factories.ts';
-import { ev, randomId, thrown } from '../../../../../test/helpers-routes-public.ts';
+import { makeBooking, makeDoctor, makeSchedule, makeUser } from '#test/factories.ts';
+import { ev, randomId, thrown, reset } from '#test/helpers/route.ts';
 import { load } from './+page.server.ts';
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 
 type Slot = { time: string; label: string; quota: number; scheduleId: string; period: string; isFull: boolean };
 type Data = {
-	user: unknown;
 	doctor: { role: string };
 	calendarDays: { date: string }[];
 	selectedDate: string;
@@ -41,7 +38,6 @@ describe('book page load', () => {
 		}
 
 		const first = (await load(ev({ params: { id: doctor.id }, user }))) as Data;
-		expect(first.user).toBe(user);
 		expect(first.selectedDate).toBe(first.calendarDays[0].date);
 		expect(first.monthLabel).toMatch(/\d{4}$/);
 		expect(first.availableDays).toHaveLength(7);

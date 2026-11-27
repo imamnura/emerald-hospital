@@ -1,11 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { db } from '#lib/server/db/index.ts';
-import { resetDb, type TestDb } from '../../../test/db.ts';
-import { makeSpecialist } from '../../../test/factories.ts';
-import { ev } from '../../../test/helpers-routes-public.ts';
+import { makeSpecialist } from '#test/factories.ts';
+import { ev, reset } from '#test/helpers/route.ts';
 import { load } from './+page.server.ts';
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 
 describe('specialists load', () => {
 	it('sorts known slugs by display order, then unknown ones alphabetically', async () => {
@@ -18,9 +16,7 @@ describe('specialists load', () => {
 		]) {
 			await makeSpecialist({ name, slug });
 		}
-		const user = { id: 'u' } as never;
-		const data = (await load(ev({ user }))) as { specialists: { slug: string }[]; user: unknown };
-		expect(data.user).toBe(user);
+		const data = (await load(ev())) as { specialists: { slug: string }[] };
 		expect(data.specialists.map((s) => s.slug)).toEqual([
 			'cardiology',
 			'dental',

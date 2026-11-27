@@ -1,24 +1,19 @@
 <script lang="ts">
+	import FormAlert from '#lib/components/ui/FormAlert.svelte';
 	import { enhance } from '$app/forms';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
-	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
+	import BackHeader from '#lib/components/layout/BackHeader.svelte';
 
 	let { data, form } = $props();
 </script>
 
-<SearchPageHeader title={data.hasPassword ? 'Change Password' : 'Set Password'} backHref="/profile/settings" showProfile={false} />
-
-<div class="-mt-1 mb-4 border-b border-outline-variant/30" aria-hidden="true"></div>
+<BackHeader title={data.hasPassword ? 'Change Password' : 'Set Password'} backHref="/profile/settings" divider dividerClass="mb-4" />
 
 <MotionReveal delay={50}>
 	<form method="POST" action="?/change" use:enhance class="space-y-4">
-		{#if form?.error}
-			<p class="rounded-xl bg-error-container px-4 py-3 text-sm text-error">{form.error}</p>
-		{/if}
+		<FormAlert message={form?.error} />
 		{#if form?.success}
-			<p class="rounded-xl bg-primary/10 px-4 py-3 text-sm text-primary">
-				Password updated successfully.
-			</p>
+			<FormAlert kind="success" message="Password updated successfully." />
 		{/if}
 
 		{#if !data.hasPassword}

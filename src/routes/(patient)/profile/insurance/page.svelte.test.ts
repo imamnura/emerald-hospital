@@ -1,8 +1,8 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import Page from './+page.svelte';
-import { submissions, update } from '../../../../test/mocks/app-forms.ts';
-import { mockLocationHref } from '../../../../test/helpers-pages-public.ts';
+import { submissions, update } from '#test/mocks/app-forms.ts';
+import { mockLocationHref } from '#test/helpers/component.ts';
 
 const emptyInsurance = {
 	id: null,

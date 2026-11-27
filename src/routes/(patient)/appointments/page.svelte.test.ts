@@ -1,9 +1,9 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import Page from './+page.svelte';
-import { goto } from '../../../test/mocks/app-navigation.ts';
-import { setEnhanceResult } from '../../../test/mocks/app-forms.ts';
-import { testUser } from '../../../test/helpers-pages-public.ts';
+import { goto } from '#test/mocks/app-navigation.ts';
+import { setEnhanceResult } from '#test/mocks/app-forms.ts';
+import { testUser } from '#test/helpers/component.ts';
 
 const FUTURE = '2999-01-15';
 const PAST = '2000-01-15';
@@ -82,5 +82,16 @@ describe('appointments page', () => {
 		const btn = await screen.findByRole('button', { name: 'View My Appointments' });
 		await fireEvent.click(btn);
 		expect(goto).toHaveBeenCalledWith('/appointments', { replace: true, reset: false });
+	});
+
+	it('keeps the confirmed booking text while fading out after data drops it', async () => {
+		const { rerender, container } = renderPage({ appointments: [apt()], confirmedBooking: apt() });
+		await fireEvent.click(await screen.findByRole('button', { name: 'View My Appointments' }));
+		await rerender({
+			data: { user: testUser, appointments: [apt()], confirmedBooking: null }
+		} as never);
+		expect(document.body.textContent).not.toMatch(/Invalid Date|NaN/);
+		await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+		expect(container.textContent).not.toMatch(/Invalid Date|NaN/);
 	});
 });

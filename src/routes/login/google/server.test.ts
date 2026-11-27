@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { OAUTH_COOKIES } from '#lib/server/oauth-google.ts';
-import { ev, thrown } from '../../../test/helpers-routes-public.ts';
-import { setEnv } from '../../../test/mocks/env-private.ts';
+import { OAUTH_COOKIES } from '#lib/server/auth/oauth-google.ts';
+import { ev, thrown } from '#test/helpers/route.ts';
+import { setEnv } from '#test/mocks/env-private.ts';
 import { GET } from './+server.ts';
 
 const configure = () => setEnv({ GOOGLE_CLIENT_ID: 'client-123', GOOGLE_CLIENT_SECRET: 'secret' });

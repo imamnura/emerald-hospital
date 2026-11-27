@@ -2,13 +2,10 @@ import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { doctorSchedules } from '#lib/server/db/schema.ts';
-import { makeBooking, makeDoctor, makeEvent, makeManager, makeSchedule, makeUser } from '../../../test/factories.ts';
-import { nonManagers, reset, UNKNOWN_ID, type ActionResult } from '../../../test/helpers-routes-manager.ts';
+import { makeBooking, makeDoctor, makeEvent, makeManager, makeSchedule, makeUser } from '#test/factories.ts';
+import { ev, nonManagers, reset, UNKNOWN_ID, type ActionResult } from '#test/helpers/route.ts';
 import { actions, load } from './+page.server.ts';
 
-type Event = Parameters<typeof load>[0];
-type ActionEvent = Parameters<(typeof actions)['create']>[0];
-const ev = (o: Parameters<typeof makeEvent>[0]) => makeEvent(o) as unknown as Event & ActionEvent;
 type Row = { doctorName: string; dayOfWeek: number; startTime: string };
 type LoadData = {
 	schedules: Row[];
@@ -58,6 +55,12 @@ describe('manager/schedules load', () => {
 		const p2 = await run('/manager/schedules?page=2&pageSize=3');
 		expect(p2).toMatchObject({ total: 4, page: 2, pageSize: 3 });
 		expect(keys(p2)).toEqual(['Dr Bob/2/08:00']);
+	});
+
+	it('ignores a non-uuid doctor filter instead of erroring', async () => {
+		await seed();
+		const data = await run('/manager/schedules?doctorId=abc');
+		expect(data).toMatchObject({ total: 4, doctorFilter: 'abc' });
 	});
 });
 

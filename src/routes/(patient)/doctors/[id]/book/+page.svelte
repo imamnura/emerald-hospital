@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Avatar from '#lib/components/ui/Avatar.svelte';
 	import { goto } from '$app/navigation';
 	import {
 		ArrowLeft,
@@ -9,19 +10,20 @@
 		Star
 	} from '@lucide/svelte';
 	import { groupSlotsByPeriod } from '#lib/utils/booking-ui.ts';
-	import { cn } from '#lib/utils.ts';
+	import { cn } from '#lib/utils/cn.ts';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 
 	let { data } = $props();
 
-	let selectedDate = $state('');
-	let selectedTime = $state('');
-	let selectedScheduleId = $state('');
-
-	$effect.pre(() => {
-		selectedDate = data.selectedDate;
-		selectedTime = '';
-		selectedScheduleId = '';
+	let selectedDate = $derived(data.selectedDate);
+	// Reset whenever navigation brings a new date; editable locally in between.
+	let selectedTime = $derived.by(() => {
+		void data.selectedDate;
+		return '';
+	});
+	let selectedScheduleId = $derived.by(() => {
+		void data.selectedDate;
+		return '';
 	});
 
 	const slotGroups = $derived(groupSlotsByPeriod(data.slots));
@@ -67,26 +69,22 @@
 <section
 	class="-mx-5 bg-gradient-to-b from-primary/10 via-surface-container-low to-surface px-5 pb-6 pt-8 text-center"
 >
-	<div class="relative mx-auto w-fit">
-		{#if data.doctor.imageUrl}
-			<img
-				src={data.doctor.imageUrl}
-				alt={data.doctor.name}
-				class="mx-auto h-28 w-28 rounded-full border-4 border-white object-cover shadow-md"
-			/>
-		{:else}
-			<div
-				class="mx-auto flex h-28 w-28 items-center justify-center rounded-full border-4 border-white bg-surface-container text-3xl font-bold text-primary shadow-md"
+	<Avatar
+		src={data.doctor.imageUrl}
+		name={data.doctor.name}
+		wrapperClass="mx-auto w-fit"
+		class="mx-auto h-28 w-28 border-4 border-white shadow-md"
+		fallbackClass="bg-surface-container text-3xl font-bold text-primary"
+		initials={data.doctor.name.charAt(0)}
+	>
+		{#snippet badge()}
+			<span
+				class="absolute bottom-1 right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-primary text-on-primary"
 			>
-				{data.doctor.name.charAt(0)}
-			</div>
-		{/if}
-		<span
-			class="absolute bottom-1 right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-primary text-on-primary"
-		>
-			<BadgeCheck size={16} />
-		</span>
-	</div>
+				<BadgeCheck size={16} />
+			</span>
+		{/snippet}
+	</Avatar>
 
 	<h2 class="mt-4 font-heading text-xl font-bold text-on-surface">{data.doctor.name}</h2>
 	<p class="mt-0.5 text-sm font-semibold text-primary">{data.doctor.role}</p>

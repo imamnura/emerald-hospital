@@ -1,8 +1,9 @@
-﻿<script lang="ts">
+<script lang="ts">
+	import FormAlert from '#lib/components/ui/FormAlert.svelte';
 	import { enhance } from '$app/forms';
 	import { fly } from 'svelte/transition';
 	import { ArrowLeft, Mail } from '@lucide/svelte';
-	import AuthForgotIcon from '#lib/components/auth/AuthForgotIcon.svelte';
+	import AuthBadge from '#lib/components/auth/AuthBadge.svelte';
 
 	let { form } = $props();
 
@@ -11,7 +12,7 @@
 
 <div class="mx-auto flex min-h-screen max-w-md flex-col justify-center bg-surface px-6 py-10">
 	<div class="text-center" in:fly={{ y: 12, duration: 400 }}>
-		<AuthForgotIcon />
+		<AuthBadge variant="reset" />
 		<h1 class="mt-6 font-heading text-2xl font-bold text-on-surface">Forgot Password</h1>
 		<p class="mx-auto mt-3 max-w-xs text-sm leading-relaxed text-on-surface-variant">
 			{#if sent}
@@ -30,9 +31,7 @@
 			class="mt-8 space-y-5"
 			in:fly={{ y: 16, duration: 420, delay: 80 }}
 		>
-			{#if form?.error}
-				<p class="rounded-xl bg-error-container px-4 py-3 text-sm text-error">{form.error}</p>
-			{/if}
+			<FormAlert message={form?.error} />
 
 			<div>
 				<label for="email" class="mb-1.5 block text-sm font-semibold text-on-surface">

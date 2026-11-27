@@ -1,6 +1,6 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { createSession, sessionCookieOptions } from '#lib/server/auth.ts';
+import { setSessionCookie } from '#lib/server/auth/session.ts';
 import {
 	OAUTH_COOKIES,
 	exchangeCodeForTokens,
@@ -8,7 +8,7 @@ import {
 	findOrCreateGoogleUser,
 	getConfig,
 	oauthCookieOptions
-} from '#lib/server/oauth-google.ts';
+} from '#lib/server/auth/oauth-google.ts';
 
 function clearOAuthCookies(cookies: Parameters<RequestHandler>[0]['cookies']) {
 	const path = oauthCookieOptions().path;
@@ -81,15 +81,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 		loginErrorRedirect('Your Google account email is not verified.');
 	}
 
-	const sessionId = await createSession(result.user.id);
-	const opts = sessionCookieOptions(sessionId);
-	cookies.set(opts.name, opts.value, {
-		path: opts.path,
-		httpOnly: opts.httpOnly,
-		sameSite: opts.sameSite,
-		secure: opts.secure,
-		maxAge: opts.maxAge
-	});
+	await setSessionCookie(cookies, result.user.id);
 
 	clearOAuthCookies(cookies);
 

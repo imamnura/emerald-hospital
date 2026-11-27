@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ev, thrown } from '../test/helpers-routes-public.ts';
+import { ev, thrown } from '#test/helpers/route.ts';
 import { load } from './+page.server.ts';
 
 describe('landing page load', () => {

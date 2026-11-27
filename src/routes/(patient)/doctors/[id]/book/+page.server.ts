@@ -1,23 +1,22 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { listSchedulesForDoctor } from '#lib/server/catalog.ts';
-import { getDoctorDetail } from '#lib/server/doctors.ts';
-import { getAllSlotsForDoctorDate } from '#lib/server/booking.ts';
+import { listSchedulesForDoctor } from '#lib/server/catalog/catalog.ts';
+import { getDoctorDetail } from '#lib/server/catalog/doctors.ts';
+import { getAllSlotsForDoctorDate } from '#lib/server/booking/booking.ts';
+import { formatDate, formatTime12h } from '#lib/format/date.ts';
 import {
-	formatTime12h,
 	generateCalendarDays,
 	pickDefaultDate,
 	type TimeSlotUi
 } from '#lib/utils/booking-ui.ts';
-import { doctorRoleLabel } from '#lib/utils/specialist.ts';
+import { doctorRoleLabel } from '#lib/domain/specialist.ts';
 
-export const load: PageServerLoad = async ({ params, url, parent }) => {
-	const { user } = await parent();
-
-	const doctor = await getDoctorDetail(params.id);
+export const load: PageServerLoad = async ({ params, url }) => {
+	const [doctor, schedules] = await Promise.all([
+		getDoctorDetail(params.id),
+		listSchedulesForDoctor(params.id)
+	]);
 	if (!doctor) error(404, 'Doctor not found');
-
-	const schedules = await listSchedulesForDoctor(params.id);
 
 	const availableDays = [...new Set(schedules.map((s) => s.dayOfWeek))];
 	const calendarDays = generateCalendarDays(availableDays);
@@ -41,7 +40,6 @@ export const load: PageServerLoad = async ({ params, url, parent }) => {
 	}
 
 	return {
-		user,
 		doctor: {
 			...doctor,
 			role: doctorRoleLabel(doctor.specialty, doctor.rating)
@@ -52,10 +50,7 @@ export const load: PageServerLoad = async ({ params, url, parent }) => {
 		slots,
 		availableDays,
 		monthLabel: selectedDate
-			? new Date(selectedDate + 'T12:00:00').toLocaleDateString('en-US', {
-					month: 'long',
-					year: 'numeric'
-				})
+			? formatDate(selectedDate, 'monthYear')
 			: ''
 	};
 };

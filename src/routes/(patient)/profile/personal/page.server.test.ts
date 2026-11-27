@@ -2,12 +2,11 @@ import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { users } from '#lib/server/db/schema.ts';
-import { resetDb, type TestDb } from '../../../../test/db.ts';
-import { makeUser } from '../../../../test/factories.ts';
-import { ev, randomId, thrown } from '../../../../test/helpers-routes-public.ts';
+import { makeUser } from '#test/factories.ts';
+import { ev, randomId, thrown, reset } from '#test/helpers/route.ts';
 import { actions, load } from './+page.server.ts';
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 
 const fresh = async (id: string) => (await db.select().from(users).where(eq(users.id, id)))[0];
 
@@ -95,6 +94,17 @@ describe('profile/personal update action', () => {
 			gender: 'male',
 			bloodType: 'AB-'
 		});
+	});
+
+	it('load after the action (no-JS submit, same stale locals) shows the saved profile', async () => {
+		const user = await makeUser({ name: 'Old Name', phone: '1' });
+		const event = ev({ user, form: { name: 'New Name', phone: '0812', gender: 'male', dateOfBirth: '1990-03-05' } });
+		expect(await actions.update(event)).toEqual({ success: true });
+		// SvelteKit reruns load in the same request: locals.user is still the pre-update row.
+		expect(event.locals.user.name).toBe('Old Name');
+		const data = (await load(event)) as { profile: Record<string, unknown>; dateOfBirth: string; gender: string };
+		expect(data.profile).toMatchObject({ name: 'New Name', phone: '0812' });
+		expect(data).toMatchObject({ dateOfBirth: '03/05/1990', gender: 'male' });
 	});
 
 	it('accepts ISO dates, clears empties and maps prefer_not to null', async () => {

@@ -1,7 +1,8 @@
+import { sql } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { passwordResetTokens } from '#lib/server/db/schema.ts';
-import { resetDb, type TestDb } from '../../../test/db.ts';
+import { resetDb, type TestDb } from '#test/db.ts';
 import {
 	makeBooking,
 	makeCard,
@@ -14,7 +15,7 @@ import {
 	makeSpecialist,
 	makeTransaction,
 	makeUser
-} from '../../../test/factories.ts';
+} from '#test/factories.ts';
 
 const tdb = db as unknown as TestDb;
 
@@ -191,5 +192,21 @@ describe('schema foreign keys', () => {
 				'medical_records.user_id -> users.id (cascade)'
 			].sort()
 		);
+	});
+
+	it('has indexes on hot foreign keys', async () => {
+		const res = await tdb.execute(sql`select indexname from pg_indexes where schemaname = 'public'`);
+		const names = (res.rows as { indexname: string }[]).map((r) => r.indexname);
+		for (const n of [
+			'sessions_user_id_idx',
+			'doctors_hospital_id_idx',
+			'doctors_specialist_id_idx',
+			'doctor_schedules_doctor_id_idx',
+			'bookings_doctor_id_idx',
+			'bookings_created_at_idx',
+			'payment_cards_user_id_idx',
+			'payment_transactions_card_id_idx'
+		])
+			expect(names).toContain(n);
 	});
 });

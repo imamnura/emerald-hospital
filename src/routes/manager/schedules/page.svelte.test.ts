@@ -1,11 +1,11 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { setEnhanceResult, submissions } from '../../../test/mocks/app-forms.ts';
-import { goto } from '../../../test/mocks/app-navigation.ts';
-import { setPage } from '../../../test/mocks/app-state.svelte.ts';
+import { setEnhanceResult, submissions } from '#test/mocks/app-forms.ts';
+import { goto } from '#test/mocks/app-navigation.ts';
+import { setPage } from '#test/mocks/app-state.svelte.ts';
 import { toast } from '#lib/stores/toast.svelte.ts';
-import { escapeThenConfirm, pressEscape, slowNextUpdate } from '../../../test/helpers-pages-manager.ts';
+import { escapeThenConfirm, pressEscape, slowNextUpdate } from '#test/helpers/component.ts';
 import Page from './+page.svelte';
 
 const schedules = [

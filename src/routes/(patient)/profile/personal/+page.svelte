@@ -1,4 +1,6 @@
 ﻿<script lang="ts">
+	import Avatar from '#lib/components/ui/Avatar.svelte';
+	import FormAlert from '#lib/components/ui/FormAlert.svelte';
 	import { enhance } from '$app/forms';
 	import {
 		Calendar,
@@ -12,78 +14,49 @@
 		Save,
 		User
 	} from '@lucide/svelte';
-	import FormIconField from '#lib/components/forms/FormIconField.svelte';
+	import FormIconField from '#lib/components/ui/FormIconField.svelte';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
-	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
+	import BackHeader from '#lib/components/layout/BackHeader.svelte';
 
 	let { data, form } = $props();
 
-	let name = $state('');
-	let phone = $state('');
-	let imageUrl = $state('');
-	let address = $state('');
-	let dateOfBirth = $state('');
-	let gender = $state<'female' | 'male' | 'other' | 'prefer_not'>('prefer_not');
-	let bloodType = $state('');
+	let name = $derived(data.profile.name);
+	let phone = $derived(data.profile.phone ?? '');
+	let imageUrl = $derived(data.profile.imageUrl ?? '');
+	let address = $derived(data.profile.address ?? '');
+	let dateOfBirth = $derived(data.dateOfBirth);
+	let gender = $derived<'female' | 'male' | 'other' | 'prefer_not'>(data.gender);
+	let bloodType = $derived(data.profile.bloodType ?? '');
 
-	$effect.pre(() => {
-		name = data.profile.name;
-		phone = data.profile.phone ?? '';
-		imageUrl = data.profile.imageUrl ?? '';
-		address = data.profile.address ?? '';
-		dateOfBirth = data.dateOfBirth;
-		gender = data.gender;
-		bloodType = data.profile.bloodType ?? '';
-	});
-
-	const initials = $derived(
-		name
-			.split(' ')
-			.map((n) => n[0])
-			.join('')
-			.slice(0, 2)
-			.toUpperCase()
-	);
 </script>
 
-<SearchPageHeader title="Personal Information" backHref="/profile" showProfile={false} />
-
-<div class="-mt-1 mb-2 border-b border-outline-variant/30" aria-hidden="true"></div>
+<BackHeader title="Personal Information" backHref="/profile" divider />
 
 <MotionReveal delay={40}>
 	<div class="flex flex-col items-center py-4">
-		<div class="relative">
-			{#if imageUrl}
-				<img
-					src={imageUrl}
-					alt={name}
-					class="h-28 w-28 rounded-full border-4 border-surface-container-lowest object-cover shadow-[var(--shadow-card)]"
-				/>
-			{:else}
-				<div
-					class="flex h-28 w-28 items-center justify-center rounded-full border-4 border-surface-container-lowest bg-primary/10 text-3xl font-bold text-primary shadow-[var(--shadow-card)]"
+		<Avatar
+			src={imageUrl}
+			name={name}
+			size="xl"
+			class="border-4 border-surface-container-lowest shadow-[var(--shadow-card)]"
+			fallbackClass="bg-primary/10 text-3xl font-bold text-primary"
+		>
+			{#snippet badge()}
+				<span
+					class="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-surface-container-lowest bg-primary text-on-primary"
 				>
-					{initials}
-				</div>
-			{/if}
-			<span
-				class="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-surface-container-lowest bg-primary text-on-primary"
-			>
-				<Pencil size={14} strokeWidth={2.5} />
-			</span>
-		</div>
+					<Pencil size={14} strokeWidth={2.5} />
+				</span>
+			{/snippet}
+		</Avatar>
 		<p class="mt-3 text-xs text-outline">Set your profile photo via the Image URL field below.</p>
 	</div>
 </MotionReveal>
 
 <MotionReveal delay={90}>
 	<form method="POST" action="?/update" use:enhance class="space-y-4 pb-6">
-		{#if form?.error}
-			<p class="rounded-xl bg-error-container px-4 py-3 text-sm text-error">{form.error}</p>
-		{/if}
-		{#if form?.success}
-			<p class="rounded-xl bg-primary/10 px-4 py-3 text-sm text-primary">Profile updated successfully.</p>
-		{/if}
+		<FormAlert message={form?.error} />
+		<FormAlert kind="success" message={form?.success ? 'Profile updated successfully.' : null} />
 
 		<FormIconField id="name" label="Full Name" name="name" bind:value={name} required>
 			{#snippet icon()}

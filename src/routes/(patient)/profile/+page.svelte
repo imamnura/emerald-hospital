@@ -1,17 +1,17 @@
-﻿<script lang="ts">
-	import { enhance } from '$app/forms';
+<script lang="ts">
+	import Avatar from '#lib/components/ui/Avatar.svelte';
 	import {
 		Banknote,
 		Bell,
 		FileText,
 		HelpCircle,
-		LogOut,
 		Settings,
 		Shield,
 		User
 	} from '@lucide/svelte';
-	import Header from '#lib/components/Header.svelte';
-	import ProfileMenuItem from '#lib/components/ProfileMenuItem.svelte';
+	import LogoutButton from '#lib/components/profile/LogoutButton.svelte';
+	import Header from '#lib/components/layout/Header.svelte';
+	import ProfileMenuItem from '#lib/components/profile/ProfileMenuItem.svelte';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 
 	let { data } = $props();
@@ -26,33 +26,19 @@
 		{ href: '/profile/help', label: 'Help & Support', Icon: HelpCircle }
 	] as const;
 
-	const initials = $derived(
-		data.profile.name
-			.split(' ')
-			.map((n) => n[0])
-			.join('')
-			.slice(0, 2)
-			.toUpperCase()
-	);
 </script>
 
 <Header leadingIcon="user" showSearch={false} showNotification={true} />
 
 <MotionReveal delay={40}>
 	<section class="mt-4 flex flex-col items-center text-center">
-		{#if data.profile.imageUrl}
-			<img
-				src={data.profile.imageUrl}
-				alt={data.profile.name}
-				class="h-28 w-28 rounded-full border-4 border-surface-container-lowest object-cover shadow-[var(--shadow-card)]"
-			/>
-		{:else}
-			<div
-				class="flex h-28 w-28 items-center justify-center rounded-full border-4 border-surface-container-lowest bg-primary/10 text-3xl font-bold text-primary shadow-[var(--shadow-card)]"
-			>
-				{initials}
-			</div>
-		{/if}
+		<Avatar
+			src={data.profile.imageUrl}
+			name={data.profile.name}
+			size="xl"
+			class="border-4 border-surface-container-lowest shadow-[var(--shadow-card)]"
+			fallbackClass="bg-primary/10 text-3xl font-bold text-primary"
+		/>
 		<h2 class="mt-4 font-heading text-2xl font-bold text-on-surface">{data.profile.name}</h2>
 		<p class="mt-1 text-sm text-outline">Member since {data.memberSince}</p>
 	</section>
@@ -90,15 +76,7 @@
 </MotionReveal>
 
 <MotionReveal delay={190}>
-	<form method="POST" action="?/logout" use:enhance class="mt-6 pb-2">
-		<button
-			type="submit"
-			class="flex w-full items-center justify-center gap-2 rounded-2xl bg-error-container/60 py-3.5 text-sm font-bold text-error transition-opacity active:opacity-80"
-		>
-			<LogOut size={18} strokeWidth={2.25} />
-			Logout
-		</button>
-	</form>
+	<LogoutButton class="mt-6 pb-2" />
 
 	{#if data.profile.role === 'manager'}
 		<a href="/manager" class="mt-4 block text-center text-sm font-semibold text-primary">

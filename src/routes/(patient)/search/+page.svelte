@@ -1,29 +1,30 @@
-﻿<script lang="ts">
+<script lang="ts">
 	import { goto } from '$app/navigation';
-	import FilterOptionsModal from '#lib/components/FilterOptionsModal.svelte';
-	import SearchBar from '#lib/components/SearchBar.svelte';
-	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
-	import SearchResultCard from '#lib/components/SearchResultCard.svelte';
+	import FilterOptionsModal from '#lib/components/doctor/FilterOptionsModal.svelte';
+	import SearchBar from '#lib/components/layout/SearchBar.svelte';
+	import BackHeader from '#lib/components/layout/BackHeader.svelte';
+	import ProfileLink from '#lib/components/profile/ProfileLink.svelte';
+	import DoctorSummary from '#lib/components/doctor/DoctorSummary.svelte';
 	import { filterAndSortDoctors, useSearchStore } from '#lib/stores/search.ts';
 	import { useZustand } from '#lib/stores/useZustand.svelte.ts';
-	import { SlidersHorizontal } from '@lucide/svelte';
+	import { Bookmark, SlidersHorizontal } from '@lucide/svelte';
+	import { cn } from '#lib/utils/cn.ts';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 
 	let { data } = $props();
 
 	const search = useZustand(useSearchStore);
-	let localQuery = $state('');
+	let localQuery = $derived(data.query);
 
+	let lastOpenFilter = false;
+	// Store sync from load data (pre-render so first paint is consistent).
 	$effect.pre(() => {
-		useSearchStore.getState().setQuery(data.query);
-		useSearchStore.getState().setResults(data.allDoctors);
-		localQuery = data.query;
-	});
-
-	$effect(() => {
-		if (data.openFilter) {
-			useSearchStore.getState().openFilter();
-		}
+		const store = useSearchStore.getState();
+		store.setQuery(data.query);
+		store.setResults(data.allDoctors);
+		const open = Boolean(data.openFilter);
+		if (open && !lastOpenFilter) store.openFilter();
+		lastOpenFilter = open;
 	});
 
 	const displayed = $derived(
@@ -61,7 +62,11 @@
 	}
 </script>
 
-<SearchPageHeader userName={data.user?.name} userImage={data.user?.imageUrl} />
+<BackHeader title="Medical Center" backHref="/home">
+	{#snippet trailing()}
+		<ProfileLink imageUrl={data.user?.imageUrl} name={data.user?.name ?? 'Guest'} />
+	{/snippet}
+</BackHeader>
 
 <form
 	class="mt-4"
@@ -102,17 +107,22 @@
 		</p>
 	{:else}
 		{#each displayed as doctor (doctor.id)}
-			<SearchResultCard
-				id={doctor.id}
-				name={doctor.name}
-				specialty={doctor.specialty}
-				hospital={doctor.hospital}
-				imageUrl={doctor.imageUrl}
-				rating={doctor.rating}
-				reviewCount={doctor.reviewCount}
-				bookmarked={search.bookmarkedIds.includes(doctor.id)}
-				onBookmark={(id) => useSearchStore.getState().toggleBookmark(id)}
-			/>
+			{@const bookmarked = search.bookmarkedIds.includes(doctor.id)}
+			<DoctorSummary {doctor} variant="search">
+				{#snippet trailing()}
+					<button
+						type="button"
+						class="absolute right-4 top-4 text-outline transition-colors hover:text-primary"
+						aria-label={bookmarked ? 'Remove bookmark' : 'Bookmark doctor'}
+						onclick={(e) => {
+							e.preventDefault();
+							useSearchStore.getState().toggleBookmark(doctor.id);
+						}}
+					>
+						<Bookmark size={20} class={cn(bookmarked && 'fill-primary text-primary')} />
+					</button>
+				{/snippet}
+			</DoctorSummary>
 		{/each}
 	{/if}
 </div>

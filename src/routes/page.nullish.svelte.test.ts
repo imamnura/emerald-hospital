@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Landing from './+page.svelte';
 import FindDoctor from './find-doctor/+page.svelte';
-import { mockLocationHref, stubSpecialistsFetch } from '../test/helpers-pages-public.ts';
+import { mockLocationHref, stubSpecialistsFetch } from '#test/helpers/component.ts';
 
 /*
  * The compiled template emits `value ?? ''` for every `{expr}` interpolation.
@@ -20,7 +20,7 @@ vi.mock('#lib/data/landing.ts', async (importOriginal) => {
 		LANDING_BRAND: blank(real.LANDING_BRAND),
 		LANDING_HERO: blank(real.LANDING_HERO),
 		LANDING_HOSPITALS: real.LANDING_HOSPITALS.map((h) => ({ value: h.value, label: undefined })),
-		LANDING_TRUST_BADGES: real.LANDING_TRUST_BADGES.map(() => ({ label: undefined })),
+		LANDING_TRUST_BADGES: real.LANDING_TRUST_BADGES.map((b) => ({ id: b.id, label: undefined })),
 		LANDING_POPULAR_DOCTORS: {
 			...blank(real.LANDING_POPULAR_DOCTORS),
 			doctors: real.LANDING_POPULAR_DOCTORS.doctors.map((d) => ({ ...d, reviewCount: undefined }))

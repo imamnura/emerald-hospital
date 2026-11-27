@@ -3,15 +3,13 @@ import { and, eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { db } from '#lib/server/db/index.ts';
 import { doctorSchedules } from '#lib/server/db/schema.ts';
-import { createBookingAtomic, getDayOfWeek, getSlotAvailability } from '#lib/server/booking.ts';
-import { isUuid } from '#lib/server/db-errors.ts';
-import { getDoctorDetail } from '#lib/server/doctors.ts';
-import { formatTime12h } from '#lib/utils/booking-ui.ts';
-import { doctorRoleLabel } from '#lib/utils/specialist.ts';
+import { createBookingAtomic, getDayOfWeek, getSlotAvailabilityForSchedule } from '#lib/server/booking/booking.ts';
+import { isUuid } from '#lib/server/db/errors.ts';
+import { getDoctorDetail } from '#lib/server/catalog/doctors.ts';
+import { formatTime12h } from '#lib/format/date.ts';
+import { doctorRoleLabel } from '#lib/domain/specialist.ts';
 
-export const load: PageServerLoad = async ({ params, url, parent }) => {
-	const { user } = await parent();
-
+export const load: PageServerLoad = async ({ params, url }) => {
 	const appointmentDate = url.searchParams.get('date') ?? '';
 	const appointmentTime = url.searchParams.get('time') ?? '';
 	const scheduleId = url.searchParams.get('scheduleId') ?? '';
@@ -33,13 +31,13 @@ export const load: PageServerLoad = async ({ params, url, parent }) => {
 		throw redirect(303, `/doctors/${params.id}/book?date=${appointmentDate}`);
 	}
 
-	const availability = await getSlotAvailability(scheduleId, appointmentDate);
+	// The schedule row is already loaded; only the booked counts are queried.
+	const availability = await getSlotAvailabilityForSchedule(schedule, appointmentDate);
 	if ((availability.get(appointmentTime) ?? 0) <= 0) {
 		throw redirect(303, `/doctors/${params.id}/book?date=${appointmentDate}`);
 	}
 
 	return {
-		user,
 		appointment: {
 			date: appointmentDate,
 			time: appointmentTime,

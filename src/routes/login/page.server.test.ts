@@ -1,15 +1,14 @@
 import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { hashPassword } from '#lib/server/auth.ts';
+import { hashPassword } from '#lib/server/auth/password.ts';
 import { db } from '#lib/server/db/index.ts';
 import { sessions } from '#lib/server/db/schema.ts';
-import { resetDb, type TestDb } from '../../test/db.ts';
-import { makeUser } from '../../test/factories.ts';
-import { ev, thrown } from '../../test/helpers-routes-public.ts';
-import { setEnv } from '../../test/mocks/env-private.ts';
+import { makeUser } from '#test/factories.ts';
+import { ev, thrown, reset } from '#test/helpers/route.ts';
+import { setEnv } from '#test/mocks/env-private.ts';
 import { actions, load } from './+page.server.ts';
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 
 const patient = { id: 'p', role: 'patient' } as never;
 const manager = { id: 'm', role: 'manager' } as never;

@@ -11,13 +11,10 @@ import {
 	makeSchedule,
 	makeSpecialist,
 	makeUser
-} from '../../../test/factories.ts';
-import { nonManagers, reset, UNKNOWN_ID, type ActionResult } from '../../../test/helpers-routes-manager.ts';
+} from '#test/factories.ts';
+import { ev, nonManagers, reset, UNKNOWN_ID, type ActionResult } from '#test/helpers/route.ts';
 import { actions, load } from './+page.server.ts';
 
-type Event = Parameters<typeof load>[0];
-type ActionEvent = Parameters<(typeof actions)['create']>[0];
-const ev = (o: Parameters<typeof makeEvent>[0]) => makeEvent(o) as unknown as Event & ActionEvent;
 type LoadData = {
 	doctors: { name: string; hospital: string; specialty: string }[];
 	total: number;
@@ -56,6 +53,13 @@ describe('manager/doctors load', () => {
 		expect(data.doctors[0]).toMatchObject({ hospital: 'Alpha Hospital', specialty: 'Cardiology' });
 		expect(data.hospitals.map((h) => h.name)).toEqual(['Alpha Hospital', 'Beta Hospital']);
 		expect(data.specialists.map((s) => s.name)).toEqual(['Cardiology', 'Dermatology']);
+	});
+
+	it('ignores a non-uuid hospital or specialty filter instead of erroring', async () => {
+		await seed();
+		const data = await run('/manager/doctors?hospitalId=abc&specialistId=xyz');
+		expect(data).toMatchObject({ total: 3, hospitalFilter: 'abc', specialistFilter: 'xyz' });
+		expect(names(data)).toEqual(['Dr Ann', 'Dr Bob', 'Dr Cat']);
 	});
 
 	it('searches by doctor, specialty or hospital name', async () => {

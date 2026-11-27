@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { Plus } from '@lucide/svelte';
 
 	interface Props {
 		title: string;
@@ -7,9 +8,11 @@
 		count?: number;
 		countLabel?: string;
 		actions?: Snippet;
+		addLabel?: string;
+		onadd?: () => void;
 	}
 
-	let { title, subtitle, count, countLabel, actions }: Props = $props();
+	let { title, subtitle, count, countLabel, actions, addLabel, onadd }: Props = $props();
 </script>
 
 <header class="flex flex-wrap items-end justify-between gap-3">
@@ -26,7 +29,19 @@
 			<p class="mt-1 text-sm text-outline">{subtitle}</p>
 		{/if}
 	</div>
-	{#if actions}
-		<div class="flex flex-wrap items-center gap-2">{@render actions()}</div>
+	{#if actions || addLabel}
+		<div class="flex flex-wrap items-center gap-2">
+			{#if actions}{@render actions()}{/if}
+			{#if addLabel}
+				<button
+					type="button"
+					onclick={onadd}
+					class="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-on-primary shadow-primary transition-transform active:scale-[0.98]"
+				>
+					<Plus size={16} strokeWidth={2.25} />
+					{addLabel}
+				</button>
+			{/if}
+		</div>
 	{/if}
 </header>

@@ -1,22 +1,16 @@
-import { fail, redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import {
-	cancelBookingForUser,
-	getAppointmentForUser,
-	listAppointmentsForUser
-} from '#lib/server/booking.ts';
+import { requirePatient } from '#lib/server/auth/guards.ts';
+import { cancelBookingForUser, listAppointmentsForUser } from '#lib/server/booking/booking.ts';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-	if (!locals.user) throw redirect(303, '/login?redirect=/appointments');
-	if (locals.user.role !== 'patient') throw redirect(303, '/manager');
+	const user = requirePatient(locals, '/appointments');
 
 	const bookedId = url.searchParams.get('booked');
-	const appointments = await listAppointmentsForUser(locals.user.id);
+	const appointments = await listAppointmentsForUser(user.id);
 
-	let confirmedBooking = bookedId
-		? (appointments.find((a) => a.id === bookedId) ??
-			(await getAppointmentForUser(locals.user.id, bookedId)))
-		: null;
+	// The list already holds every booking of this user, so no second lookup is needed.
+	const confirmedBooking = bookedId ? (appointments.find((a) => a.id === bookedId) ?? null) : null;
 
 	return { appointments, confirmedBooking };
 };

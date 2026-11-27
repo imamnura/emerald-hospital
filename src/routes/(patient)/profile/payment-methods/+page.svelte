@@ -1,13 +1,13 @@
 ﻿<script lang="ts">
-	import { enhance } from '$app/forms';
-	import { tick } from 'svelte';
+	import FormAlert from '#lib/components/ui/FormAlert.svelte';
+	import { enhance, type SubmitFunction } from '$app/forms';
 	import { fly } from 'svelte/transition';
 	import { Plus } from '@lucide/svelte';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
-	import SavedPaymentCard from '#lib/components/payment/SavedPaymentCard.svelte';
-	import PaymentTransactionRow from '#lib/components/payment/PaymentTransactionRow.svelte';
-	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
-	import SettingsSection from '#lib/components/settings/SettingsSection.svelte';
+	import SavedPaymentCard from '#lib/components/profile/payment/SavedPaymentCard.svelte';
+	import PaymentTransactionRow from '#lib/components/profile/payment/PaymentTransactionRow.svelte';
+	import BackHeader from '#lib/components/layout/BackHeader.svelte';
+	import SettingsSection from '#lib/components/profile/settings/SettingsSection.svelte';
 
 	let { data, form } = $props();
 
@@ -16,46 +16,40 @@
 	let deleteFormEl: HTMLFormElement;
 	let pendingCardId = $state('');
 
-	async function submitSetDefault(cardId: string) {
+	/** Stamps the chosen card id onto the outgoing request, so it never depends on a DOM flush. */
+	const withPendingCard: SubmitFunction = ({ formData }) => {
+		formData.set('cardId', pendingCardId);
+	};
+
+	function submitSetDefault(cardId: string) {
 		pendingCardId = cardId;
-		// Let bind:value write the id into the hidden input before submitting.
-		await tick();
 		setDefaultFormEl.requestSubmit();
 	}
 
-	async function submitDelete(cardId: string) {
+	function submitDelete(cardId: string) {
 		pendingCardId = cardId;
-		await tick();
 		deleteFormEl.requestSubmit();
 	}
 </script>
 
-<SearchPageHeader title="Payment Methods" backHref="/profile" showProfile={false} />
+<BackHeader title="Payment Methods" backHref="/profile" divider />
 
-<div class="-mt-1 mb-2 border-b border-outline-variant/30" aria-hidden="true"></div>
-
-{#if form?.error}
-	<p class="mt-2 rounded-xl bg-error-container px-4 py-3 text-sm text-error">{form.error}</p>
-{/if}
+<FormAlert message={form?.error} class="mt-2" />
 
 <form
 	method="POST"
 	action="?/setDefault"
-	use:enhance
+	use:enhance={withPendingCard}
 	bind:this={setDefaultFormEl}
 	class="hidden"
->
-	<input type="hidden" name="cardId" bind:value={pendingCardId} />
-</form>
+></form>
 <form
 	method="POST"
 	action="?/delete"
-	use:enhance
+	use:enhance={withPendingCard}
 	bind:this={deleteFormEl}
 	class="hidden"
->
-	<input type="hidden" name="cardId" bind:value={pendingCardId} />
-</form>
+></form>
 
 <MotionReveal delay={50}>
 	<SettingsSection title="Saved Cards">

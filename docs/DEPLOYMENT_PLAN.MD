@@ -1,6 +1,6 @@
 # Deployment Plan
 
-> Part of the [Purwakarta Health docs](./DEVELOPMENT_STATUS.md). Last verified against code: 2026-10-22.
+> Part of the [Purwakarta Health docs](./DEVELOPMENT_STATUS.md). Last verified against code: 2026-11-26.
 
 **Status:** not deployed. No adapter selected, no CI/CD, no production environment.
 
@@ -57,7 +57,6 @@ Run with `node build` (env: `PORT`, `HOST`, `ORIGIN=https://<domain>`). `ORIGIN`
 | `ORIGIN` | — | `https://<domain>` (adapter-node) |
 | `GOOGLE_CLIENT_ID` / `SECRET` | optional | Separate OAuth client per env. Register `https://<domain>/login/google/callback`. |
 | `SMTP_*` | empty (console) | Real SMTP / transactional provider. Set SPF/DKIM for `SMTP_FROM`. |
-| `SESSION_SECRET` | any | Set anyway. Currently unused. |
 
 Never commit `.env`. It is gitignored. `.env.example` is the template.
 
@@ -86,6 +85,7 @@ Rules:
 2. Tag the release on `master`.
 3. Back up the production DB (snapshot).
 4. `pnpm db:migrate` against production. Stop if it fails.
+   - Migration `drizzle/0004_*.sql` creates 8 foreign-key indexes with plain `CREATE INDEX`. That takes a brief write lock per table, which is fine at current table sizes. If the tables have grown large, create the indexes manually with `CREATE INDEX CONCURRENTLY` first (outside a transaction) and then run the migration.
 5. Deploy the new build. Restart the Node process or roll the containers.
 6. Smoke test: `/` loads, login as a test patient, open `/manager` as a test manager, run one booking on a test doctor.
 7. Watch error logs for 30 minutes.
@@ -108,4 +108,4 @@ Drizzle has no automatic down migrations. Write a manual SQL revert script for a
 - [ ] Scheduled cleanup of expired `sessions` and `password_reset_tokens` rows (cron SQL).
 - [ ] DB backups verified by a test restore.
 - [ ] Error monitoring + uptime check on `/`.
-- [ ] `logs/` removed from git and added to `.gitignore`.
+- [x] `logs/` removed from git and added to `.gitignore` (8782637).

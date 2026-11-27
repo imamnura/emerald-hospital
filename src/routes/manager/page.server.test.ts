@@ -6,8 +6,8 @@ import {
 	makeSchedule,
 	makeSpecialist,
 	makeUser
-} from '../../test/factories.ts';
-import { ev, reset } from '../../test/helpers-routes-manager.ts';
+} from '#test/factories.ts';
+import { ev, reset } from '#test/helpers/route.ts';
 import { load } from './+page.server.ts';
 
 type Event = Parameters<typeof load>[0];
@@ -108,6 +108,13 @@ describe('manager dashboard load', () => {
 		expect(none.totals).toMatchObject({ bookings: 0, pending: 0 });
 		expect(none.trend).toEqual({ bookings: 0, pending: 0 });
 		expect(none.recent).toEqual([]);
+	});
+
+	it('ignores non-UUID hospital and specialty filters instead of throwing', async () => {
+		await seed();
+		const data = await run('/manager?hospitalId=abc&specialistId=xyz');
+		expect(data.filters).toEqual({ range: '30d', hospitalId: null, specialistId: null });
+		expect(data.totals).toMatchObject({ bookings: 3, pending: 2 });
 	});
 
 	it('falls back to 30d for an unknown range and works on an empty database', async () => {

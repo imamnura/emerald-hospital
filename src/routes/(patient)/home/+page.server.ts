@@ -1,6 +1,6 @@
 import type { PageServerLoad } from './$types';
-import { listSpecialists } from '#lib/server/catalog.ts';
-import { listActiveDoctors } from '#lib/server/doctors.ts';
+import { listSpecialists } from '#lib/server/catalog/catalog.ts';
+import { listActiveDoctors } from '#lib/server/catalog/doctors.ts';
 
 export const load: PageServerLoad = async ({ url }) => {
 	const specialistSlug = url.searchParams.get('specialist') ?? '';

@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import Page from './+page.svelte';
-import { submissions, update } from '../../../../test/mocks/app-forms.ts';
+import { submissions, update } from '#test/mocks/app-forms.ts';
 
 const cards = [
 	{ id: 'c1', brand: 'visa', last4: '1111', expires: '12/30', isDefault: true },
@@ -62,5 +62,24 @@ describe('payment methods page', () => {
 		await waitFor(() => expect(submissions).toHaveLength(1));
 		expect(submissions[0].action.search).toBe('?/delete');
 		expect(submissions[0].formData.get('cardId')).toBe('c2');
+	});
+
+	it('submits the id of the card that was chosen, whichever card it is', async () => {
+		const three = [
+			...cards,
+			{ id: 'c3', brand: 'visa', last4: '3333', expires: '03/31', isDefault: false }
+		];
+		render(Page, { props: { data: { savedCards: three, transactions }, form: null } as never });
+		const removeButtons = screen.getAllByRole('button', { name: 'Remove card' });
+		await fireEvent.click(removeButtons[1]);
+		await waitFor(() => expect(submissions).toHaveLength(1));
+		expect(submissions[0].formData.get('cardId')).toBe('c3');
+		await fireEvent.click(removeButtons[0]);
+		await waitFor(() => expect(submissions).toHaveLength(2));
+		expect(submissions[1].formData.get('cardId')).toBe('c2');
+		await fireEvent.click(screen.getByRole('button', { name: /3333/ }));
+		await waitFor(() => expect(submissions).toHaveLength(3));
+		expect(submissions[2].action.search).toBe('?/setDefault');
+		expect(submissions[2].formData.get('cardId')).toBe('c3');
 	});
 });

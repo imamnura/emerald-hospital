@@ -2,12 +2,11 @@ import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { bookings } from '#lib/server/db/schema.ts';
-import { resetDb, type TestDb } from '../../../test/db.ts';
-import { makeBooking, makeDoctor, makeManager, makeSchedule, makeUser } from '../../../test/factories.ts';
-import { ev, randomId, thrown } from '../../../test/helpers-routes-public.ts';
+import { makeBooking, makeDoctor, makeManager, makeSchedule, makeUser } from '#test/factories.ts';
+import { ev, randomId, thrown, reset } from '#test/helpers/route.ts';
 import { actions, load } from './+page.server.ts';
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 
 async function seed() {
 	const user = await makeUser();

@@ -1,8 +1,9 @@
 import 'dotenv/config';
-import { hash } from '@node-rs/argon2';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from '../src/lib/server/db/schema';
+import { hashPassword } from '../src/lib/server/auth/password.ts';
+import { toLocalDateString } from '../src/lib/format/date.ts';
 
 const {
 	users,
@@ -28,14 +29,14 @@ function nextDateForDay(dayOfWeek: number): string {
 	let diff = dayOfWeek - d.getDay();
 	if (diff <= 0) diff += 7;
 	d.setDate(d.getDate() + diff);
-	return d.toISOString().slice(0, 10);
+	return toLocalDateString(d);
 }
 
 function dateOffset(days: number): string {
 	const d = new Date();
 	d.setHours(12, 0, 0, 0);
 	d.setDate(d.getDate() + days);
-	return d.toISOString().slice(0, 10);
+	return toLocalDateString(d);
 }
 
 /** Friday at least `weeks` weeks ahead (for upcoming demo) */
@@ -44,7 +45,7 @@ function nextFridayWeeksAhead(weeks: number): string {
 	d.setHours(12, 0, 0, 0);
 	d.setDate(d.getDate() + weeks * 7);
 	while (d.getDay() !== 5) d.setDate(d.getDate() + 1);
-	return d.toISOString().slice(0, 10);
+	return toLocalDateString(d);
 }
 
 const BIO_BY_SPECIALTY: Record<string, string> = {
@@ -85,12 +86,7 @@ async function main() {
 	await db.delete(hospitals);
 	await db.delete(users);
 
-	const passwordHash = await hash('password123', {
-		memoryCost: 19456,
-		timeCost: 2,
-		outputLen: 32,
-		parallelism: 1
-	});
+	const passwordHash = await hashPassword('password123');
 
 	const [manager] = await db
 		.insert(users)

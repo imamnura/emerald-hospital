@@ -1,11 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { db } from '#lib/server/db/index.ts';
-import { resetDb, type TestDb } from '../../../test/db.ts';
-import { makeSpecialist } from '../../../test/factories.ts';
-import { ev } from '../../../test/helpers-routes-public.ts';
+import { makeSpecialist } from '#test/factories.ts';
+import { ev, reset } from '#test/helpers/route.ts';
 import { GET } from './+server.ts';
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 
 const get = async (url: string) => (await (await GET(ev({ url }))).json()) as { name: string; slug: string }[];
 

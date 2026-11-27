@@ -1,10 +1,12 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
-import { deleteSessionsByUserId, hashPassword } from '#lib/server/auth.ts';
+import { deleteSessionsByUserId } from '#lib/server/auth/session.ts';
+import { hashPassword } from '#lib/server/auth/password.ts';
 import { db } from '#lib/server/db/index.ts';
-import { users } from '#lib/server/db/schema.ts';
-import { consumePasswordResetToken, findValidPasswordResetToken } from '#lib/server/password-reset.ts';
+import { consumePasswordResetToken, findValidPasswordResetToken } from '#lib/server/auth/password-reset.ts';
+import { setPasswordHash } from '#lib/server/patient/users.ts';
+
+const INVALID_TOKEN = { error: 'This reset link is invalid or has expired.', expired: true };
 
 export const load: PageServerLoad = async ({ locals, params }) => {
 	if (locals.user) throw redirect(303, '/home');
@@ -16,9 +18,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 export const actions: Actions = {
 	default: async ({ request, params }) => {
 		const tokenRow = await findValidPasswordResetToken(params.token);
-		if (!tokenRow) {
-			return fail(400, { error: 'This reset link is invalid or has expired.', expired: true });
-		}
+		if (!tokenRow) return fail(400, INVALID_TOKEN);
 
 		const formData = await request.formData();
 		const password = String(formData.get('password') ?? '');
@@ -31,11 +31,18 @@ export const actions: Actions = {
 			return fail(400, { error: 'Passwords do not match.', expired: false });
 		}
 
+		// Hash before opening the transaction so it is not held open during argon2.
 		const passwordHash = await hashPassword(password);
-		await db.update(users).set({ passwordHash }).where(eq(users.id, tokenRow.userId));
 
-		await consumePasswordResetToken(tokenRow.id);
-		await deleteSessionsByUserId(tokenRow.userId);
+		// All-or-nothing: a failure leaves the token usable and the old password + sessions intact.
+		const consumed = await db.transaction(async (tx) => {
+			// Conditional consume: a concurrent request that used the token first wins.
+			if (!(await consumePasswordResetToken(tokenRow.id, tx))) return false;
+			await setPasswordHash(tokenRow.userId, passwordHash, tx);
+			await deleteSessionsByUserId(tokenRow.userId, tx);
+			return true;
+		});
+		if (!consumed) return fail(400, INVALID_TOKEN);
 
 		throw redirect(303, '/login?reset=success');
 	}

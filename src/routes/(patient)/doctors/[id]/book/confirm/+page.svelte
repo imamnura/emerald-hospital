@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Avatar from '#lib/components/ui/Avatar.svelte';
+	import FormAlert from '#lib/components/ui/FormAlert.svelte';
 	import { enhance } from '$app/forms';
 	import {
 		ArrowLeft,
@@ -8,7 +10,7 @@
 		MapPin,
 		Stethoscope
 	} from '@lucide/svelte';
-	import { formatAppointmentDateLong } from '#lib/utils/booking-ui.ts';
+	import { formatDate } from '#lib/format/date.ts';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 
 	let { data, form } = $props();
@@ -17,7 +19,7 @@
 		`/doctors/${data.doctor.id}/book?date=${data.appointment.date}`
 	);
 	const dateTimeLabel = $derived(
-		`${formatAppointmentDateLong(data.appointment.date)} at ${data.appointment.timeLabel}`
+		`${formatDate(data.appointment.date, 'long')} at ${data.appointment.timeLabel}`
 	);
 	const feeFormatted = $derived(
 		new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
@@ -53,27 +55,20 @@
 	</p>
 </section>
 
-{#if form?.error}
-	<p class="mt-4 rounded-xl bg-error-container px-4 py-3 text-sm text-error">{form.error}</p>
-{/if}
+<FormAlert message={form?.error} class="mt-4" />
 
 <!-- Doctor card -->
 <article
 	class="mt-8 flex items-center gap-3 rounded-2xl border border-outline-variant/25 bg-surface-container-lowest p-4 shadow-[var(--shadow-card)]"
 >
-	{#if data.doctor.imageUrl}
-		<img
-			src={data.doctor.imageUrl}
-			alt={data.doctor.name}
-			class="h-14 w-14 shrink-0 rounded-full object-cover"
-		/>
-	{:else}
-		<div
-			class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-surface-container text-lg font-bold text-primary"
-		>
-			{data.doctor.name.charAt(0)}
-		</div>
-	{/if}
+	<Avatar
+		src={data.doctor.imageUrl}
+		name={data.doctor.name}
+		size="lg"
+		class="shrink-0"
+		fallbackClass="bg-surface-container text-lg font-bold text-primary"
+		initials={data.doctor.name.charAt(0)}
+	/>
 	<div>
 		<p class="font-heading font-bold text-on-surface">{data.doctor.name}</p>
 		<p class="text-sm font-semibold text-primary">{data.doctor.role}</p>

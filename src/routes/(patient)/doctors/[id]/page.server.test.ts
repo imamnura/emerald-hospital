@@ -1,11 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { db } from '#lib/server/db/index.ts';
-import { resetDb, type TestDb } from '../../../../test/db.ts';
-import { makeDoctor, makeSchedule } from '../../../../test/factories.ts';
-import { ev, randomId, thrown } from '../../../../test/helpers-routes-public.ts';
+import { makeDoctor, makeSchedule } from '#test/factories.ts';
+import { ev, randomId, thrown, reset } from '#test/helpers/route.ts';
 import { load } from './+page.server.ts';
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 
 describe('doctor detail load', () => {
 	it('404s for unknown doctors', async () => {

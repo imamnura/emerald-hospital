@@ -113,7 +113,6 @@ The **Continue with Google** button on `/login` and `/register` becomes active o
 | Variable               | Required        | Notes                                                          |
 | ---------------------- | --------------- | -------------------------------------------------------------- |
 | `DATABASE_URL`         | yes             | `postgresql://user:pass@host:port/db`                          |
-| `SESSION_SECRET`       | recommended     | Reserved for future cookie signing; currently advisory          |
 | `GOOGLE_CLIENT_ID`     | optional        | Enables Google sign-in                                          |
 | `GOOGLE_CLIENT_SECRET` | optional        | Pair with the client ID                                         |
 
@@ -144,11 +143,12 @@ src/
 ├─ hooks.server.ts             # Session middleware
 ├─ lib/
 │  ├─ assets/                  # icon_purwakarta_health.png, favicon.svg
-│  ├─ components/              # UI components (auth, charts, manager, patient, shared)
-│  ├─ server/                  # Server-only: DB, auth, OAuth, analytics, services
-│  │  └─ db/{index,schema}.ts
+│  ├─ components/              # UI components grouped by feature (ui, layout, auth, doctor, appointment, profile, manager, ...)
+│  ├─ domain/                  # Booking status + specialist metadata (isomorphic)
+│  ├─ format/                  # Date, money and text formatting (isomorphic)
+│  ├─ server/                  # Server-only: auth/, booking/, catalog/, patient/, http/, db/, mailer.ts
 │  ├─ stores/                  # Zustand client state + toast store
-│  ├─ utils/                   # Pure helpers (isomorphic)
+│  ├─ utils/                   # Other isomorphic helpers (cn, enhance, crud, url, ...)
 │  └─ data/                    # Static config (FAQs, support contact, landing copy)
 └─ routes/
    ├─ +page.{server,svelte}    # Landing (anonymous)
@@ -176,7 +176,7 @@ Brand: **Purwakarta Health**. Logo at `src/lib/assets/icon_purwakarta_health.png
 
 ## Deployment
 
-The repo ships with `@sveltejs/adapter-auto`, which works on Vercel, Netlify, and Cloudflare Pages without changes. For Node / self-hosted, swap to `@sveltejs/adapter-node` in `vite.config.ts` (the `adapter` option of the `sveltekit()` plugin). Then set the production env vars (`DATABASE_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`) and add the OAuth redirect URI for the production domain in Google Cloud Console.
+The repo ships with `@sveltejs/adapter-auto`, which works on Vercel, Netlify, and Cloudflare Workers without changes (since adapter-auto 9 it builds for Cloudflare Workers, not Cloudflare Pages). For Node / self-hosted, swap to `@sveltejs/adapter-node` in `vite.config.ts` (the `adapter` option of the `sveltekit()` plugin). Then set the production env vars (`DATABASE_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`) and add the OAuth redirect URI for the production domain in Google Cloud Console.
 
 Before the first deploy:
 
@@ -192,7 +192,8 @@ Before the first deploy:
 - Always run `pnpm build` before pushing.
 - Run `pnpm audit` periodically — should be **0 vulnerabilities**. Transitive CVEs are patched in `pnpm-workspace.yaml`.
 - Server-only code goes under `src/lib/server/*`; SvelteKit enforces that this code can't be bundled into client output.
-- Import from `src/lib` with `#lib/...` (subpath imports, see `imports` in `package.json`) and always include the file extension, e.g. `#lib/server/db/index.ts`, `#lib/components/Header.svelte`.
+- Import test helpers with `#test/...` (maps to `src/test/*`), e.g. `#test/helpers/route.ts`.
+- Import from `src/lib` with `#lib/...` (subpath imports, see `imports` in `package.json`) and always include the file extension, e.g. `#lib/server/db/index.ts`, `#lib/components/layout/Header.svelte`.
 - New environment variables must be declared in `src/env.ts` and read from `$app/env/private` (or `$app/env/public`).
 - Route loaders own data fetching; components consume props.
 - Form mutations use SvelteKit form actions, not fetch + JSON, unless we genuinely need a JSON endpoint (e.g., CSV export at `/manager/export.csv`, autocomplete at `/api/specialists`).

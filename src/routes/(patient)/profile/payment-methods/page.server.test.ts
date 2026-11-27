@@ -2,12 +2,11 @@ import { eq } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { paymentCards } from '#lib/server/db/schema.ts';
-import { resetDb, type TestDb } from '../../../../test/db.ts';
-import { makeCard, makeTransaction, makeUser } from '../../../../test/factories.ts';
-import { ev, thrown } from '../../../../test/helpers-routes-public.ts';
+import { makeCard, makeTransaction, makeUser } from '#test/factories.ts';
+import { ev, thrown, reset } from '#test/helpers/route.ts';
 import { actions, load } from './+page.server.ts';
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 
 const cardsOf = (userId: string) => db.select().from(paymentCards).where(eq(paymentCards.userId, userId));
 

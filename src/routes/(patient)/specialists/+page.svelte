@@ -1,22 +1,27 @@
 <script lang="ts">
-	import SearchPageHeader from '#lib/components/SearchPageHeader.svelte';
-	import SpecialistGridCard from '#lib/components/SpecialistGridCard.svelte';
+	import BackHeader from '#lib/components/layout/BackHeader.svelte';
+	import ProfileLink from '#lib/components/profile/ProfileLink.svelte';
+	import SpecialistTile from '#lib/components/specialist/SpecialistTile.svelte';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 
 	let { data } = $props();
 </script>
 
-<SearchPageHeader
-	title="All Specialists"
-	backHref="/home"
-	userName={data.user?.name ?? 'Guest'}
-	userImage={data.user?.imageUrl}
-/>
+<BackHeader title="All Specialists" backHref="/home">
+	{#snippet trailing()}
+		<ProfileLink imageUrl={data.user?.imageUrl} name={data.user?.name ?? 'Guest'} />
+	{/snippet}
+</BackHeader>
 
 <MotionReveal delay={80}>
 <div class="mt-6 grid grid-cols-3 gap-3">
 	{#each data.specialists as spec (spec.id)}
-		<SpecialistGridCard name={spec.name} slug={spec.slug} icon={spec.icon} />
+		<SpecialistTile
+			name={spec.name}
+			icon={spec.icon}
+			href="/specialists/{spec.slug}"
+			variant="card"
+		/>
 	{/each}
 </div>
 

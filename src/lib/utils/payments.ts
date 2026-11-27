@@ -18,20 +18,6 @@ export type TransactionView = {
 	cardLast4: string | null;
 };
 
-export function formatCardNumber(last4: string): string {
-	return `•••• •••• •••• ${last4}`;
-}
-
-export function formatCurrency(amount: number | string, currency = 'USD'): string {
-	const value = typeof amount === 'string' ? parseFloat(amount) : amount;
-	return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(value);
-}
-
-export function formatTxDate(value: Date | string): string {
-	const d = typeof value === 'string' ? new Date(value) : value;
-	return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
-
 export function txPaymentLabel(tx: TransactionView): string {
 	if (!tx.cardBrand || !tx.cardLast4) return 'Card';
 	const brandLabel = tx.cardBrand === 'visa' ? 'Visa' : 'MC';

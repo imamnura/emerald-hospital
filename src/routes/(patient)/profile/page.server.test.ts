@@ -2,12 +2,12 @@ import { eq } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { db } from '#lib/server/db/index.ts';
 import { sessions } from '#lib/server/db/schema.ts';
-import { resetDb, type TestDb } from '../../../test/db.ts';
-import { makeBooking, makeDoctor, makeSchedule, makeSession, makeUser } from '../../../test/factories.ts';
-import { ev, thrown } from '../../../test/helpers-routes-public.ts';
+import { makeBooking, makeDoctor, makeSchedule, makeSession, makeUser } from '#test/factories.ts';
+import { ev, thrown, reset } from '#test/helpers/route.ts';
+import { toPublicUser } from '#lib/server/auth/session.ts';
 import { actions, load } from './+page.server.ts';
 
-beforeEach(() => resetDb(db as unknown as TestDb));
+beforeEach(() => reset());
 
 type Data = { profile: unknown; memberSince: string; stats: { bloodType: string; nextVisit: string; reports: number } };
 
@@ -19,7 +19,9 @@ describe('profile load', () => {
 	it('shows placeholders when there is no history', async () => {
 		const user = await makeUser();
 		const data = (await load(ev({ user }))) as Data;
-		expect(data.profile).toBe(user);
+		expect(data.profile).not.toHaveProperty('passwordHash');
+		expect(data.profile).not.toHaveProperty('googleId');
+		expect(data.profile).toEqual(toPublicUser(user));
 		expect(data.memberSince).toBeTruthy();
 		expect(data.stats).toEqual({ bloodType: '—', nextVisit: '—', reports: 0 });
 	});

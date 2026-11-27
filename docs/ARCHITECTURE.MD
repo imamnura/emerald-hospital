@@ -1,6 +1,6 @@
 # Architecture
 
-> Part of the [Purwakarta Health docs](./DEVELOPMENT_STATUS.md). Last verified against code: 2026-10-22.
+> Part of the [Purwakarta Health docs](./DEVELOPMENT_STATUS.md). Last verified against code: 2026-11-26.
 
 ## 1. System overview
 
@@ -40,7 +40,7 @@ See [PERMISSION.MD](./PERMISSION.MD) for exactly which routes require which role
 | DB driver        | `postgres` (postgres.js)                                                  |
 | ORM / migrations | Drizzle ORM 0.45 + drizzle-kit 0.31                                       |
 | Auth             | Custom `sessions` table, Argon2id (`@node-rs/argon2`), `nanoid(32)` IDs   |
-| Google OAuth     | Auth-code flow with PKCE, hand-written (`src/lib/server/oauth-google.ts`) |
+| Google OAuth     | Auth-code flow with PKCE, hand-written (`src/lib/server/auth/oauth-google.ts`) |
 | Email            | `nodemailer` over SMTP (optional)                                         |
 | Client state     | Zustand 5 (search filters + bookmarks only)                               |
 | Build            | Vite 8, pnpm 11, TypeScript 6, svelte-check                               |
@@ -66,6 +66,7 @@ emerald-hospital/
 │  ├─ 0001_gorgeous_mongu.sql
 │  ├─ 0002_glorious_havok.sql
 │  ├─ 0003_old_quasimodo.sql
+│  ├─ 0004_friendly_madelyne_pryor.sql
 │  └─ meta/                        # Drizzle snapshots
 ├─ scripts/seed.ts                 # `pnpm db:seed` — demo data
 ├─ src/
@@ -75,32 +76,37 @@ emerald-hospital/
 │  ├─ hooks.server.ts              # Resolves session cookie → locals.user
 │  ├─ lib/
 │  │  ├─ assets/                   # favicon.svg, icon_purwakarta_health.png, icon_transparent.svg
-│  │  ├─ components/               # See UI_COMPONENT.MD
+│  │  ├─ components/               # Grouped by feature, see UI_COMPONENT.MD
+│  │  │  ├─ ui/                    # Shared primitives (Avatar, Dialog, Modal, FormAlert, Pagination, ...)
+│  │  │  ├─ layout/                # Header, BackHeader, BottomNav, SearchBar
+│  │  │  ├─ auth/ doctor/ specialist/ appointment/ motion/
+│  │  │  ├─ profile/               # + insurance/, medical-records/, payment/, settings/
+│  │  │  └─ manager/               # + charts/, dashboard/
 │  │  ├─ data/                     # Static content: help-support.ts, landing.ts
+│  │  ├─ domain/                   # Isomorphic domain constants
+│  │  │  ├─ booking-status.ts      # BOOKING_STATUSES, labels, badge classes, chart colours
+│  │  │  ├─ doctor.ts              # DEFAULT_RATING, DoctorListItem
+│  │  │  └─ specialist.ts          # Icon resolver + specialty labels
+│  │  ├─ format/                   # Isomorphic formatting
+│  │  │  ├─ date.ts                # formatDate(value, preset), ISO_DATE_RE, toLocalDateString, formatTime12h, DAY_NAMES
+│  │  │  ├─ money.ts               # formatCurrency, formatCardNumber
+│  │  │  └─ text.ts                # getInitials
 │  │  ├─ server/                   # SERVER-ONLY modules (DB, secrets)
-│  │  │  ├─ analytics.ts           # Dashboard aggregations + CSV rows
-│  │  │  ├─ auth.ts                # Password hashing, sessions, cookie options
-│  │  │  ├─ booking.ts             # Slot availability, createBookingAtomic, cancel
-│  │  │  ├─ catalog.ts             # Hospitals / specialists / schedules reads
-│  │  │  ├─ doctors.ts             # Doctor list / detail / filter
-│  │  │  ├─ guards.ts              # isManager, denyUnlessManager (actions), requirePatient/requireManager
-│  │  │  ├─ insurance.ts           # Insurance read + upsert
-│  │  │  ├─ mailer.ts              # SMTP send (logs when unconfigured)
-│  │  │  ├─ medical-records.ts
-│  │  │  ├─ oauth-google.ts        # PKCE, token exchange, find-or-create user
-│  │  │  ├─ pagination.ts          # parsePagination(page, pageSize ≤ 100)
-│  │  │  ├─ password-reset.ts      # Reset token lifecycle + email
-│  │  │  ├─ payments.ts            # Cards + transactions
-│  │  │  ├─ preferences.ts         # Cookie-based prefs (push, email, language)
-│  │  │  ├─ users.ts               # Profile parse + update
-│  │  │  └─ db/{index,schema}.ts   # Drizzle client + full schema
+│  │  │  ├─ auth/                  # session.ts (sessions, cookie, PublicUser), password.ts (hashPassword + verifyPassword, argon2 only), guards.ts,
+│  │  │  │                         # redirect.ts, oauth-google.ts, password-reset.ts
+│  │  │  ├─ booking/               # booking.ts (slots, createBookingAtomic, cancel), analytics.ts
+│  │  │  ├─ catalog/               # catalog.ts (hospitals / specialists / schedules), doctors.ts
+│  │  │  ├─ patient/               # users, insurance, medical-records, payments, preferences
+│  │  │  ├─ http/                  # forms.ts (formStr, formOpt, readEntityId, withFkGuard),
+│  │  │  │                         # list-query.ts (searchWhere, paginate, uuidOrUndefined), pagination.ts
+│  │  │  ├─ db/                    # index.ts (client), schema.ts, errors.ts (isUuid, FK/unique checks)
+│  │  │  └─ mailer.ts              # SMTP send (logs when unconfigured)
 │  │  ├─ stores/                   # search.ts (Zustand), toast.svelte.ts, useZustand.svelte.ts
-│  │  ├─ utils/                    # Isomorphic pure helpers
-│  │  ├─ specialist-icons.ts
-│  │  └─ utils.ts                  # cn(), formatDateId(), statusLabel(), DAY_NAMES
+│  │  └─ utils/                    # Other isomorphic helpers: cn, enhance (toastForm), crud.svelte,
+│  │                               # url, appointments, booking-ui, insurance, medical-records, payments
+│  ├─ test/                        # Test infrastructure, imported as #test/* (see TESTING.MD)
 │  └─ routes/                      # See API.MD for every endpoint/action
 ├─ static/                         # robots.txt
-├─ logs/combined.log               # ⚠ tool log accidentally tracked — see TECHDEBT.MD
 ├─ docker-compose.yml, drizzle.config.ts, vite.config.ts (SvelteKit config lives in the sveltekit() plugin)
 └─ package.json, pnpm-lock.yaml, pnpm-workspace.yaml
 ```
@@ -108,7 +114,11 @@ emerald-hospital/
 ## 4. Layer conventions
 
 - **`src/lib/server/`** is server-only. SvelteKit refuses to bundle it into client code. All DB access and secrets stay here.
-- **`src/lib/utils/`, `src/lib/data/`, components** are isomorphic. Use them for types and pure functions shared by `load` and render.
+- **`src/lib/format/`, `src/lib/domain/`, `src/lib/utils/`, `src/lib/data/`, components** are isomorphic. Use them for types and pure functions shared by `load` and render.
+- **Formatting** goes through `lib/format` (`formatDate(value, preset)`, `formatCurrency`, `getInitials`). Booking-status labels, classes and colours, and specialist icons and labels, have a single source in `lib/domain`. Do not re-declare them in components.
+- **Auth guards** live in `lib/server/auth/guards.ts`. Loads call `requireUser()` / `requirePatient()` / `requireManager()`; manager form actions call `denyUnlessManager(locals)`.
+- **Route handlers** read form input with `formStr` / `formOpt` / `readEntityId` and wrap deletes with `withFkGuard` (`lib/server/http/forms.ts`). Manager list pages use `searchWhere` / `paginate` / `uuidOrUndefined` (`lib/server/http/list-query.ts`).
+- **Client data never carries secrets.** Layouts and loads return `PublicUser` (`toPublicUser` / `publicUserOrNull` in `lib/server/auth/session.ts`), which omits `passwordHash` and `googleId`.
 - **Each route owns its data** through `+page.server.ts` (`load` + `actions`). Components are props consumers.
 - **Mutations use form actions** (`<form method="POST" action="?/x" use:enhance>`). JSON endpoints exist only where needed: specialty autocomplete and CSV export.
 - **Feedback after actions** is shown through the `toastForm` helper (`src/lib/utils/enhance.ts`) and the global `Toaster`.
@@ -172,6 +182,7 @@ erDiagram
 | 1 | `0001_gorgeous_mongu.sql` | Payment, insurance, medical tables; extra user/doctor columns; booking indexes |
 | 2 | `0002_glorious_havok.sql` | Nullable `users.password_hash`; `google_id`, `email_verified` |
 | 3 | `0003_old_quasimodo.sql` | `password_reset_tokens` |
+| 4 | `0004_friendly_madelyne_pryor.sql` | 8 indexes on foreign keys used in joins and filters |
 
 Always use `pnpm db:generate` + `pnpm db:migrate` so a migration file is committed. `pnpm db:push` is for throwaway prototyping only.
 
@@ -180,9 +191,8 @@ Always use `pnpm db:generate` + `pnpm db:migrate` so a migration file is committ
 ### 6.1 Session-based auth
 
 - Sessions are 30-day opaque IDs in the `sessions` table, sent as the HttpOnly cookie `session_id` (`SameSite=Lax`, `Secure` when `NODE_ENV=production`).
-- `hooks.server.ts` validates the cookie on **every** request and sets `locals.user` (full `users` row) or `null`. Expired sessions are deleted lazily on first use.
+- `hooks.server.ts` validates the cookie on **every** request with a single joined query (`validateSession`) and sets `locals.user` (full `users` row, server-side only) or `null`. Expired sessions are deleted lazily on first use.
 - Passwords are hashed with Argon2id (`memoryCost 19456`, `timeCost 2`, `parallelism 1`).
-- `SESSION_SECRET` exists in `.env.example` but **no code reads it**.
 
 ### 6.2 Google OAuth (PKCE)
 
@@ -192,21 +202,21 @@ Always use `pnpm db:generate` + `pnpm db:migrate` so a migration file is committ
 
 ### 6.3 Race-safe booking
 
-`createBookingAtomic` (`src/lib/server/booking.ts`) runs in a transaction, locks the `doctor_schedules` row with `SELECT … FOR UPDATE`, re-counts non-cancelled bookings for that slot, and inserts only if quota remains. **Never revert to a non-transactional check-then-insert** — it allowed double-booking.
+`createBookingAtomic` (`src/lib/server/booking/booking.ts`) runs in a transaction, locks the `doctor_schedules` row with `SELECT … FOR UPDATE`, re-counts non-cancelled bookings for that slot, and inserts only if quota remains. **Never revert to a non-transactional check-then-insert** — it allowed double-booking.
 
 Slots are 30-minute increments from `start_time` to `end_time`. Each slot's capacity is `max_quota` minus non-cancelled bookings.
 
 ### 6.4 Password reset
 
 - A random 32-byte token is emailed; only its SHA-256 hash is stored.
-- Single-use (`used_at`), 1-hour TTL; requesting a new link deletes older unused tokens.
+- Single-use (`used_at`, consumed atomically so a token cannot be reused by a racing request), 1-hour TTL; requesting a new link deletes older unused tokens.
 - `/login/forgot` always reports success to prevent email enumeration.
 - A successful reset deletes all sessions for that user.
 
 ### 6.5 Analytics and charts
 
-- All aggregations are in `src/lib/server/analytics.ts` and share one `AnalyticsFilters` type (range `7d | 30d | 90d | 365d | all`, hospital, specialty). The CSV export reuses the same filters, so the export matches the dashboard.
-- Charts are pure SVG components (`src/lib/components/charts/`). No chart library.
+- All aggregations are in `src/lib/server/booking/analytics.ts` and share one `AnalyticsFilters` type (range `7d | 30d | 90d | 365d | all`, hospital, specialty). The CSV export reuses the same filters, so the export matches the dashboard.
+- Charts are pure SVG components (`src/lib/components/manager/charts/`). No chart library.
 
 ### 6.6 Client state
 
@@ -219,5 +229,5 @@ Push/email/language preferences are stored in non-HttpOnly cookies (1-year TTL),
 ### 6.8 Branding
 
 - Assets: `src/lib/assets/icon_purwakarta_health.png` (header), `favicon.svg` (tab).
-- Brand strings are inline in `Header.svelte`, `login/+page.svelte`, `register/+page.svelte`, and `LANDING_BRAND` in `src/lib/data/landing.ts`.
+- Brand strings are inline in `layout/Header.svelte`, `login/+page.svelte`, `register/+page.svelte`, and `LANDING_BRAND` in `src/lib/data/landing.ts`.
 - The CSV export header/filename, seed emails (`@emerald.com`), and the Zustand storage key still use "Emerald".

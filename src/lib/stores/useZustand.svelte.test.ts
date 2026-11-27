@@ -3,7 +3,7 @@ import { flushSync } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
 import { createStore } from 'zustand/vanilla';
 import { useZustand } from '#lib/stores/useZustand.svelte.ts';
-import UseZustandHarness from '../../test/harness/UseZustandHarness.svelte';
+import UseZustandHarness from '#test/harness/UseZustandHarness.svelte';
 
 type Counter = { count: number; inc: () => void };
 const makeCounter = () =>

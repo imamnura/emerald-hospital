@@ -1,37 +1,47 @@
-﻿<script lang="ts">
+<script lang="ts">
+import { DEFAULT_RATING } from '#lib/domain/doctor.ts';
 	import { goto } from '$app/navigation';
 	import { fade, fly } from 'svelte/transition';
 	import { Calendar } from '@lucide/svelte';
-	import AppointmentCard from '#lib/components/AppointmentCard.svelte';
-	import AppointmentConfirmedModal from '#lib/components/AppointmentConfirmedModal.svelte';
-	import CancelAppointmentModal from '#lib/components/CancelAppointmentModal.svelte';
-	import AppointmentCancelledModal from '#lib/components/AppointmentCancelledModal.svelte';
-	import Header from '#lib/components/Header.svelte';
+	import AppointmentCard from '#lib/components/appointment/AppointmentCard.svelte';
+	import AppointmentConfirmedModal from '#lib/components/appointment/AppointmentConfirmedModal.svelte';
+	import CancelAppointmentModal from '#lib/components/appointment/CancelAppointmentModal.svelte';
+	import AppointmentCancelledModal from '#lib/components/appointment/AppointmentCancelledModal.svelte';
+	import Header from '#lib/components/layout/Header.svelte';
 	import MotionReveal from '#lib/components/motion/MotionReveal.svelte';
 	import {
 		isUpcomingAppointment,
 		type AppointmentTab
 	} from '#lib/utils/appointments.ts';
-	import { cn } from '#lib/utils.ts';
+	import { cn } from '#lib/utils/cn.ts';
 
 	let { data } = $props();
 
 	let activeTab = $state<AppointmentTab>('upcoming');
 	let confirmedDismissed = $state(false);
 	const showConfirmed = $derived(!!data.confirmedBooking && !confirmedDismissed);
+	// Closing navigates to /appointments, which drops `confirmedBooking` while the dialog is still
+	// fading out; keep the last one so it never renders empty dates.
+	let lastConfirmed = $state<typeof data.confirmedBooking>(null);
+	$effect.pre(() => {
+		if (data.confirmedBooking) lastConfirmed = data.confirmedBooking;
+	});
+	const confirmed = $derived(data.confirmedBooking ?? lastConfirmed);
 	let cancelTarget = $state<(typeof data.appointments)[number] | null>(null);
+	let cancelOpen = $state(false);
 	let cancelledSuccess = $state<{ doctorName: string; appointmentDate: string } | null>(null);
+	let cancelledOpen = $state(false);
 
-	const upcoming = $derived(
-		data.appointments.filter((a) =>
-			isUpcomingAppointment(String(a.appointmentDate), a.status)
-		)
-	);
-	const past = $derived(
-		data.appointments.filter(
-			(a) => !isUpcomingAppointment(String(a.appointmentDate), a.status)
-		)
-	);
+	const partitioned = $derived.by(() => {
+		const upcoming: typeof data.appointments = [];
+		const past: typeof data.appointments = [];
+		for (const a of data.appointments) {
+			(isUpcomingAppointment(String(a.appointmentDate), a.status) ? upcoming : past).push(a);
+		}
+		return { upcoming, past };
+	});
+	const upcoming = $derived(partitioned.upcoming);
+	const past = $derived(partitioned.past);
 	const visibleList = $derived(activeTab === 'upcoming' ? upcoming : past);
 
 	function closeConfirmedModal() {
@@ -39,25 +49,28 @@
 		goto('/appointments', { replace: true, reset: false });
 	}
 
+	// The targets stay set after closing so the dialogs keep their text while fading out.
 	function openCancelModal(apt: (typeof data.appointments)[number]) {
 		cancelTarget = apt;
+		cancelOpen = true;
 	}
 
 	function closeCancelModal() {
-		cancelTarget = null;
+		cancelOpen = false;
 	}
 
 	function handleCancelled(details: { doctorName: string; appointmentDate: string }) {
-		cancelTarget = null;
+		cancelOpen = false;
 		cancelledSuccess = details;
+		cancelledOpen = true;
 	}
 
 	function closeCancelledSuccess() {
-		cancelledSuccess = null;
+		cancelledOpen = false;
 	}
 
 	function bookNewAppointment() {
-		cancelledSuccess = null;
+		cancelledOpen = false;
 		goto('/home');
 	}
 </script>
@@ -133,7 +146,7 @@
 						doctorName={apt.doctorName}
 						doctorImage={apt.doctorImage}
 						specialty={apt.specialty}
-						rating={apt.doctorRating ?? '4.5'}
+						rating={apt.doctorRating ?? DEFAULT_RATING}
 						hospital={apt.hospital}
 						appointmentDate={String(apt.appointmentDate)}
 						appointmentTime={apt.appointmentTime}
@@ -147,33 +160,27 @@
 	{/key}
 </div>
 
-{#if cancelTarget}
-	<CancelAppointmentModal
-		open={true}
-		bookingId={cancelTarget.id}
-		doctorName={cancelTarget.doctorName}
-		appointmentDate={String(cancelTarget.appointmentDate)}
-		onClose={closeCancelModal}
-		onCancelled={handleCancelled}
-	/>
-{/if}
+<CancelAppointmentModal
+	bind:open={cancelOpen}
+	bookingId={cancelTarget?.id ?? ''}
+	doctorName={cancelTarget?.doctorName ?? ''}
+	appointmentDate={String(cancelTarget?.appointmentDate ?? '')}
+	onClose={closeCancelModal}
+	onCancelled={handleCancelled}
+/>
 
-{#if cancelledSuccess}
-	<AppointmentCancelledModal
-		open={true}
-		doctorName={cancelledSuccess.doctorName}
-		appointmentDate={cancelledSuccess.appointmentDate}
-		onBackToAppointments={closeCancelledSuccess}
-		onBookNew={bookNewAppointment}
-	/>
-{/if}
+<AppointmentCancelledModal
+	bind:open={cancelledOpen}
+	doctorName={cancelledSuccess?.doctorName ?? ''}
+	appointmentDate={cancelledSuccess?.appointmentDate ?? ''}
+	onBackToAppointments={closeCancelledSuccess}
+	onBookNew={bookNewAppointment}
+/>
 
-{#if data.confirmedBooking}
-	<AppointmentConfirmedModal
-		open={showConfirmed}
-		doctorName={data.confirmedBooking.doctorName}
-		appointmentDate={String(data.confirmedBooking.appointmentDate)}
-		appointmentTime={data.confirmedBooking.appointmentTime}
-		onClose={closeConfirmedModal}
-	/>
-{/if}
+<AppointmentConfirmedModal
+	bind:open={() => showConfirmed, (v) => (confirmedDismissed = !v)}
+	doctorName={confirmed?.doctorName ?? ''}
+	appointmentDate={String(confirmed?.appointmentDate ?? '')}
+	appointmentTime={confirmed?.appointmentTime ?? ''}
+	onClose={closeConfirmedModal}
+/>
